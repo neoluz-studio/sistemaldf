@@ -1,0 +1,188 @@
+/* ================================= */
+/* TABLE BOX */
+/* ================================= */
+
+.table-box {
+
+  overflow-x: auto;
+}
+
+/* ================================= */
+/* TABLE */
+/* ================================= */
+
+table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+table thead {
+
+  background:
+    rgba(59,130,246,0.08);
+}
+
+table th {
+
+  text-align: left;
+
+  padding: 14px;
+
+  font-size: 14px;
+
+  color: #475569;
+}
+
+table td {
+
+  padding: 14px;
+
+  border-top:
+    1px solid #e2e8f0;
+}
+
+table tbody tr {
+
+  transition: 0.2s ease;
+}
+
+table tbody tr:hover {
+
+  background:
+    rgba(59,130,246,0.04);
+}
+
+/* ================================= */
+/* EMPTY */
+/* ================================= */
+
+.empty-state {
+
+  padding: 24px;
+
+  border-radius: 18px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  text-align: center;
+
+  font-weight: 700;
+}
+
+/* ================================= */
+/* MOVEMENT */
+/* ================================= */
+
+.movement-card,
+.recipe-card,
+.debt-card {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.05);
+
+  transition: 0.2s ease;
+}
+
+.movement-card:hover,
+.recipe-card:hover,
+.debt-card:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.08);
+}
+
+/* ================================= */
+/* TITLES */
+/* ================================= */
+
+.movement-card h4,
+.recipe-card h4,
+.debt-card h4 {
+
+  margin: 8px 0 4px;
+}
+
+/* ================================= */
+/* TEXT */
+/* ================================= */
+
+.movement-card p,
+.recipe-card p,
+.debt-card p {
+
+  margin: 4px 0;
+
+  color: #64748b;
+}
+
+/* ================================= */
+/* MONEY */
+/* ================================= */
+
+.money-in {
+
+  color: #16a34a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+.money-out {
+
+  color: #dc2626;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+/* ================================= */
+/* RECIPE */
+/* ================================= */
+
+.recipe-list {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.recipe-ingredient {
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  padding: 8px 12px;
+
+  border-radius: 12px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}

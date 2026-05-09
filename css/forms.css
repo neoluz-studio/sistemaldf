@@ -1,0 +1,225 @@
+/* ================================= */
+/* FORM */
+/* ================================= */
+
+.form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/* ================================= */
+/* INPUTS */
+/* ================================= */
+
+.form input,
+.form select,
+.form textarea,
+.search-box input,
+.login-form input {
+
+  width: 100%;
+
+  min-height: 52px;
+
+  padding: 14px 16px;
+
+  border-radius: 16px;
+
+  border:
+    1px solid #dbe4ee;
+
+  background: white;
+
+  font-size: 15px;
+
+  transition: 0.2s ease;
+}
+
+/* ================================= */
+/* FOCUS */
+/* ================================= */
+
+input:focus,
+select:focus,
+textarea:focus {
+
+  border-color:
+    #3b82f6;
+
+  box-shadow:
+    0 0 0 4px rgba(59,130,246,0.12);
+}
+
+/* ================================= */
+/* BUTTONS */
+/* ================================= */
+
+button,
+.btn-modulo {
+
+  border: none;
+
+  min-height: 52px;
+
+  padding: 14px 18px;
+
+  border-radius: 16px;
+
+  cursor: pointer;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #2563eb
+    );
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* ================================= */
+/* HOVER */
+/* ================================= */
+
+button:hover,
+.btn-modulo:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(37,99,235,0.25);
+}
+
+/* ================================= */
+/* ACTIVE */
+/* ================================= */
+
+button:active,
+.btn-modulo:active {
+
+  transform: scale(0.98);
+}
+
+/* ================================= */
+/* SEARCH */
+/* ================================= */
+
+.search-box {
+
+  margin-bottom: 18px;
+}
+
+.search-box input {
+
+  height: 58px;
+
+  padding: 0 20px;
+
+  font-size: 16px;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.05);
+}
+
+/* ================================= */
+/* LOGIN */
+/* ================================= */
+
+.login-body {
+
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #2563eb
+    );
+}
+
+.login-container {
+
+  width: 100%;
+  max-width: 420px;
+
+  padding: 20px;
+}
+
+.login-card {
+
+  background: white;
+
+  border-radius: 30px;
+
+  padding: 40px;
+
+  text-align: center;
+
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.18);
+}
+
+/* ================================= */
+/* LOGIN LOGO */
+/* ================================= */
+
+.login-logo {
+
+  width: 90px;
+  height: 90px;
+
+  margin: auto;
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #38bdf8,
+      #2563eb
+    );
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 42px;
+
+  color: white;
+
+  margin-bottom: 20px;
+}
+
+/* ================================= */
+/* LOGIN FORM */
+/* ================================= */
+
+.login-form {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+  margin-top: 30px;
+}

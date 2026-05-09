@@ -1,0 +1,296 @@
+/* ================================= */
+/* SIDEBAR PREMIUM */
+/* ================================= */
+
+.sidebar {
+
+  width: 260px;
+  min-width: 260px;
+
+  min-height: 100vh;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f7df2 0%,
+      #0758c7 100%
+    );
+
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 18px;
+
+  box-shadow:
+    6px 0 25px rgba(0,0,0,0.15);
+
+  transition: 0.3s ease;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ================================= */
+/* HEADER */
+/* ================================= */
+
+.sidebar-header {
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 30px;
+}
+
+/* ================================= */
+/* BRAND */
+/* ================================= */
+
+.brand {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.brand-icon {
+
+  width: 48px;
+  height: 48px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255,255,255,0.15);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+
+  color: white;
+}
+
+.brand h2 {
+
+  margin: 0;
+
+  color: white;
+
+  font-size: 28px;
+
+  font-weight: 800;
+}
+
+.brand p {
+
+  margin-top: 2px;
+
+  color: rgba(255,255,255,0.72);
+
+  font-size: 13px;
+}
+
+/* ================================= */
+/* BUTTON */
+/* ================================= */
+
+.collapse-btn {
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 14px;
+
+  border:
+    2px solid rgba(255,255,255,0.15);
+
+  background:
+    rgba(255,255,255,0.12);
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 18px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================================= */
+/* NAV */
+/* ================================= */
+
+.sidebar-nav {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+/* ================================= */
+/* LINKS */
+/* ================================= */
+
+.nav-link {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 14px 16px;
+
+  border-radius: 16px;
+
+  color: white;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.nav-link span {
+
+  width: 22px;
+
+  text-align: center;
+
+  font-size: 18px;
+}
+
+.nav-link:hover {
+
+  background:
+    rgba(255,255,255,0.12);
+
+  transform: translateX(4px);
+}
+
+.nav-link.active {
+
+  background:
+    rgba(255,255,255,0.18);
+
+  box-shadow:
+    inset 3px 0 0 white;
+}
+
+/* ================================= */
+/* USER BOX */
+/* ================================= */
+
+.user-box {
+
+  margin-top: auto;
+
+  background:
+    rgba(255,255,255,0.12);
+
+  border-radius: 20px;
+
+  padding: 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+/* ================================= */
+/* AVATAR */
+/* ================================= */
+
+.user-avatar {
+
+  width: 54px;
+  height: 54px;
+
+  border-radius: 16px;
+
+  background:
+    rgba(255,255,255,0.18);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
+}
+
+/* ================================= */
+/* INFO */
+/* ================================= */
+
+.user-info p {
+
+  margin: 0 0 10px;
+
+  color: white;
+
+  font-weight: 700;
+}
+
+.user-role {
+
+  color: rgba(255,255,255,0.7);
+
+  font-size: 13px;
+}
+
+/* ================================= */
+/* INPUTS */
+/* ================================= */
+
+.user-info select,
+.user-box button {
+
+  width: 100%;
+}
+
+/* ================================= */
+/* BUTTONS */
+/* ================================= */
+
+.logout-btn {
+
+  width: 100%;
+}
+
+.switch-btn {
+
+  width: 100%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #2563eb
+    );
+}
+
+.switch-btn:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 25px rgba(37,99,235,0.3);
+}

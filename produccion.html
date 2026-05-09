@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Producción</title>
+  <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/ventas.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/darkmode.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon">🧊</div>
+        <div>
+          <h2>Lo de Fausti</h2>
+          <p>Sistema de Gestión</p>
+        </div>
+      </div>
+
+      <button class="collapse-btn" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link">
+        <b>Inicio</b>
+      </a>
+
+      <a href="ventas.html" class="nav-link">
+        <b>Ventas</b>
+      </a>
+
+      <a href="productos.html" class="nav-link">
+        <b>Productos</b>
+      </a>
+
+      <a href="caja.html" class="nav-link">
+        <b>Caja</b>
+      </a>
+
+      <a href="produccion.html" class="nav-link active">
+        <b>Producción</b>
+      </a>
+
+      <a href="proveedores.html" class="nav-link admin-only">
+        <b>Proveedores</b>
+      </a>
+      <a href="historial.html" class="nav-link admin-only">
+        <b>Historial</b>
+      </a>
+    </nav>
+
+    <div class="user-box">
+
+  <div class="user-avatar">
+    👤
+  </div>
+
+  <div class="user-info">
+
+    <p id="userNombre">
+      Usuario
+    </p>
+
+    <small class="user-role">
+      Sesión activa
+    </small>
+
+  </div>
+
+  <button
+    onclick="window.location.href='login.html'"
+    class="switch-btn"
+  >
+    🔄 Cambiar cuenta
+  </button>
+
+  <button
+    onclick="logout()"
+    class="logout-btn"
+  >
+    🚪 Cerrar sesión
+  </button>
+
+  <button
+    onclick="toggleDarkMode()"
+    class="logout-btn"
+  >
+    🌙 Modo oscuro
+  </button>
+
+</div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="main">
+
+    <div class="topbar">
+      <h2>🏭 Producción</h2>
+      <span class="badge">Recetas por kilo / unidad</span>
+    </div>
+
+    <div class="page-content">
+
+      <div class="grid-2">
+
+        <div class="box fade-in">
+          <h3>Crear receta por unidad / kilo</h3>
+
+          <div class="form">
+            <select id="productoFinal"></select>
+
+            <select id="insumoSelect"></select>
+
+            <input 
+              type="number" 
+              id="cantidadInsumo" 
+              placeholder="Cantidad usada por 1 kg/unidad"
+              step="0.001"
+            >
+
+            <button onclick="agregarIngrediente()">Agregar ingrediente</button>
+            <button onclick="guardarReceta()">Guardar receta</button>
+          </div>
+        </div>
+
+        <div class="box fade-in">
+          <h3>Producir</h3>
+
+          <div class="form">
+            <select id="recetaSelect"></select>
+
+            <input 
+              type="number" 
+              id="cantidadProducir" 
+              placeholder="Cantidad a producir"
+              step="0.001"
+            >
+
+            <button onclick="producirDesdeFormulario()">Producir</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="table-box fade-in">
+        <div class="table-header">
+          <h3>Recetas guardadas</h3>
+        </div>
+
+        <div id="listaRecetas" class="lista"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/roles.js"></script>
+<script src="js/produccion.js"></script>
+<div id="commandPalette" class="command-palette hidden">
+
+  <div class="command-box">
+
+    <input
+      type="text"
+      id="commandInput"
+      placeholder="Buscar productos, ventas o módulos..."
+      oninput="buscarGlobal()"
+    >
+
+    <div id="commandResults"></div>
+
+  </div>
+
+</div>
+</body>
+</html>

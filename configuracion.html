@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Configuración</title>
+
+  <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/ventas.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/darkmode.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+
+      <div class="brand">
+        <div class="brand-icon">🧊</div>
+
+        <div>
+          <h2>Fausti</h2>
+          <p>Sistema de Gestión</p>
+        </div>
+      </div>
+
+      <button
+        class="collapse-btn"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a href="index.html" class="nav-link">
+        <b>Inicio</b>
+      </a>
+
+      <a href="ventas.html" class="nav-link">
+        <b>Ventas</b>
+      </a>
+
+      <a href="historial.html" class="nav-link admin-only">
+        <b>Historial</b>
+      </a>
+
+      <a href="productos.html" class="nav-link">
+        <b>Productos</b>
+      </a>
+
+      <a href="caja.html" class="nav-link">
+        <b>Caja</b>
+      </a>
+
+      <a href="produccion.html" class="nav-link">
+        <b>Producción</b>
+      </a>
+
+      <a href="configuracion.html" class="nav-link active admin-only">
+        <b>Configuración</b>
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+
+      <h2>
+        ⚙️ Configuración
+      </h2>
+
+    </div>
+
+    <div class="page-content">
+
+      <!-- BACKUP -->
+      <div class="box fade-in">
+
+        <h3>
+          💾 Backup del sistema
+        </h3>
+
+        <p>
+          Exportá todos los datos del negocio.
+        </p>
+
+        <button onclick="exportarBackup()">
+          Descargar backup
+        </button>
+
+      </div>
+
+      <!-- RESTAURAR -->
+      <div class="box fade-in">
+
+        <h3>
+          ♻️ Restaurar backup
+        </h3>
+
+        <input
+          type="file"
+          id="backupFile"
+        >
+
+        <button onclick="importarBackup()">
+          Restaurar datos
+        </button>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/roles.js"></script>
+<script src="js/configuracion.js"></script>
+<div id="commandPalette" class="command-palette hidden">
+
+  <div class="command-box">
+
+    <input
+      type="text"
+      id="commandInput"
+      placeholder="Buscar productos, ventas o módulos..."
+      oninput="buscarGlobal()"
+    >
+
+    <div id="commandResults"></div>
+
+  </div>
+
+</div>
+
+</body>
+</html>

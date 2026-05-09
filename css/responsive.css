@@ -1,0 +1,227 @@
+/* ================================= */
+/* TABLET */
+/* ================================= */
+
+@media (max-width: 1024px) {
+
+  .ventas-grid {
+
+    grid-template-columns: 1fr;
+  }
+
+  .carrito-panel {
+
+    position: relative;
+
+    top: auto;
+  }
+
+  .stats-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}
+
+/* ================================= */
+/* MOBILE */
+/* ================================= */
+
+@media (max-width: 768px) {
+
+  body {
+
+    font-size: 14px;
+  }
+
+  /* LAYOUT */
+  .layout {
+
+    flex-direction: column;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+
+    position: fixed;
+
+    left: -100%;
+
+    top: 0;
+
+    width: 260px;
+
+    height: 100vh;
+
+    z-index: 999999;
+
+    transition: 0.3s ease;
+  }
+
+  .sidebar.mobile-open {
+
+    left: 0;
+  }
+
+  /* MAIN */
+  .main {
+
+    width: 100%;
+
+    margin-left: 0;
+
+    padding: 12px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    padding: 16px;
+  }
+
+  .topbar h2 {
+
+    font-size: 22px;
+  }
+
+  /* GRIDS */
+  .dashboard-grid,
+  .stats-grid,
+  .dashboard,
+  .grid-2 {
+
+    grid-template-columns: 1fr;
+  }
+
+  /* MODULOS */
+  .modulos {
+
+    grid-template-columns: 1fr;
+  }
+
+  /* PRODUCTOS */
+  .productos-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .producto-btn {
+
+    min-height: 110px;
+
+    font-size: 15px;
+  }
+
+  /* FORM */
+  .form {
+
+    flex-direction: column;
+  }
+
+  .form input,
+  .form select,
+  .form textarea,
+  .form button {
+
+    width: 100%;
+  }
+
+  /* TABLES */
+  .table-box {
+
+    overflow-x: auto;
+  }
+
+  table {
+
+    min-width: 650px;
+  }
+
+  /* CART */
+  .cart-item {
+
+    grid-template-columns: 1fr;
+
+    text-align: center;
+  }
+
+  .cart-actions {
+
+    justify-content: center;
+  }
+
+  /* CHART */
+  canvas {
+
+    max-width: 100%;
+  }
+
+  /* LOGIN */
+  .login-card {
+
+    padding: 30px;
+  }
+
+  /* USER */
+  .user-box {
+
+    margin-top: 20px;
+  }
+}
+
+/* ================================= */
+/* EXTRA SMALL */
+/* ================================= */
+
+@media (max-width: 480px) {
+
+  /* SIDEBAR */
+  .sidebar {
+
+    width: 240px;
+  }
+
+  /* PRODUCTOS */
+  .productos-grid {
+
+    grid-template-columns: 1fr;
+  }
+
+  /* TITLES */
+  .topbar h2 {
+
+    font-size: 18px;
+  }
+
+  .brand h2 {
+
+    font-size: 24px;
+  }
+
+  .stat-card h2 {
+
+    font-size: 24px;
+  }
+
+  /* PRODUCT */
+  .producto-btn {
+
+    width: 100%;
+
+    min-height: 100px;
+  }
+
+  /* CARDS */
+  .card,
+  .box,
+  .table-box,
+  .stat-card {
+
+    padding: 18px;
+  }
+}

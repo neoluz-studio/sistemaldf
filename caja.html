@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Caja</title>
+  <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/ventas.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/darkmode.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+
+      <div class="brand">
+        <div class="brand-icon">🧊</div>
+
+        <div>
+          <h2>Fausti</h2>
+          <p>Sistema de Gestión</p>
+        </div>
+      </div>
+
+      <button
+        class="collapse-btn"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
+    </div>
+
+    <!-- NAV -->
+    <nav class="sidebar-nav">
+
+      <a href="index.html" class="nav-link">
+        <b>Inicio</b>
+      </a>
+
+      <a href="ventas.html" class="nav-link">
+        <b>Ventas</b>
+      </a>
+      <a href="productos.html" class="nav-link"> <b>Productos</b>
+      </a>
+
+      <a href="caja.html" class="nav-link active">
+        <b>Caja</b>
+      </a>
+
+      <a href="produccion.html" class="nav-link">
+        <b>Producción</b>
+      </a>
+
+      <a
+        href="proveedores.html"
+        class="nav-link admin-only"
+      >
+        <b>Proveedores</b>
+      </a>
+      <a href="historial.html" class="nav-link admin-only">
+        <b>Historial</b>
+      </a>
+
+    </nav>
+
+    <div class="user-box">
+
+  <div class="user-avatar">
+    👤
+  </div>
+
+  <div class="user-info">
+
+    <p id="userNombre">
+      Usuario
+    </p>
+
+    <small class="user-role">
+      Sesión activa
+    </small>
+
+  </div>
+
+  <button
+    onclick="window.location.href='login.html'"
+    class="switch-btn"
+  >
+    🔄 Cambiar cuenta
+  </button>
+
+  <button
+    onclick="logout()"
+    class="logout-btn"
+  >
+    🚪 Cerrar sesión
+  </button>
+
+  <button
+    onclick="toggleDarkMode()"
+    class="logout-btn"
+  >
+    🌙 Modo oscuro
+  </button>
+
+</div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+      <h2>
+        💰 Caja
+      </h2>
+
+      <span class="badge">
+        Movimientos diarios
+      </span>
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="page-content">
+
+      <!-- FORM -->
+      <div class="box fade-in">
+<div class="stats-grid">
+
+  <div class="stat-card green">
+    <h2 id="montoApertura">$0</h2>
+    <p>APERTURA</p>
+  </div>
+
+  <div class="stat-card blue">
+    <h2 id="saldo">$0</h2>
+    <p>SALDO ACTUAL</p>
+  </div>
+
+  <div class="stat-card orange">
+    <h2 id="diferenciaCaja">$0</h2>
+    <p>DIFERENCIA</p>
+  </div>
+
+</div>
+<div class="box fade-in">
+
+  <h3>🔓 Apertura de caja</h3>
+
+  <div class="form">
+
+    <input
+      type="number"
+      id="aperturaInput"
+      placeholder="Monto inicial"
+    >
+
+    <button onclick="abrirCaja()">
+      Abrir caja
+    </button>
+
+  </div>
+
+</div>
+
+<div class="box fade-in">
+
+  <h3>🔒 Cierre de caja</h3>
+
+  <div class="form">
+
+    <input
+      type="number"
+      id="cierreReal"
+      placeholder="Dinero contado real"
+    >
+
+    <button onclick="cerrarCaja()">
+      Cerrar caja
+    </button>
+
+  </div>
+
+</div>
+        <h3>
+          Registrar movimiento
+        </h3>
+
+        <div class="form">
+
+          <select id="tipo">
+
+            <option value="ingreso">
+              Ingreso
+            </option>
+
+            <option value="egreso">
+              Egreso
+            </option>
+
+          </select>
+
+          <input
+            type="number"
+            id="monto"
+            placeholder="Monto"
+          >
+
+          <input
+            type="text"
+            id="motivo"
+            placeholder="Motivo"
+          >
+
+          <button onclick="registrarMovimiento()">
+            Registrar
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- SALDO -->
+      <div class="saldo-header fade-in">
+
+        <div class="stat-card blue">
+
+          <h2>
+            $
+            <span id="saldo">
+              0
+            </span>
+          </h2>
+
+          <p>
+            SALDO ACTUAL
+          </p>
+
+        </div>
+
+        <button
+          class="btn-danger"
+          onclick="limpiarCaja()"
+        >
+          🗑 Limpiar movimientos
+        </button>
+
+      </div>
+
+      <!-- MOVIMIENTOS -->
+      <div class="box fade-in">
+
+        <div class="table-header">
+
+          <h3>
+            Movimientos
+          </h3>
+
+        </div>
+
+        <div
+          id="listaCaja"
+          class="lista"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase.js"></script>
+
+<script src="js/storage.js"></script>
+<script src="js/roles.js"></script>
+<script src="js/caja.js"></script>
+<div id="commandPalette" class="command-palette hidden">
+
+  <div class="command-box">
+
+    <input
+      type="text"
+      id="commandInput"
+      placeholder="Buscar productos, ventas o módulos..."
+      oninput="buscarGlobal()"
+    >
+
+    <div id="commandResults"></div>
+
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,393 @@
+/* ================================= */
+/* GRID */
+/* ================================= */
+
+.ventas-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 360px;
+
+  gap: 20px;
+
+  min-height: 100vh;
+}
+
+/* ================================= */
+/* PRODUCTOS PANEL */
+/* ================================= */
+
+.productos-panel {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+/* ================================= */
+/* PRODUCTOS GRID */
+/* ================================= */
+
+.productos-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(160px, 1fr));
+
+  gap: 14px;
+}
+
+/* ================================= */
+/* PRODUCTO */
+/* ================================= */
+
+.producto-btn {
+
+  background: white;
+
+  border: none;
+
+  border-radius: 22px;
+
+  min-height: 130px;
+
+  padding: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  font-size: 17px;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.06);
+}
+
+.producto-btn small {
+
+  font-size: 13px;
+
+  opacity: 0.7;
+}
+
+/* ================================= */
+/* CATEGORIAS */
+/* ================================= */
+
+.categorias-scroll {
+
+  display: flex;
+
+  gap: 10px;
+
+  overflow-x: auto;
+
+  padding-bottom: 8px;
+}
+
+.categorias-scroll button {
+
+  min-width: max-content;
+}
+
+/* ================================= */
+/* CARRITO */
+/* ================================= */
+
+.carrito-panel {
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.05);
+
+  position: sticky;
+
+  top: 20px;
+
+  height: fit-content;
+}
+
+/* ================================= */
+/* ITEM */
+/* ================================= */
+
+.cart-item {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr auto auto auto;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 14px;
+
+  border-radius: 18px;
+
+  background: #f8fafc;
+
+  margin-bottom: 12px;
+}
+
+/* ================================= */
+/* INFO */
+/* ================================= */
+
+.cart-info h4 {
+
+  margin: 0 0 4px;
+}
+
+.cart-info small {
+
+  color: #64748b;
+}
+
+/* ================================= */
+/* ACTIONS */
+/* ================================= */
+
+.cart-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+/* ================================= */
+/* QTY */
+/* ================================= */
+
+.qty-btn {
+
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+
+  padding: 0;
+
+  font-size: 18px;
+}
+
+.qty {
+
+  min-width: 22px;
+
+  text-align: center;
+
+  font-weight: 800;
+}
+
+/* ================================= */
+/* SUBTOTAL */
+/* ================================= */
+
+.cart-subtotal {
+
+  font-weight: 800;
+
+  color: #2563eb;
+}
+
+/* ================================= */
+/* REMOVE */
+/* ================================= */
+
+.remove-btn {
+
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #ef4444
+    );
+}
+
+/* ================================= */
+/* TOTAL */
+/* ================================= */
+
+.total-box {
+
+  margin-top: 20px;
+
+  padding: 20px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #06b6d4
+    );
+
+  color: white;
+
+  font-size: 34px;
+
+  font-weight: 800;
+
+  text-align: center;
+}
+
+/* ================================= */
+/* PAGOS */
+/* ================================= */
+
+.pagos {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+/* ================================= */
+/* DETAIL */
+/* ================================= */
+
+.detail-list {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+.detail-item {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  background: #f8fafc;
+}
+
+/* ================================= */
+/* TICKET */
+/* ================================= */
+
+.ticket-modal {
+
+  max-width: 420px;
+}
+
+.ticket-header {
+
+  text-align: center;
+
+  margin-bottom: 20px;
+}
+
+.ticket-header p {
+
+  margin-top: 6px;
+
+  color: #64748b;
+}
+
+.ticket-info {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+
+  padding-bottom: 12px;
+
+  border-bottom:
+    1px dashed #cbd5e1;
+}
+
+.ticket-products {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.ticket-item {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  padding: 10px 0;
+}
+
+.ticket-total {
+
+  margin-top: 20px;
+
+  padding-top: 20px;
+
+  border-top:
+    2px dashed #cbd5e1;
+
+  font-size: 24px;
+
+  font-weight: 800;
+
+  text-align: right;
+}
+
+/* ================================= */
+/* PRINT */
+/* ================================= */
+
+@media print {
+
+  body * {
+    visibility: hidden;
+  }
+
+  .ticket-modal,
+  .ticket-modal * {
+
+    visibility: visible;
+  }
+
+  .ticket-modal {
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+  }
+}

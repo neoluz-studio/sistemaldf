@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Lo de Fausti Congelados</title>
+  <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/forms.css">
+<link rel="stylesheet" href="css/ventas.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/darkmode.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="brand-icon"></div>
+        <div>
+          <h2>Lo de Fausti</h2>
+          <p>Sistema de Gestión</p>
+        </div>
+      </div>
+      <button class="collapse-btn" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="index.html" class="nav-link active"><b>Inicio</b></a>
+      <a href="ventas.html" class="nav-link"><b>Ventas</b></a>
+      <a href="productos.html" class="nav-link"><b>Productos</b></a>
+      <a href="caja.html" class="nav-link"><b>Caja</b></a>
+      <a href="produccion.html" class="nav-link"><b>Producción</b></a>
+      <a href="proveedores.html" class="nav-link admin-only"><b>Proveedores</b></a>
+      <a href="historial.html" class="nav-link admin-only"><b>Historial</b></a>
+    </nav>
+
+   <div class="user-box">
+
+  <div class="user-avatar">
+    👤
+  </div>
+
+  <div class="user-info">
+
+    <p id="userNombre">
+      Usuario
+    </p>
+
+    <small class="user-role">
+      Sesión activa
+    </small>
+
+  </div>
+
+  <button
+    onclick="window.location.href='login.html'"
+    class="switch-btn"
+  >
+    🔄 Cambiar cuenta
+  </button>
+
+  <button
+    onclick="logout()"
+    class="logout-btn"
+  >
+    🚪 Cerrar sesión
+  </button>
+
+  <button
+    onclick="toggleDarkMode()"
+    class="logout-btn"
+  >
+    🌙 Modo oscuro
+  </button>
+
+</div>
+  </aside>
+
+  <main class="main">
+
+
+    <div class="welcome-box">
+      <h3>¡Bienvenido de nuevo!</h3>
+      <p>Panel de control del sistema de gestión del local.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <h2>$<span id="totalVentas">0</span></h2>
+        <p>VENTAS</p>
+      </div>
+
+      <div class="stat-card orange">
+        <h2>$<span id="totalGanancia">0</span></h2>
+        <p>GANANCIA</p>
+      </div>
+
+      <div class="stat-card blue">
+        <h2><span id="totalProductos">0</span></h2>
+        <p>PRODUCTOS</p>
+      </div>
+
+      <div class="stat-card gray">
+        <h2 id="topProducto">-</h2>
+        <p>MÁS VENDIDO</p>
+      </div>
+    </div>
+
+    <div class="dashboard-charts">
+      <div class="box">
+  <h3>📊 Ventas por método de pago</h3>
+
+  <div class="chart-small">
+    <canvas id="metodosChart"></canvas>
+  </div>
+</div>
+
+      <div class="box">
+        <h3>📈 Ventas recientes</h3>
+        <canvas id="ventasChart"></canvas>
+      </div>
+    </div>
+    <div class="box fade-in">
+  <h3>⚠️ Stock bajo</h3>
+
+  <div id="stockBajo" class="lista"></div>
+</div>
+<div class="dashboard-grid">
+
+  <!-- ACTIVIDAD -->
+  <div class="box fade-in">
+
+    <div class="table-header">
+      <h3>🕒 Actividad reciente</h3>
+    </div>
+
+    <div id="actividadReciente"></div>
+
+  </div>
+
+  <!-- STOCK -->
+  <div class="box fade-in">
+
+    <div class="table-header">
+      <h3>⚠️ Stock crítico</h3>
+    </div>
+
+    <div id="stockBajo"></div>
+
+  </div>
+
+</div>
+  </main>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/roles.js"></script>
+<script src="js/index.js"></script>
+<div id="commandPalette" class="command-palette hidden">
+
+  <div class="command-box">
+
+    <input
+      type="text"
+      id="commandInput"
+      placeholder="Buscar productos, ventas o módulos..."
+      oninput="buscarGlobal()"
+    >
+
+    <div id="commandResults"></div>
+
+  </div>
+
+</div>
+</body>
+</html>
