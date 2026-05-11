@@ -42,7 +42,19 @@ function renderVentas() {
 
       <td>
         <span class="badge-success">
-          ${v.metodo}
+          ${
+
+  v.metodo === "Mercado Pago"
+
+    ? "MERCADO PAGO"
+
+  : v.metodo === "Transferencia"
+
+    ? "TRANSFERENCIA"
+
+  : "EFECTIVO"
+
+}
         </span>
       </td>
 

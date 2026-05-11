@@ -120,19 +120,37 @@
   <!-- MAIN -->
   <main class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
+   <div class="topbar">
+
+  <div class="topbar-left">
+
+    <div>
 
       <h2>
-        💰 Caja
+        💰 Caja diaria
       </h2>
 
-      <span class="badge">
-        Movimientos diarios
-      </span>
+      <p>
+        Control financiero del local
+      </p>
 
     </div>
 
+  </div>
+
+  <div class="topbar-right">
+
+    <div class="topbar-clock" id="clock">
+      00:00
+    </div>
+
+    <div class="topbar-avatar">
+      💰
+    </div>
+
+  </div>
+
+</div>
     <!-- CONTENT -->
     <div class="page-content">
 
@@ -154,7 +172,39 @@
     <h2 id="diferenciaCaja">$0</h2>
     <p>DIFERENCIA</p>
   </div>
+<div class="stats-grid">
 
+  <div class="stat-card green">
+
+    <h2 id="totalIngresos">
+      $0
+    </h2>
+
+    <p>INGRESOS</p>
+
+  </div>
+
+  <div class="stat-card red">
+
+    <h2 id="totalEgresos">
+      $0
+    </h2>
+
+    <p>EGRESOS</p>
+
+  </div>
+
+  <div class="stat-card blue">
+
+    <h2 id="saldoActual">
+      $0
+    </h2>
+
+    <p>SALDO</p>
+
+  </div>
+
+</div>
 </div>
 <div class="box fade-in">
 
@@ -233,25 +283,7 @@
 
       </div>
 
-      <!-- SALDO -->
-      <div class="saldo-header fade-in">
-
-        <div class="stat-card blue">
-
-          <h2>
-            $
-            <span id="saldo">
-              0
-            </span>
-          </h2>
-
-          <p>
-            SALDO ACTUAL
-          </p>
-
-        </div>
-
-        <button
+      <button
           class="btn-danger"
           onclick="limpiarCaja()"
         >

@@ -79,6 +79,49 @@ function eliminarProducto(id) {
     }
   });
 }
+// =================================
+// EDITAR PRODUCTO
+// =================================
+
+function editarProducto(id) {
+
+  const producto =
+    productos.find(p => p.id === id);
+
+  if (!producto) return;
+
+  // CARGAR FORM
+  document.getElementById("nombre").value =
+    producto.nombre;
+
+  document.getElementById("precio").value =
+    producto.precio;
+
+  document.getElementById("costo").value =
+    producto.costo;
+
+  document.getElementById("stock").value =
+    producto.stock;
+
+  document.getElementById("tipo").value =
+    producto.tipo;
+
+  document.getElementById("unidad").value =
+    producto.unidad;
+
+  // ELIMINAR PRODUCTO VIEJO
+  productos =
+    productos.filter(p => p.id !== id);
+
+  guardar();
+
+  render();
+
+  showToast(
+    "volver a editar, producto",
+    "info"
+  );
+}
 // RENDER
 function render(lista = productos) {
 

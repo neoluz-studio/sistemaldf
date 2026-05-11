@@ -153,17 +153,14 @@ body.dark .producto-btn:hover {
     );
 }
 
-/* ================================= */
+
+
 /* BADGES */
-/* ================================= */
 
-body.dark .badge {
+body.dark .badge-success,
+body.dark .badge-danger {
 
-  background:
-    rgba(255,255,255,0.08);
-
-  color:
-    #e5e7eb;
+  color: #111827 !important;
 }
 
 /* ================================= */

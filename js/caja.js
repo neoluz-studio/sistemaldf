@@ -52,7 +52,7 @@ function registrarMovimiento() {
   limpiar();
 
   render();
-
+renderResumenCaja();
   // TOAST
   showToast(
     "Movimiento registrado"
@@ -303,3 +303,39 @@ function renderCajaStats() {
 }
 
 renderCajaStats();
+// =================================
+// RESUMEN
+// =================================
+
+function renderResumenCaja() {
+
+  const ingresos =
+    caja
+      .filter(m => m.tipo === "ingreso")
+      .reduce((acc, m) =>
+        acc + m.monto, 0);
+
+  const egresos =
+    caja
+      .filter(m => m.tipo === "egreso")
+      .reduce((acc, m) =>
+        acc + m.monto, 0);
+
+  const saldo =
+    ingresos - egresos;
+
+  document.getElementById(
+    "totalIngresos"
+  ).innerText =
+    `$${ingresos.toLocaleString()}`;
+
+  document.getElementById(
+    "totalEgresos"
+  ).innerText =
+    `$${egresos.toLocaleString()}`;
+
+  document.getElementById(
+    "saldoActual"
+  ).innerText =
+    `$${saldo.toLocaleString()}`;
+}

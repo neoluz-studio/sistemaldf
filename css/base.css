@@ -105,3 +105,8 @@ a {
 
   border-radius: 20px;
 }
+body {
+
+  -webkit-tap-highlight-color:
+    transparent;
+}

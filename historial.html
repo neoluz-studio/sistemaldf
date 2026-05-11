@@ -109,11 +109,37 @@
 
   <!-- MAIN -->
   <main class="main">
+<div class="topbar">
 
-    <div class="topbar">
-      <h2>🧾 Historial de Ventas</h2>
+  <div class="topbar-left">
+
+    <div>
+
+      <h2>
+        🕒 Historial
+      </h2>
+
+      <p>
+        Actividad completa del sistema
+      </p>
+
     </div>
 
+  </div>
+
+  <div class="topbar-right">
+
+    <div class="topbar-clock" id="clock">
+      00:00
+    </div>
+
+    <div class="topbar-avatar">
+      🕒
+    </div>
+
+  </div>
+
+</div>
     <div class="page-content">
 
       <div class="table-box">
@@ -148,6 +174,7 @@
 <script src="js/toast.js"></script>
 <script src="js/roles.js"></script>
 <script src="js/historial.js"></script>
+<script src="js/historial-page.js"></script>
 <div id="commandPalette" class="command-palette hidden">
 
   <div class="command-box">
@@ -164,6 +191,10 @@
   </div>
 
 </div>
+<div class="box">
 
+  <div id="listaHistorial"></div>
+
+</div>
 </body>
 </html>

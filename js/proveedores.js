@@ -8,18 +8,49 @@ function guardarTodo() {
 }
 
 // AGREGAR PROVEEDOR
-function agregarProveedor() {
-  const nombre = document.getElementById("nombreProv").value;
+// =================================
 
-  if (!nombre) return;
+
+function agregarProveedor() {
+
+  const nombre =
+    document.getElementById(
+      "nombreProv"
+    ).value;
+
+  if (!nombre) {
+
+    showToast(
+      "Ingresá un nombre",
+      "error"
+    );
+
+    return;
+  }
 
   proveedores.push({
+
     id: Date.now(),
+
     nombre
   });
 
   guardarTodo();
+
+  // LIMPIAR
+  document.getElementById(
+    "nombreProv"
+  ).value = "";
+
+  // RECARGAR
   cargarSelects();
+
+  render();
+
+  showToast(
+    "Proveedor agregado",
+    "success"
+  );
 }
 
 // AGREGAR CUENTA
@@ -29,31 +60,63 @@ function agregarCuenta() {
 
   if (!proveedorId || !total) return;
 
-  cuentas.push({
-    id: Date.now(),
-    proveedorId,
-    total,
-    pagado: 0
-  });
+ cuentas.push({
+
+  id: Date.now(),
+
+  proveedorId,
+
+  total,
+
+  pagado: 0,
+
+  estado: "pendiente"
+});
 
   guardarTodo();
   render();
   cargarSelects();
 }
 
+
 // PAGAR
 function pagarCuenta() {
-  const cuentaId = Number(document.getElementById("cuentaSelect").value);
-  const monto = Number(document.getElementById("montoPago").value);
 
-  const cuenta = cuentas.find(c => c.id === cuentaId);
+  const cuentaId =
+    Number(
+      document.getElementById(
+        "cuentaSelect"
+      ).value
+    );
+
+  const monto =
+    Number(
+      document.getElementById(
+        "montoPago"
+      ).value
+    );
+
+  const cuenta =
+    cuentas.find(c => c.id === cuentaId);
 
   if (!cuenta || !monto) return;
 
   cuenta.pagado += monto;
 
+  // SI YA PAGÓ TODO
+  if (cuenta.pagado >= cuenta.total) {
+
+    cuenta.estado = "pagada";
+  }
+
   guardarTodo();
+
   render();
+
+  showToast(
+    "Pago registrado",
+    "success"
+  );
 }
 
 // SELECTS
@@ -99,7 +162,12 @@ function render() {
     const saldo = c.total - c.pagado;
 
     const div = document.createElement("div");
-    div.className = "debt-card";
+    div.className = `
+  debt-card
+  ${c.estado === "pagada"
+    ? "deuda-pagada"
+    : ""}
+`;
 
     div.innerHTML = `
       <div>
@@ -109,10 +177,20 @@ function render() {
       </div>
 
       <div>
-        <span class="${saldo > 0 ? "badge-danger" : "badge-success"}">
-          Saldo: $${saldo}
-        </span>
-      </div>
+
+  <span class="
+    ${c.estado === "pagada"
+      ? "badge-success"
+      : "badge-danger"}
+  ">
+
+    ${c.estado === "pagada"
+      ? "✅ PAGADA"
+      : `💰 Saldo: $${saldo}`}
+
+  </span>
+
+</div>
     `;
 
     cont.appendChild(div);
