@@ -1,65 +1,72 @@
-// =========================
-// USUARIOS
-// =========================
-
-const usuarios = [
-
-  {
-    user: "admin",
-    pass: "1234",
-    rol: "ADMIN",
-    nombre: "Administrador"
-  },
-
-  {
-    user: "local",
-    pass: "1234",
-    rol: "LOCAL",
-    nombre: "Caja"
-  }
-];
-
-// =========================
+// =================================
 // LOGIN
-// =========================
+// =================================
 
 function login() {
 
-  const user =
-    document.getElementById("usuario").value;
+  const usuario =
+    document
+      .getElementById("usuario")
+      .value;
 
-  const pass =
-    document.getElementById("password").value;
+  const password =
+    document
+      .getElementById("password")
+      .value;
 
-  const encontrado =
-    usuarios.find(u =>
-      u.user === user &&
-      u.pass === pass
+  // ADMIN
+  if (
+    usuario === "admin" &&
+    password === "1234"
+  ) {
+
+    localStorage.setItem(
+      "auth",
+      "true"
     );
 
-  if (!encontrado) {
-
-    showToast(
-      "Usuario o contraseña incorrectos",
-      "error"
+    localStorage.setItem(
+      "usuarioActual",
+      "Administrador"
     );
 
-    return;
-  }
-
-  localStorage.setItem(
-    "usuario",
-    JSON.stringify(encontrado)
-  );
-
-  showToast(
-    "Bienvenido " + encontrado.nombre
-  );
-
-  setTimeout(() => {
+    localStorage.setItem(
+      "rol",
+      "ADMIN"
+    );
 
     window.location.href =
       "index.html";
 
-  }, 1000);
+    return;
+  }
+
+  // LOCAL
+  if (
+    usuario === "local" &&
+    password === "1234"
+  ) {
+
+    localStorage.setItem(
+      "auth",
+      "true"
+    );
+
+    localStorage.setItem(
+      "usuarioActual",
+      "Local"
+    );
+
+    localStorage.setItem(
+      "rol",
+      "LOCAL"
+    );
+
+    window.location.href =
+      "index.html";
+
+    return;
+  }
+
+  alert("Usuario o contraseña incorrectos");
 }

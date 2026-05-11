@@ -17,45 +17,46 @@
 </head>
 <body class="login-body">
 
-<div class="login-container">
+  <div class="login-bg"></div>
 
-  <div class="login-card fade-in">
+  <div class="login-container">
 
-    <div class="login-logo">
-      🧊
-    </div>
+    <div class="login-card fade-in">
 
-    <h1>
-      Lo de Fausti
-    </h1>
+      <div class="login-logo">
+        🧊
+      </div>
 
-    <p>
-      Sistema de Gestión
-    </p>
+      <h1>Lo de Fausti</h1>
 
-    <div class="login-form">
+      <p>
+        Sistema de gestión inteligente
+      </p>
 
-      <input
-        type="text"
-        id="usuario"
-        placeholder="Usuario"
-      >
+      <form class="login-form">
 
-      <input
-        type="password"
-        id="password"
-        placeholder="Contraseña"
-      >
+        <input
+          type="text"
+          placeholder="Usuario"
+          id="usuario"
+        >
 
-      <button onclick="login()">
-        Ingresar
-      </button>
+        <input
+          type="password"
+          placeholder="Contraseña"
+          id="password"
+        >
+
+        <button type="button" onclick="login()">
+          Ingresar
+        </button>
+
+      </form>
 
     </div>
 
   </div>
 
-</div>
 
 <script src="js/storage.js"></script>
 <script src="js/login.js"></script>

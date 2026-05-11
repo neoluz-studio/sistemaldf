@@ -16,7 +16,17 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<div id="loader">
 
+  <div class="loader-logo">
+    🧊
+  </div>
+
+  <h2>Lo de Fausti</h2>
+
+  <p>Cargando sistema...</p>
+
+</div>
 <div class="layout">
 
   <aside class="sidebar" id="sidebar">
@@ -85,84 +95,172 @@
 
   <main class="main">
 
+  <!-- TOPBAR -->
+  <!-- TOPBAR -->
 
-    <div class="welcome-box">
-      <h3>¡Bienvenido de nuevo!</h3>
-      <p>Panel de control del sistema de gestión del local.</p>
+<div class="topbar">
+
+  <div class="topbar-left">
+
+    <div>
+
+      <h2 id="saludo">
+        👋 Bienvenido
+      </h2>
+
+      <p>
+        Panel inteligente del sistema
+      </p>
+
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card green">
-        <h2>$<span id="totalVentas">0</span></h2>
-        <p>VENTAS</p>
-      </div>
-
-      <div class="stat-card orange">
-        <h2>$<span id="totalGanancia">0</span></h2>
-        <p>GANANCIA</p>
-      </div>
-
-      <div class="stat-card blue">
-        <h2><span id="totalProductos">0</span></h2>
-        <p>PRODUCTOS</p>
-      </div>
-
-      <div class="stat-card gray">
-        <h2 id="topProducto">-</h2>
-        <p>MÁS VENDIDO</p>
-      </div>
-    </div>
-
-    <div class="dashboard-charts">
-      <div class="box">
-  <h3>📊 Ventas por método de pago</h3>
-
-  <div class="chart-small">
-    <canvas id="metodosChart"></canvas>
   </div>
+
+  <div class="topbar-right">
+
+    <div class="topbar-clock" id="clock">
+      00:00
+    </div>
+
+    <div class="topbar-search">
+
+      <input
+        type="text"
+        placeholder="Buscar..."
+      >
+
+    </div>
+
+    <div class="topbar-avatar">
+      👤
+    </div>
+
+  </div>
+
 </div>
 
-      <div class="box">
-        <h3>📈 Ventas recientes</h3>
-        <canvas id="ventasChart"></canvas>
-      </div>
+  <!-- WELCOME -->
+  <div class="welcome-box">
+
+    <h3>
+      ¡Bienvenido de nuevo!
+    </h3>
+
+    <p>
+      Panel de control del sistema de gestión.
+    </p>
+
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+
+    <div class="stat-card green">
+      <h2>$<span id="totalVentas">0</span></h2>
+      <p>VENTAS</p>
     </div>
+
+    <div class="stat-card orange">
+      <h2>$<span id="totalGanancia">0</span></h2>
+      <p>GANANCIA</p>
+    </div>
+
+    <div class="stat-card blue">
+      <h2><span id="totalProductos">0</span></h2>
+      <p>PRODUCTOS</p>
+    </div>
+
+    <div class="stat-card gray">
+      <h2 id="topProducto">-</h2>
+      <p>MÁS VENDIDO</p>
+    </div>
+
+  </div>
+
+  <!-- CHARTS -->
+  <div class="dashboard-charts">
+
+    <div class="box">
+
+      <h3>
+        📊 Ventas por método de pago
+      </h3>
+
+      <div class="chart-small">
+        <canvas id="metodosChart"></canvas>
+      </div>
+
+    </div>
+
+    <div class="box">
+
+      <h3>
+        📈 Ventas recientes
+      </h3>
+
+      <canvas id="ventasChart"></canvas>
+
+    </div>
+
+  </div>
+
+  <!-- DASHBOARD BOTTOM -->
+  <div class="dashboard-bottom">
+
+    <!-- ACTIVIDAD -->
     <div class="box fade-in">
-  <h3>⚠️ Stock bajo</h3>
 
-  <div id="stockBajo" class="lista"></div>
-</div>
-<div class="dashboard-grid">
+      <div class="table-header">
+        <h3>🕒 Actividad reciente</h3>
+      </div>
 
-  <!-- ACTIVIDAD -->
-  <div class="box fade-in">
+      <div id="actividadReciente"></div>
 
-    <div class="table-header">
-      <h3>🕒 Actividad reciente</h3>
     </div>
 
-    <div id="actividadReciente"></div>
+    <!-- STOCK CRITICO -->
+    <div class="box fade-in">
+
+      <div class="saldo-header">
+        <h3>⚠️ Stock crítico</h3>
+      </div>
+
+      <div id="stockCritico"></div>
+
+    </div>
+
+    <!-- STOCK BAJO -->
+    <div class="box fade-in">
+
+      <div class="saldo-header">
+        <h3>⚠️ Stock bajo</h3>
+      </div>
+
+      <div id="stockBajo"></div>
+
+    </div>
+
+    <!-- ULTIMAS VENTAS -->
+    <div class="box fade-in">
+
+      <div class="saldo-header">
+        <h3>🧾 Últimas ventas</h3>
+      </div>
+
+      <div id="ultimasVentas"></div>
+
+    </div>
 
   </div>
 
-  <!-- STOCK -->
-  <div class="box fade-in">
-
-    <div class="table-header">
-      <h3>⚠️ Stock crítico</h3>
-    </div>
-
-    <div id="stockBajo"></div>
-
-  </div>
-
-</div>
-  </main>
+</main>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/toast.js"></script>
 <script src="js/roles.js"></script>
 <script src="js/index.js"></script>
 <div id="commandPalette" class="command-palette hidden">

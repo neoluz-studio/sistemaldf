@@ -291,3 +291,227 @@ function renderStockCritico() {
 renderActividad();
 
 renderStockCritico();
+// =================================
+// STOCK BAJO
+// =================================
+
+function renderStockBajo() {
+
+  const cont =
+    document.getElementById("stockBajo");
+
+  if (!cont) return;
+
+  const bajos =
+    productos.filter(p => p.stock <= 5);
+
+  if (bajos.length === 0) {
+
+    cont.innerHTML = `
+      <div class="empty-state">
+        No hay alertas
+      </div>
+    `;
+
+    return;
+  }
+
+  cont.innerHTML = "";
+
+  bajos.forEach(p => {
+
+    cont.innerHTML += `
+
+      <div class="movement-card">
+
+        <div>
+
+          <h4>${p.nombre}</h4>
+
+          <p>
+            Quedan:
+            ${p.stock}
+            ${p.unidad || ""}
+          </p>
+
+        </div>
+
+        <span class="badge-danger">
+          Bajo
+        </span>
+
+      </div>
+    `;
+  });
+}
+
+/* ================================= */
+/* ULTIMAS VENTAS */
+/* ================================= */
+
+function renderUltimasVentas() {
+
+  const cont =
+    document.getElementById("ultimasVentas");
+
+  if (!cont) return;
+
+  const ultimas =
+    [...ventas]
+      .reverse()
+      .slice(0, 5);
+
+  if (ultimas.length === 0) {
+
+    cont.innerHTML = `
+      <div class="empty-state">
+        No hay ventas
+      </div>
+    `;
+
+    return;
+  }
+
+  cont.innerHTML = "";
+
+  ultimas.forEach(v => {
+
+    cont.innerHTML += `
+
+      <div class="movement-card">
+
+        <div>
+
+          <h4>
+            $${v.total.toLocaleString()}
+          </h4>
+
+          <p>
+            ${v.metodo}
+          </p>
+
+        </div>
+
+        <small>
+          ${v.fecha}
+        </small>
+
+      </div>
+    `;
+  });
+}
+
+// INIT
+renderStockBajo();
+renderUltimasVentas();
+// =================================
+// STOCK CRITICO
+// =================================
+
+function renderStockCritico() {
+
+  const cont =
+    document.getElementById("stockCritico");
+
+  if (!cont) return;
+
+  const criticos =
+    productos.filter(p => p.stock <= 2);
+
+  if (criticos.length === 0) {
+
+    cont.innerHTML = `
+      <div class="empty-state">
+        Sin productos críticos
+      </div>
+    `;
+
+    return;
+  }
+
+  cont.innerHTML = "";
+
+  criticos.forEach(p => {
+
+    cont.innerHTML += `
+
+      <div class="movement-card">
+
+        <div>
+
+          <h4>${p.nombre}</h4>
+
+          <p>
+            Quedan:
+            ${p.stock}
+          </p>
+
+        </div>
+
+        <span class="badge-danger">
+          CRÍTICO
+        </span>
+
+      </div>
+    `;
+  });
+}
+
+renderStockCritico();
+// =================================
+// CLOCK
+// =================================
+
+function updateClock() {
+
+  const clock =
+    document.getElementById("clock");
+
+  if (!clock) return;
+
+  const now =
+    new Date();
+
+  clock.innerText =
+    now.toLocaleTimeString([], {
+
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+}
+
+setInterval(updateClock, 1000);
+
+updateClock();
+// =================================
+// SALUDO
+// =================================
+
+function renderSaludo() {
+
+  const saludo =
+    document.getElementById("saludo");
+
+  if (!saludo) return;
+
+  const hora =
+    new Date().getHours();
+
+  let texto = "👋 Bienvenido";
+
+  if (hora < 12) {
+    texto = "☀️ Buenos días";
+  }
+
+  else if (hora < 19) {
+    texto = "🌤️ Buenas tardes";
+  }
+
+  else {
+    texto = "🌙 Buenas noches";
+  }
+
+  saludo.innerText = texto;
+}
+
+renderSaludo();

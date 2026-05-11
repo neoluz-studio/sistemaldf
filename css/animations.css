@@ -383,3 +383,130 @@ button:active,
   background:
     rgba(59,130,246,0.06);
 }
+/* TOOLTIP */
+
+.tooltip {
+
+  position: relative;
+}
+
+.tooltip:hover::after {
+
+  content: attr(data-tooltip);
+
+  position: absolute;
+
+  bottom: -40px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: #111827;
+
+  color: white;
+
+  padding: 8px 12px;
+
+  border-radius: 10px;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+
+  z-index: 9999;
+}
+/* ================================= */
+/* LOADER */
+/* ================================= */
+
+#loader {
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0284c7,
+      #1e3a8a
+    );
+
+  z-index: 999999;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  gap: 16px;
+
+  transition: 0.4s ease;
+}
+
+#loader.hidden {
+
+  opacity: 0;
+
+  visibility: hidden;
+}
+
+.loader-logo {
+
+  width: 110px;
+  height: 110px;
+
+  border-radius: 30px;
+
+  background:
+    rgba(255,255,255,0.12);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 52px;
+
+  animation:
+    loaderPulse 1.8s infinite;
+}
+
+@keyframes loaderPulse {
+
+  0% {
+
+    transform: scale(1);
+  }
+
+  50% {
+
+    transform: scale(1.08);
+  }
+
+  100% {
+
+    transform: scale(1);
+  }
+}
+/* TOAST CONTENT */
+
+.toast-content {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+/* ICON */
+
+.toast-icon {
+
+  font-size: 20px;
+}

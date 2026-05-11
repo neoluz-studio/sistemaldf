@@ -225,3 +225,53 @@
     padding: 18px;
   }
 }
+/* MOBILE UX */
+
+@media (max-width: 768px) {
+
+  .main {
+    padding: 10px;
+  }
+
+  .box,
+  .card,
+  .table-box,
+  .stat-card {
+
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .topbar {
+
+    padding: 14px;
+  }
+
+  .topbar h2 {
+
+    font-size: 20px;
+  }
+
+  .productos-grid {
+
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .producto-btn {
+
+    min-height: 100px;
+
+    font-size: 14px;
+  }
+
+  .ventas-grid {
+
+    gap: 16px;
+  }
+
+  .carrito-panel {
+
+    padding: 16px;
+  }
+}

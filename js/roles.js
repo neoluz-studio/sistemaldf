@@ -49,7 +49,11 @@ adminItems.forEach(item => {
 
 function logout() {
 
-  localStorage.removeItem("usuario");
+  localStorage.removeItem("auth");
+
+  localStorage.removeItem("usuarioActual");
+
+  localStorage.removeItem("rol");
 
   window.location.href =
     "login.html";

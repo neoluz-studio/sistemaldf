@@ -100,7 +100,7 @@ function render(lista = productos) {
   lista.forEach(p => {
 
     const tr = document.createElement("tr");
-
+    tr.className = "product-row";
     tr.innerHTML = `
       <td>
         <strong>${p.nombre}</strong>
@@ -115,24 +115,32 @@ function render(lista = productos) {
       </td>
 
       <td>
-        <span class="${
-          p.stock < 5
-            ? "badge-danger"
-            : "badge-success"
-        }">
-          ${p.stock} ${p.unidad || ""}
-        </span>
+        <span class="
+  stock-pill
+  ${p.stock < 5 ? 'stock-low' : 'stock-ok'}
+">
+
+  ${p.stock}
+  ${p.unidad || ""}
+
+</span>
       </td>
 
       <td>
         ${p.tipo}
       </td>
 
-      <td>
-        <button onclick="eliminarProducto(${p.id})">
-          Eliminar
-        </button>
-      </td>
+      <<td>
+
+  <button onclick="editarProducto(${p.id})">
+    ✏️
+  </button>
+
+  <button onclick="eliminarProducto(${p.id})">
+    🗑️
+  </button>
+
+</td>
     `;
 
     cont.appendChild(tr);
