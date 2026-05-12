@@ -66,8 +66,22 @@
   opacity: 0.85;
 
   letter-spacing: 1px;
-}
+}/* BLUE CARD */
 
+.stat-card.blue {
+
+  background:
+    linear-gradient(
+      135deg,
+      #0ea5e9,
+      #2563eb
+    );
+
+  color: white;
+
+  box-shadow:
+    0 25px 45px rgba(37,99,235,0.28);
+}
 /* ================================= */
 /* BADGE */
 /* ================================= */

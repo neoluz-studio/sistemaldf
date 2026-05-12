@@ -536,3 +536,191 @@ button:active,
       translateY(0);
   }
 }
+/* ================================= */
+/* MODAL OVERLAY */
+/* ================================= */
+
+.modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    rgba(0,0,0,0.55);
+
+  backdrop-filter: blur(6px);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  z-index: 999999;
+
+  animation:
+    fadeIn 0.2s ease;
+}
+
+/* ================================= */
+/* MODAL */
+/* ================================= */
+
+.modal {
+
+  width: 100%;
+  max-width: 460px;
+
+  padding: 32px;
+
+  border-radius: 30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(15,23,42,0.98),
+      rgba(30,41,59,0.98)
+    );
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.35);
+
+  animation:
+    modalPop 0.25s ease;
+}
+
+/* ================================= */
+/* TITLE */
+/* ================================= */
+
+.modal h3 {
+
+  margin-bottom: 24px;
+
+  font-size: 28px;
+
+  font-weight: 800;
+}
+
+/* ================================= */
+/* ACTIONS */
+/* ================================= */
+
+.modal-actions {
+
+  display: flex;
+
+  gap: 14px;
+
+  margin-top: 26px;
+}
+
+/* ================================= */
+/* CANCEL */
+/* ================================= */
+
+.btn-cancel {
+
+  background:
+    rgba(255,255,255,0.08);
+}
+
+/* ================================= */
+/* ANIMATION */
+/* ================================= */
+
+@keyframes modalPop {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      scale(0.92);
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      scale(1);
+  }
+}
+/* ================================= */
+/* CONFIRM MODAL */
+/* ================================= */
+
+.confirm-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    rgba(0,0,0,0.55);
+
+  backdrop-filter: blur(6px);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  z-index: 999999;
+
+  animation:
+    fadeIn 0.2s ease;
+}
+
+.confirm-modal {
+
+  width: 100%;
+  max-width: 460px;
+
+  padding: 32px;
+
+  border-radius: 30px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(15,23,42,0.98),
+      rgba(30,41,59,0.98)
+    );
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.35);
+
+  animation:
+    modalPop 0.25s ease;
+}
+
+.confirm-modal h3 {
+
+  margin-bottom: 16px;
+
+  font-size: 28px;
+
+  font-weight: 800;
+}
+
+.confirm-modal p {
+
+  color: #94a3b8;
+
+  margin-bottom: 26px;
+}
+
+.confirm-actions {
+
+  display: flex;
+
+  gap: 14px;
+}

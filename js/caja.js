@@ -1,218 +1,25 @@
-let caja = JSON.parse(localStorage.getItem("caja")) || [];
+// =================================
+// APERTURAS
+// =================================
 
-// =========================
-// GUARDAR
-// =========================
+let aperturas =
+  JSON.parse(
+    localStorage.getItem(
+      "aperturasCaja"
+    )
+  ) || [];
 
-function guardar() {
-  localStorage.setItem("caja", JSON.stringify(caja));
-}
-
-// =========================
-// REGISTRAR
-// =========================
-
-function registrarMovimiento() {
-
-  const tipo =
-    document.getElementById("tipo").value;
-
-  const monto =
-    Number(document.getElementById("monto").value);
-
-  const motivo =
-    document.getElementById("motivo").value;
-
-  // VALIDACION
-  if (!monto || !motivo) {
-
-    showToast(
-      "Completá los datos",
-      "error"
-    );
-
-    return;
-  }
-
-  caja.push({
-
-    id: Date.now(),
-
-    tipo,
-
-    monto,
-
-    motivo,
-
-    fecha: new Date().toLocaleString()
-  });
-
-  guardar();
-
-  limpiar();
-
-  render();
-renderResumenCaja();
-  // TOAST
-  showToast(
-    "Movimiento registrado"
-  );
-}
-
-// =========================
-// LIMPIAR
-// =========================
-// =========================
-// LIMPIAR CAJA
-// =========================
-
-function limpiarCaja() {
-
-  showConfirm({
-
-    title: "Limpiar movimientos",
-
-    message:
-      "Se eliminarán todos los movimientos de caja.",
-
-    onConfirm: () => {
-
-      caja = [];
-
-      guardar();
-
-      render();
-
-      showToast(
-        "Caja reiniciada",
-        "info"
-      );
-    }
-  });
-}
-function limpiar() {
-
-  document.getElementById("monto").value = "";
-
-  document.getElementById("motivo").value = "";
-}
-
-// =========================
-// RENDER
-// =========================
-
-function render() {
-
-  const cont =
-    document.getElementById("listaCaja");
-
-  const saldoEl =
-    document.getElementById("saldo");
-
-  cont.innerHTML = "";
-
-  let saldo = 0;
-
-  // CALCULAR SALDO TOTAL
-  caja.forEach(m => {
-
-    saldo +=
-      m.tipo === "ingreso"
-        ? m.monto
-        : -m.monto;
-  });
-
-  // RENDER SALDO
- saldoEl.innerText =
-  (saldo + aperturaCaja)
-    .toLocaleString();
-  // VACIO
-  if (caja.length === 0) {
-
-    cont.innerHTML = `
-      <div class="empty-state">
-        No hay movimientos registrados
-      </div>
-    `;
-
-    return;
-  }
-
-  // MÁS NUEVOS ARRIBA
-  [...caja]
-    .reverse()
-    .forEach(m => {
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        "movement-card fade-in";
-
-      div.innerHTML = `
-
-        <div>
-
-          <span class="${
-            m.tipo === "ingreso"
-              ? "badge-success"
-              : "badge-danger"
-          }">
-
-            ${m.tipo.toUpperCase()}
-
-          </span>
-
-          <h4>
-            ${m.motivo}
-          </h4>
-
-          <small>
-            ${m.fecha}
-          </small>
-
-        </div>
-
-        <strong class="${
-          m.tipo === "ingreso"
-            ? "money-in"
-            : "money-out"
-        }">
-
-          ${m.tipo === "ingreso"
-            ? "+"
-            : "-"
-          }
-
-          $${m.monto.toLocaleString()}
-
-        </strong>
-      `;
-
-      cont.appendChild(div);
-  });
-}
-
-// =========================
-// INIT
-// =========================
-
-render();
-
-// =========================
-// APERTURA
-// =========================
-
-let aperturaCaja =
-  Number(
-    localStorage.getItem("aperturaCaja")
-  ) || 0;
+// =================================
+// ABRIR CAJA
+// =================================
 
 function abrirCaja() {
 
   const monto =
     Number(
-      document.getElementById("aperturaInput").value
+      document.getElementById(
+        "montoInicial"
+      ).value
     );
 
   if (!monto) {
@@ -225,117 +32,105 @@ function abrirCaja() {
     return;
   }
 
-  aperturaCaja = monto;
+  aperturas.push({
+
+    id: Date.now(),
+
+    tipo: "apertura",
+
+    monto,
+
+    usuario:
+      localStorage.getItem(
+        "usuarioActual"
+      ),
+
+    fecha:
+      new Date().toLocaleString()
+  });
 
   localStorage.setItem(
-    "aperturaCaja",
-    monto
+    "aperturasCaja",
+    JSON.stringify(aperturas)
   );
-
-  renderCajaStats();
 
   showToast(
-    "Caja abierta correctamente"
+    "Caja abierta",
+    "success"
   );
+
+  agregarHistorial({
+
+    tipo: "ingreso",
+
+    modulo: "Caja",
+
+    descripcion:
+      "Apertura de caja",
+
+    monto
+  });
 }
 
-// =========================
-// CIERRE
-// =========================
+// =================================
+// CERRAR CAJA
+// =================================
 
 function cerrarCaja() {
 
-  const contado =
+  const monto =
     Number(
-      document.getElementById("cierreReal").value
+      document.getElementById(
+        "montoCierre"
+      ).value
     );
 
-  if (!contado) {
+  if (!monto) {
 
     showToast(
-      "Ingresá el monto contado",
+      "Ingresá un monto",
       "error"
     );
 
     return;
   }
 
-  let saldo = 0;
+  aperturas.push({
 
-  caja.forEach(m => {
+    id: Date.now(),
 
-    saldo +=
-      m.tipo === "ingreso"
-        ? m.monto
-        : -m.monto;
+    tipo: "cierre",
+
+    monto,
+
+    usuario:
+      localStorage.getItem(
+        "usuarioActual"
+      ),
+
+    fecha:
+      new Date().toLocaleString()
   });
 
-  saldo += aperturaCaja;
-
-  const diferencia =
-    contado - saldo;
-
-  document.getElementById(
-    "diferenciaCaja"
-  ).innerText =
-    "$" + diferencia.toLocaleString();
+  localStorage.setItem(
+    "aperturasCaja",
+    JSON.stringify(aperturas)
+  );
 
   showToast(
-    "Caja cerrada"
+    "Caja cerrada",
+    "info"
   );
-}
 
-// =========================
-// STATS
-// =========================
+  agregarHistorial({
 
-function renderCajaStats() {
+    tipo: "egreso",
 
-  const aperturaEl =
-    document.getElementById("montoApertura");
+    modulo: "Caja",
 
-  if (aperturaEl) {
+    descripcion:
+      "Cierre de caja",
 
-    aperturaEl.innerText =
-      "$" +
-      aperturaCaja.toLocaleString();
-  }
-}
-
-renderCajaStats();
-// =================================
-// RESUMEN
-// =================================
-
-function renderResumenCaja() {
-
-  const ingresos =
-    caja
-      .filter(m => m.tipo === "ingreso")
-      .reduce((acc, m) =>
-        acc + m.monto, 0);
-
-  const egresos =
-    caja
-      .filter(m => m.tipo === "egreso")
-      .reduce((acc, m) =>
-        acc + m.monto, 0);
-
-  const saldo =
-    ingresos - egresos;
-
-  document.getElementById(
-    "totalIngresos"
-  ).innerText =
-    `$${ingresos.toLocaleString()}`;
-
-  document.getElementById(
-    "totalEgresos"
-  ).innerText =
-    `$${egresos.toLocaleString()}`;
-
-  document.getElementById(
-    "saldoActual"
-  ).innerText =
-    `$${saldo.toLocaleString()}`;
+    monto
+  });
 }
