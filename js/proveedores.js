@@ -1,3 +1,12 @@
+
+if (
+  localStorage.getItem("rol")
+  !== "ADMIN"
+) {
+
+  window.location.href =
+    "index.html";
+}
 let proveedores = JSON.parse(localStorage.getItem("proveedores")) || [];
 let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
 

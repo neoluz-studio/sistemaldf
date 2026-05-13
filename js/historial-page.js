@@ -1,7 +1,14 @@
 // =================================
 // HISTORIAL
 // =================================
+if (
+  localStorage.getItem("rol")
+  !== "ADMIN"
+) {
 
+  window.location.href =
+    "index.html";
+}
 let historial =
   JSON.parse(
     localStorage.getItem("historial")

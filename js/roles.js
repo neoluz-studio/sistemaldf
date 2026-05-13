@@ -1,59 +1,64 @@
-// =========================
-// SESION
-// =========================
+// =================================
+// USER
+// =================================
 
 const usuario =
-  JSON.parse(localStorage.getItem("usuario"));
+  localStorage.getItem(
+    "usuarioActual"
+  );
 
-// SI NO HAY LOGIN
-if (!usuario &&
-    !window.location.pathname.includes("login.html")) {
+const rol =
+  localStorage.getItem(
+    "rol"
+  );
 
-  window.location.href =
-    "login.html";
-}
-
-// =========================
 // USERNAME
-// =========================
-
 const nombreEl =
-  document.getElementById("userNombre");
+  document.getElementById(
+    "userNombre"
+  );
 
-if (nombreEl && usuario) {
+if (nombreEl) {
 
   nombreEl.innerText =
-    usuario.nombre +
-    " • " +
-    usuario.rol;
+    usuario || "Usuario";
 }
 
-// =========================
+// =================================
 // ADMIN ONLY
-// =========================
+// =================================
 
 const adminItems =
-  document.querySelectorAll(".admin-only");
+  document.querySelectorAll(
+    ".admin-only"
+  );
 
-adminItems.forEach(item => {
+// SI NO ES ADMIN
+if (rol !== "ADMIN") {
 
-  if (usuario?.rol !== "ADMIN") {
+  adminItems.forEach(el => {
 
-    item.style.display = "none";
-  }
-});
+    el.style.display = "none";
+  });
+}
 
-// =========================
+// =================================
 // LOGOUT
-// =========================
+// =================================
 
 function logout() {
 
-  localStorage.removeItem("auth");
+  localStorage.removeItem(
+    "auth"
+  );
 
-  localStorage.removeItem("usuarioActual");
+  localStorage.removeItem(
+    "usuarioActual"
+  );
 
-  localStorage.removeItem("rol");
+  localStorage.removeItem(
+    "rol"
+  );
 
   window.location.href =
     "login.html";
