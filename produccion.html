@@ -23,14 +23,14 @@
 
     <div class="sidebar-header">
       <div class="brand">
-        <div class="brand-icon">🧊</div>
+     
         <div>
           <h2>Lo de Fausti</h2>
           <p>Sistema de Gestión</p>
         </div>
       </div>
 
-      <button class="collapse-btn" onclick="toggleSidebar()">☰</button>
+      
     </div>
 
     <nav class="sidebar-nav">
@@ -64,15 +64,11 @@
 
     <div class="user-box">
 
-  <div class="user-avatar">
-    👤
-  </div>
+
 
   <div class="user-info">
 
-    <p id="userNombre">
-      Usuario
-    </p>
+    
 
     <small class="user-role">
       Sesión activa
@@ -87,19 +83,7 @@
     🔄 Cambiar cuenta
   </button>
 
-  <button
-    onclick="logout()"
-    class="logout-btn"
-  >
-    🚪 Cerrar sesión
-  </button>
-
-  <button
-    onclick="toggleDarkMode()"
-    class="logout-btn"
-  >
-    🌙 Modo oscuro
-  </button>
+ 
 
 </div>
   </aside>
@@ -119,7 +103,7 @@
         <div class="box fade-in">
           <h3>Crear receta por unidad / kilo</h3>
 
-          <div class="form">
+          <div class="form production-form">
             <select id="productoFinal"></select>
 
             <select id="insumoSelect"></select>
@@ -139,7 +123,7 @@
         <div class="box fade-in">
           <h3>Producir</h3>
 
-          <div class="form">
+          <div class="form production-form">"
             <select id="recetaSelect"></select>
 
             <input 
@@ -149,7 +133,7 @@
               step="0.001"
             >
 
-            <button onclick="producirDesdeFormulario()">Producir</button>
+            <button class="btn-producir" onclick="producirDesdeFormulario()">Producir</button>
           </div>
         </div>
 

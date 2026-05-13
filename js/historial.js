@@ -54,6 +54,7 @@ function renderVentas() {
 
   : "EFECTIVO"
 
+
 }
         </span>
       </td>

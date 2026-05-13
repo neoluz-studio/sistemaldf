@@ -278,17 +278,19 @@ table tbody tr:hover {
 
 .product-row {
 
-  transition: 0.2s ease;
+  transition: 0.18s ease;
 }
 
 .product-row:hover {
 
   transform:
-    scale(1.01);
+    translateY(-2px);
 
-  background:
-    rgba(59,130,246,0.04);
+  box-shadow:
+    0 15px 25px rgba(0,0,0,0.08);
 }
+
+/* STOCK */
 
 /* STOCK */
 
@@ -299,15 +301,15 @@ table tbody tr:hover {
   align-items: center;
   justify-content: center;
 
-  min-width: 70px;
-
-  padding: 8px 12px;
+  padding: 7px 12px;
 
   border-radius: 999px;
 
-  font-size: 13px;
+  font-size: 12px;
 
-  font-weight: 700;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
 }
 
 .stock-ok {
@@ -511,4 +513,34 @@ table tbody tr:hover {
       #ef4444,
       #dc2626
     );
+}
+table td {
+
+  padding: 14px 16px;
+}
+/* INGREDIENT */
+
+.ingredient-pill {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  margin: 4px;
+
+  background:
+    rgba(14,165,233,0.12);
+
+  color:
+    #38bdf8;
+
+  font-size: 12px;
+
+  font-weight: 700;
 }

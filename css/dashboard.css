@@ -22,28 +22,31 @@
 /* CARD */
 /* ================================= */
 
-.card {
+.dashboard-grid {
 
-  display: flex;
+  display: grid;
 
-  justify-content: space-between;
+  grid-template-columns:
+    repeat(auto-fit, minmax(220px, 1fr));
 
-  align-items: center;
+  gap: 14px;
 
-  gap: 16px;
+  margin-bottom: 18px;
 }
 
 /* ================================= */
 /* STAT CARD */
 /* ================================= */
 
+/* STATS */
+
 .stat-card {
 
-  min-height: 120px;
+  min-height: 105px;
 
-  padding: 22px;
+  padding: 18px;
 
-  border-radius: 24px;
+  border-radius: 22px;
 
   display: flex;
 
@@ -51,14 +54,16 @@
 
   justify-content: center;
 
-  gap: 8px;
-}
+  gap: 6px;
 
+  backdrop-filter: blur(10px);
+
+  border:
+    1px solid rgba(255,255,255,0.04);
+}
 .stat-card h2 {
 
-  font-size: 28px;
-
-  font-weight: 800;
+  font-size: 24px;
 
   margin: 0;
 }
@@ -266,4 +271,11 @@
   text-transform: uppercase;
 
   letter-spacing: 0.5px;
+}
+.stat-card {
+
+  backdrop-filter: blur(10px);
+
+  border:
+    1px solid rgba(255,255,255,0.04);
 }

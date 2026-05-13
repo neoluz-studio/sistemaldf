@@ -158,16 +158,20 @@ function render(lista = productos) {
       </td>
 
       <td>
-        <span class="
-  stock-pill
-  ${p.stock < 5 ? 'stock-low' : 'stock-ok'}
-">
 
-  ${p.stock}
-  ${p.unidad || ""}
+  <span class="
+    stock-pill
+    ${p.stock < 5
+      ? "stock-low"
+      : "stock-ok"}
+  ">
 
-</span>
-      </td>
+    ${p.stock}
+    ${p.unidad || ""}
+
+  </span>
+
+</td>
 
       <td>
         ${p.tipo}
@@ -175,9 +179,7 @@ function render(lista = productos) {
 
       <<td>
 
-  <button onclick="editarProducto(${p.id})">
-    ✏️
-  </button>
+
 
   <button onclick="eliminarProducto(${p.id})">
     🗑️

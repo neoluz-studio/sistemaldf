@@ -190,7 +190,31 @@ function finalizarVenta(metodo) {
 
   monto: total,
 
-  motivo: `Venta (${metodo})`,
+  motivo: `Venta (${
+
+  metodo === "mp"
+
+    ? "MERCADO PAGO"
+
+  : metodo === "qr"
+
+    ? "QR"
+
+  : metodo === "qr_banco"
+
+    ? "QR BANCO"
+
+  : metodo === "promo_bn"
+
+    ? "PROMO BANCO NACIÓN"
+
+  : metodo === "transferencia"
+
+    ? "TRANSFERENCIA"
+
+  : "EFECTIVO"
+
+})`,
 
   fecha: new Date().toLocaleString()
   
@@ -231,21 +255,57 @@ localStorage.setItem(
 // MOSTRAR TICKET
 // ==========================
 
+// COPIA LIMPIA
+const ticketDetalle =
+  [...carrito];
+
 mostrarTicket({
 
-  fecha: new Date().toLocaleString(),
+  fecha:
+    new Date().toLocaleString(),
 
   metodo,
 
   total,
 
-  detalle: carrito
+  detalle:
+    ticketDetalle
 });
-  carrito = [];
-  renderCarrito();
-  renderProductos();
+  // ==========================
+// LIMPIAR CARRITO
+// ==========================
 
-  showToast("Venta registrada correctamente ✅");
+carrito.length = 0;
+
+// RE-RENDER
+renderCarrito();
+
+renderProductos();
+
+// LIMPIAR TOTAL
+document.getElementById(
+  "total"
+).innerText = "0";
+
+// SACAR FOCUS
+if (document.activeElement) {
+
+  document.activeElement.blur();
+}
+
+// SCROLL ARRIBA
+window.scrollTo({
+
+  top: 0,
+
+  behavior: "smooth"
+});
+
+// TOAST
+showToast(
+  "✅ Venta registrada correctamente",
+  "success"
+);
 }
 // INIT
 renderProductos();

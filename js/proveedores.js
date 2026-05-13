@@ -4,8 +4,17 @@ if (
   !== "ADMIN"
 ) {
 
+  showToast(
+  "Acceso solo para administradores",
+  "error"
+);
+
+setTimeout(() => {
+
   window.location.href =
     "index.html";
+
+}, 1200);
 }
 let proveedores = JSON.parse(localStorage.getItem("proveedores")) || [];
 let cuentas = JSON.parse(localStorage.getItem("cuentas")) || [];
