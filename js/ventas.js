@@ -22,12 +22,16 @@ function renderProductos(lista = productos) {
     div.className = "producto-btn";
     div.innerHTML = `${p.nombre}<br>$${p.precio}`;
 
-    div.onclick = () => agregarAlCarrito(p);
+ div.onclick = () => {
 
+  agregarAlCarrito(p);
+
+  document.activeElement.blur();
+};
     cont.appendChild(div);
   });
-}
 
+}
 // CARRITO
 function agregarAlCarrito(prod) {
   const existe = carrito.find(p => p.id === prod.id);
@@ -49,7 +53,8 @@ function renderCarrito() {
   const totalEl =
     document.getElementById("total");
 
-  cont.innerHTML = "";
+  // LIMPIAR COMPLETO
+cont.replaceChildren();
 
   let total = 0;
 
@@ -126,7 +131,7 @@ function renderCarrito() {
         ✕
       </button>
     `;
-
+      div.dataset.id = p.id;
     cont.appendChild(div);
   });
 
@@ -146,6 +151,7 @@ function filtrarProductos() {
 
 // FINALIZAR
 function finalizarVenta(metodo) {
+  event.preventDefault();
   if (carrito.length === 0) {
     showToast("El carrito está vacío", "error");
     return;
@@ -196,17 +202,6 @@ function finalizarVenta(metodo) {
 
     ? "MERCADO PAGO"
 
-  : metodo === "qr"
-
-    ? "QR"
-
-  : metodo === "qr_banco"
-
-    ? "QR BANCO"
-
-  : metodo === "promo_bn"
-
-    ? "PROMO BANCO NACIÓN"
 
   : metodo === "transferencia"
 
@@ -271,35 +266,13 @@ mostrarTicket({
   detalle:
     ticketDetalle
 });
-  // ==========================
-// LIMPIAR CARRITO
-// ==========================
 
-carrito.length = 0;
+// LIMPIAR CARRITO
+carrito = [];
 
 // RE-RENDER
 renderCarrito();
-
 renderProductos();
-
-// LIMPIAR TOTAL
-document.getElementById(
-  "total"
-).innerText = "0";
-
-// SACAR FOCUS
-if (document.activeElement) {
-
-  document.activeElement.blur();
-}
-
-// SCROLL ARRIBA
-window.scrollTo({
-
-  top: 0,
-
-  behavior: "smooth"
-});
 
 // TOAST
 showToast(

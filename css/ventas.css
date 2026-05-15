@@ -458,7 +458,23 @@
 .producto-btn:active {
 
   transform:
-    scale(0.97);
+    scale(0.98);
+
+  opacity: 0.9;
+}
+/* SACAR FOCUS */
+
+.producto-btn:focus {
+
+  outline: none;
+
+  box-shadow: none;
+}
+
+.producto-btn {
+
+  -webkit-tap-highlight-color:
+    transparent;
 }
 /* PAYMENT */
 
