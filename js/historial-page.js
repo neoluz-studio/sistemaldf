@@ -1,26 +1,36 @@
 // =================================
-// HISTORIAL
+// SOLO ADMIN
 // =================================
+
 if (
+
   localStorage.getItem("rol")
   !== "ADMIN"
+
 ) {
 
   showToast(
-  "Acceso solo para administradores",
-  "error"
-);
+    "Acceso solo para administradores",
+    "error"
+  );
 
-setTimeout(() => {
+  setTimeout(() => {
 
-  window.location.href =
-    "index.html";
+    window.location.href =
+      "index.html";
 
-}, 1200);
+  }, 1200);
 }
+
+// =================================
+// STORAGE
+// =================================
+
 let historial =
   JSON.parse(
-    localStorage.getItem("historial")
+    localStorage.getItem(
+      "historial"
+    )
   ) || [];
 
 // =================================
@@ -37,8 +47,39 @@ const iconos = {
 
   produccion: "🏭",
 
-  proveedor: "🚚"
+  proveedor: "🚚",
+
+  sistema: "⚙️",
+
+  login: "🔐",
+
+  backup: "💾"
 };
+
+// =================================
+// BADGES
+// =================================
+
+function getBadge(tipo) {
+
+  switch (tipo) {
+
+    case "egreso":
+      return "badge-danger";
+
+    case "venta":
+      return "badge-success";
+
+    case "ingreso":
+      return "badge-success";
+
+    case "produccion":
+      return "badge-info";
+
+    default:
+      return "badge-warning";
+  }
+}
 
 // =================================
 // RENDER
@@ -55,61 +96,93 @@ function renderHistorial() {
 
   cont.innerHTML = "";
 
+  // VACIO
   if (historial.length === 0) {
 
     cont.innerHTML = `
 
       <div class="empty-state">
+
         No hay actividad registrada
+
       </div>
     `;
 
     return;
   }
 
-  historial.forEach(h => {
+  // MÁS NUEVOS ARRIBA
+  [...historial]
+    .reverse()
+    .slice(0, 50)
+    .forEach(h => {
 
-    const div =
-      document.createElement("div");
+      const div =
+        document.createElement("div");
 
-    div.className =
-      "activity-card";
+      div.className =
+        "activity-card";
 
-    div.innerHTML = `
+      div.innerHTML = `
 
-      <div class="activity-left">
+        <div class="activity-left">
 
-        <h4>
+          <h4>
 
-          ${iconos[h.tipo] || "📌"}
-          ${h.descripcion}
+            ${iconos[h.tipo] || "📌"}
 
-        </h4>
+            ${h.descripcion || "-"}
 
-        <p>
+          </h4>
 
-          ${h.modulo}
-          •
-          ${h.usuario}
-          •
-          ${h.fecha}
+          <p>
 
-        </p>
+            ${h.modulo || "Sistema"}
 
-      </div>
+            •
 
-      <div class="activity-money">
+            ${h.usuario || "Admin"}
 
-        ${h.monto
-          ? `$${h.monto}`
-          : ""}
+            •
 
-      </div>
-    `;
+            ${h.fecha || "-"}
 
-    cont.appendChild(div);
-  });
+          </p>
+
+        </div>
+
+        <div class="activity-right">
+
+          <span class="
+            ${getBadge(h.tipo)}
+          ">
+
+            ${(h.tipo || "evento")
+              .toUpperCase()}
+
+          </span>
+
+          <div class="activity-money">
+
+            ${h.monto
+
+              ? `$${Number(h.monto)
+                  .toLocaleString()}`
+
+              : ""
+            }
+
+          </div>
+
+        </div>
+      `;
+
+      cont.appendChild(div);
+    });
 }
 
+// =================================
 // INIT
+// =================================
+
 renderHistorial();

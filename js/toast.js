@@ -9,12 +9,24 @@ function showToast(
 
 ) {
 
+  // EVITAR DUPLICADOS
+  const yaExiste =
+    [...document.querySelectorAll(".toast")]
+      .find(t =>
+        t.innerText.includes(mensaje)
+      );
+
+  if (yaExiste) return;
+
+  // =================================
+  // CONTAINER
+  // =================================
+
   let container =
     document.querySelector(
       ".toast-container"
     );
 
-  // CREAR CONTAINER
   if (!container) {
 
     container =
@@ -23,46 +35,75 @@ function showToast(
     container.className =
       "toast-container";
 
-    document.body.appendChild(container);
+    document.body.appendChild(
+      container
+    );
   }
 
+  // =================================
+  // ICONOS
+  // =================================
+
+  const iconos = {
+
+    success: "✅",
+
+    error: "❌",
+
+    info: "ℹ️",
+
+    warning: "⚠️"
+  };
+
+  // =================================
   // TOAST
+  // =================================
+
   const toast =
     document.createElement("div");
 
   toast.className =
     `toast ${tipo}`;
 
-  const iconos = {
+  toast.innerHTML = `
 
-  success: "✅",
-  error: "❌",
-  info: "ℹ️"
-};
+    <div class="toast-content">
 
-toast.innerHTML = `
+      <span class="toast-icon">
 
-  <div class="toast-content">
+        ${iconos[tipo] || "🔔"}
 
-    <span class="toast-icon">
-      ${iconos[tipo]}
-    </span>
+      </span>
 
-    <strong>
-      ${mensaje}
-    </strong>
+      <strong>
 
-  </div>
-`;
+        ${mensaje}
+
+      </strong>
+
+    </div>
+  `;
+
   container.appendChild(toast);
 
+  // =================================
+  // SHOW
+  // =================================
+
+  requestAnimationFrame(() => {
+
+    toast.classList.add("show");
+  });
+
+  // =================================
   // REMOVE
+  // =================================
+
   setTimeout(() => {
 
-    toast.style.opacity = "0";
+    toast.classList.remove("show");
 
-    toast.style.transform =
-      "translateX(100px)";
+    toast.classList.add("hide");
 
     setTimeout(() => {
 

@@ -1,72 +1,177 @@
 // =================================
+// REDIRECT SI YA ESTÁ LOGUEADO
+// =================================
+
+const auth =
+  JSON.parse(
+    localStorage.getItem("auth")
+  );
+
+if (auth) {
+
+  window.location.href =
+    "index.html";
+}
+
+// =================================
 // LOGIN
 // =================================
 
 function login() {
 
-  const usuario =
+  const usuarioInput =
     document
       .getElementById("usuario")
-      .value;
+      .value
+      .trim()
+      .toLowerCase();
 
   const password =
     document
       .getElementById("password")
-      .value;
+      .value
+      .trim();
 
-  // ADMIN
+  // VALIDAR
   if (
-    usuario === "admin" &&
-    password === "1234"
+    !usuarioInput ||
+    !password
   ) {
 
+    showToast(
+      "Completá usuario y contraseña",
+      "error"
+    );
+
+    return;
+  }
+
+  // =================================
+  // ADMIN
+  // =================================
+
+  if (
+
+    usuarioInput === "admin" &&
+    password === "Fausti2023"
+
+  ) {
+
+    // SESION
     localStorage.setItem(
       "auth",
-      "true"
+      JSON.stringify(true)
     );
 
-    localStorage.setItem(
-      "usuarioActual",
-      "Administrador"
-    );
-
+    // ROL
     localStorage.setItem(
       "rol",
       "ADMIN"
     );
 
-    window.location.href =
-      "index.html";
+    // USUARIO
+    localStorage.setItem(
+
+      "usuario",
+
+      JSON.stringify({
+
+        nombre:
+          "Administrador",
+
+        rol:
+          "ADMIN"
+      })
+    );
+
+    showToast(
+      "Bienvenido Administrador",
+      "success"
+    );
+
+    setTimeout(() => {
+
+      window.location.href =
+        "index.html";
+
+    }, 600);
 
     return;
   }
 
+  // =================================
   // LOCAL
+  // =================================
+
   if (
-    usuario === "local" &&
-    password === "1234"
+
+    usuarioInput === "local" &&
+    password === "12345678"
+
   ) {
 
+    // SESION
     localStorage.setItem(
       "auth",
-      "true"
+      JSON.stringify(true)
     );
 
-    localStorage.setItem(
-      "usuarioActual",
-      "Local"
-    );
-
+    // ROL
     localStorage.setItem(
       "rol",
       "LOCAL"
     );
 
-    window.location.href =
-      "index.html";
+    // USUARIO
+    localStorage.setItem(
+
+      "usuario",
+
+      JSON.stringify({
+
+        nombre:
+          "Local",
+
+        rol:
+          "LOCAL"
+      })
+    );
+
+    showToast(
+      "Bienvenido Local",
+      "success"
+    );
+
+    setTimeout(() => {
+
+      window.location.href =
+        "index.html";
+
+    }, 600);
 
     return;
   }
 
-  alert("Usuario o contraseña incorrectos");
+  // ERROR
+  showToast(
+    "Usuario o contraseña incorrectos",
+    "error"
+  );
 }
+
+// =================================
+// ENTER
+// =================================
+
+document.addEventListener(
+
+  "keydown",
+
+  e => {
+
+    if (e.key === "Enter") {
+
+      login();
+    }
+  }
+);

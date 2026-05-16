@@ -1,74 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Configuración</title>
 
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Configuración
+  </title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/dashboard.css">
-<link rel="stylesheet" href="css/forms.css">
-<link rel="stylesheet" href="css/ventas.css">
-<link rel="stylesheet" href="css/tables.css">
-<link rel="stylesheet" href="css/darkmode.css">
-<link rel="stylesheet" href="css/animations.css">
-<link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/ventas.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
 </head>
+
 <body>
+
+<!-- ================================= -->
+<!-- LAYOUT -->
+<!-- ================================= -->
 
 <div class="layout">
 
+  <!-- ================================= -->
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+  <!-- ================================= -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
 
     <div class="sidebar-header">
 
       <div class="brand">
-        <div class="brand-icon">🧊</div>
+
+        <div class="brand-icon">
+          🧊
+        </div>
 
         <div>
-          <h2>Fausti</h2>
-          <p>Sistema de Gestión</p>
+
+          <h2>
+            Fausti
+          </h2>
+
+          <p>
+            Sistema de Gestión
+          </p>
+
         </div>
+
       </div>
 
       <button
+        type="button"
         class="collapse-btn"
         onclick="toggleSidebar()"
       >
+
         ☰
+
       </button>
 
     </div>
 
+    <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a href="index.html" class="nav-link">
+      <a
+        href="index.html"
+        class="nav-link"
+      >
         <b>Inicio</b>
       </a>
 
-      <a href="ventas.html" class="nav-link">
+      <a
+        href="ventas.html"
+        class="nav-link"
+      >
         <b>Ventas</b>
       </a>
 
-      <a href="historial.html" class="nav-link admin-only">
+      <a
+        href="historial.html"
+        class="nav-link "
+      >
         <b>Historial</b>
       </a>
 
-      <a href="productos.html" class="nav-link">
+      <a
+        href="productos.html"
+        class="nav-link"
+      >
         <b>Productos</b>
       </a>
 
-      <a href="caja.html" class="nav-link">
+      <a
+        href="caja.html"
+        class="nav-link"
+      >
         <b>Caja</b>
       </a>
 
-      <a href="produccion.html" class="nav-link">
+      <a
+        href="produccion.html"
+        class="nav-link"
+      >
         <b>Producción</b>
       </a>
 
-      <a href="configuracion.html" class="nav-link active admin-only">
+      <a
+        href="configuracion.html"
+        class="nav-link active admin-only"
+      >
         <b>Configuración</b>
       </a>
 
@@ -76,9 +135,13 @@
 
   </aside>
 
+  <!-- ================================= -->
   <!-- MAIN -->
+  <!-- ================================= -->
+
   <main class="main">
 
+    <!-- TOPBAR -->
     <div class="topbar">
 
       <h2>
@@ -87,9 +150,13 @@
 
     </div>
 
+    <!-- CONTENT -->
     <div class="page-content">
 
+      <!-- ================================= -->
       <!-- BACKUP -->
+      <!-- ================================= -->
+
       <div class="box fade-in">
 
         <h3>
@@ -100,13 +167,21 @@
           Exportá todos los datos del negocio.
         </p>
 
-        <button onclick="exportarBackup()">
+        <button
+          type="button"
+          onclick="exportarBackup()"
+        >
+
           Descargar backup
+
         </button>
 
       </div>
 
+      <!-- ================================= -->
       <!-- RESTAURAR -->
+      <!-- ================================= -->
+
       <div class="box fade-in">
 
         <h3>
@@ -116,10 +191,16 @@
         <input
           type="file"
           id="backupFile"
+          accept=".json"
         >
 
-        <button onclick="importarBackup()">
+        <button
+          type="button"
+          onclick="importarBackup()"
+        >
+
           Restaurar datos
+
         </button>
 
       </div>
@@ -130,13 +211,14 @@
 
 </div>
 
-<script src="js/storage.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/toast.js"></script>
-<script src="js/roles.js"></script>
-<script src="js/configuracion.js"></script>
-<script src="js/app.js"></script>
-<div id="commandPalette" class="command-palette hidden">
+<!-- ================================= -->
+<!-- COMMAND PALETTE -->
+<!-- ================================= -->
+
+<div
+  id="commandPalette"
+  class="command-palette hidden"
+>
 
   <div class="command-box">
 
@@ -144,6 +226,7 @@
       type="text"
       id="commandInput"
       placeholder="Buscar productos, ventas o módulos..."
+      autocomplete="off"
       oninput="buscarGlobal()"
     >
 
@@ -152,6 +235,22 @@
   </div>
 
 </div>
+
+<!-- ================================= -->
+<!-- SCRIPTS -->
+<!-- ================================= -->
+
+<script defer src="js/storage.js"></script>
+
+<script defer src="js/auth.js"></script>
+
+<script defer src="js/toast.js"></script>
+
+<script defer src="js/roles.js"></script>
+
+<script defer src="js/configuracion.js"></script>
+
+<script defer src="js/app.js"></script>
 
 </body>
 </html>

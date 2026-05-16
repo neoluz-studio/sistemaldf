@@ -4,6 +4,8 @@
 
 .table-box {
 
+  width: 100%;
+
   overflow-x: auto;
 }
 
@@ -18,6 +20,10 @@ table {
   border-collapse: collapse;
 }
 
+/* ================================= */
+/* TABLE HEAD */
+/* ================================= */
+
 table thead {
 
   background:
@@ -28,24 +34,35 @@ table th {
 
   text-align: left;
 
-  padding: 14px;
+  padding: 14px 16px;
 
   font-size: 14px;
 
-  color: #475569;
+  font-weight: 700;
+
+  color:
+    #475569;
 }
+
+/* ================================= */
+/* TABLE BODY */
+/* ================================= */
 
 table td {
 
-  padding: 14px;
+  padding: 14px 16px;
 
   border-top:
-    1px solid #e2e8f0;
+    1px solid rgba(0,0,0,0.06);
+
+  transition:
+    background 0.18s ease;
 }
 
 table tbody tr {
 
-  transition: 0.2s ease;
+  transition:
+    all 0.18s ease;
 }
 
 table tbody tr:hover {
@@ -64,9 +81,11 @@ table tbody tr:hover {
 
   border-radius: 18px;
 
-  background: #f8fafc;
+  background:
+    #f8fafc;
 
-  color: #64748b;
+  color:
+    #64748b;
 
   text-align: center;
 
@@ -74,122 +93,12 @@ table tbody tr:hover {
 }
 
 /* ================================= */
-/* MOVEMENT */
+/* MOVEMENT / RECIPE / DEBT */
 /* ================================= */
 
 .movement-card,
 .recipe-card,
-.debt-card {
-
-  background: white;
-
-  border-radius: 18px;
-
-  padding: 18px;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 16px;
-
-  box-shadow:
-    0 8px 22px rgba(0,0,0,0.05);
-
-  transition: 0.2s ease;
-}
-
-.movement-card:hover,
-.recipe-card:hover,
-.debt-card:hover {
-
-  transform: translateY(-2px);
-
-  box-shadow:
-    0 14px 30px rgba(0,0,0,0.08);
-}
-
-/* ================================= */
-/* TITLES */
-/* ================================= */
-
-.movement-card h4,
-.recipe-card h4,
-.debt-card h4 {
-
-  margin: 8px 0 4px;
-}
-
-/* ================================= */
-/* TEXT */
-/* ================================= */
-
-.movement-card p,
-.recipe-card p,
-.debt-card p {
-
-  margin: 4px 0;
-
-  color: #64748b;
-}
-
-/* ================================= */
-/* MONEY */
-/* ================================= */
-
-.money-in {
-
-  color: #16a34a;
-
-  font-size: 20px;
-
-  font-weight: 800;
-}
-
-.money-out {
-
-  color: #dc2626;
-
-  font-size: 20px;
-
-  font-weight: 800;
-}
-
-/* ================================= */
-/* RECIPE */
-/* ================================= */
-
-.recipe-list {
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 8px;
-
-  margin-top: 10px;
-}
-
-.recipe-ingredient {
-
-  background: #eff6ff;
-
-  color: #2563eb;
-
-  padding: 8px 12px;
-
-  border-radius: 12px;
-
-  font-size: 13px;
-
-  font-weight: 700;
-}
-/* ACTIVITY */
-
-/* ACTIVITY */
-
+.debt-card,
 .activity-card {
 
   position: relative;
@@ -202,24 +111,102 @@ table tbody tr:hover {
 
   gap: 18px;
 
-  padding: 18px 18px 18px 24px;
+  padding: 22px;
 
-  border-radius: 20px;
+  border-radius: 24px;
+
+  margin-bottom: 16px;
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,0.02),
-      rgba(255,255,255,0.01)
-    );
+    rgba(255,255,255,0.85);
 
   border:
-    1px solid rgba(255,255,255,0.04);
+    1px solid rgba(0,0,0,0.04);
 
-  margin-bottom: 14px;
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.05);
 
   overflow: hidden;
+
+  transition:
+    all 0.2s ease;
 }
+
+/* ================================= */
+/* HOVER */
+/* ================================= */
+
+.movement-card:hover,
+.recipe-card:hover,
+.debt-card:hover,
+.activity-card:hover {
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 16px 35px rgba(0,0,0,0.08);
+}
+
+/* ================================= */
+/* INGRESO */
+/* ================================= */
+
+.movement-card.ingreso::before {
+
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 5px;
+  height: 100%;
+
+  background:
+
+    linear-gradient(
+
+      180deg,
+
+      #22c55e,
+
+      #16a34a
+    );
+}
+
+/* ================================= */
+/* EGRESO */
+/* ================================= */
+
+.movement-card.egreso::before {
+
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 5px;
+  height: 100%;
+
+  background:
+
+    linear-gradient(
+
+      180deg,
+
+      #ef4444,
+
+      #dc2626
+    );
+}
+
+/* ================================= */
+/* ACTIVITY */
+/* ================================= */
 
 .activity-card::before {
 
@@ -234,12 +221,20 @@ table tbody tr:hover {
   height: 100%;
 
   background:
+
     linear-gradient(
+
       180deg,
-      #22c55e,
-      #16a34a
+
+      #0ea5e9,
+
+      #2563eb
     );
 }
+
+/* ================================= */
+/* CONTENT */
+/* ================================= */
 
 .activity-left {
 
@@ -247,58 +242,135 @@ table tbody tr:hover {
 
   flex-direction: column;
 
-  gap: 4px;
+  gap: 5px;
 }
 
-.activity-left h4 {
+.activity-left h4,
+.recipe-card h4,
+.debt-card h4,
+.movement-card h4 {
 
   margin: 0;
 
   font-size: 15px;
+
+  font-weight: 700;
 }
 
-.activity-left p {
+.activity-left p,
+.recipe-card p,
+.debt-card p,
+.movement-card p {
 
   margin: 0;
 
-  color: #94a3b8;
+  color:
+    #64748b;
 
   font-size: 13px;
 }
 
+/* ================================= */
+/* MONEY */
+/* ================================= */
+
 .activity-money {
 
-  font-size: 28px;
+  font-size: 26px;
 
   font-weight: 800;
 
-  color: #22c55e;
+  color:
+    #38bdf8;
 }
-/* PRODUCT TABLE */
+
+.money-in {
+
+  color:
+    #16a34a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+.money-out {
+
+  color:
+    #dc2626;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+/* ================================= */
+/* RECIPE */
+/* ================================= */
+
+.recipe-list {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.recipe-ingredient,
+.ingredient-pill {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(14,165,233,0.12);
+
+  color:
+    #2563eb;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+/* ================================= */
+/* PRODUCT */
+/* ================================= */
 
 .product-row {
 
-  transition: 0.18s ease;
+  transition:
+    all 0.18s ease;
 }
 
 .product-row:hover {
 
   transform:
-    translateY(-2px);
-
-  box-shadow:
-    0 15px 25px rgba(0,0,0,0.08);
+    translateY(-1px);
 }
 
+/* ================================= */
 /* STOCK */
-
-/* STOCK */
+/* ================================= */
 
 .stock-pill {
 
   display: inline-flex;
 
   align-items: center;
+
   justify-content: center;
 
   padding: 7px 12px;
@@ -318,7 +390,7 @@ table tbody tr:hover {
     rgba(34,197,94,0.15);
 
   color:
-    #22c55e;
+    #16a34a;
 }
 
 .stock-low {
@@ -329,218 +401,16 @@ table tbody tr:hover {
   color:
     #ef4444;
 }
-/* DEUDA PAGADA */
+
+/* ================================= */
+/* DEUDA */
+/* ================================= */
 
 .deuda-pagada {
 
   border:
-    2px solid rgba(34,197,94,0.25);
+    2px solid rgba(34,197,94,0.22);
 
   background:
     rgba(34,197,94,0.06);
-}
-/* TIMELINE */
-
-.activity-card {
-
-  position: relative;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 20px;
-
-  padding: 22px;
-
-  border-radius: 24px;
-
-  margin-bottom: 16px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.01)
-    );
-
-  border:
-    1px solid rgba(255,255,255,0.04);
-
-  overflow: hidden;
-}
-
-.activity-card::before {
-
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  top: 0;
-
-  width: 5px;
-  height: 100%;
-
-  background:
-    linear-gradient(
-      180deg,
-      #0ea5e9,
-      #2563eb
-    );
-}
-
-.activity-left {
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 6px;
-}
-
-.activity-left h4 {
-
-  margin: 0;
-
-  font-size: 16px;
-}
-
-.activity-left p {
-
-  margin: 0;
-
-  color: #94a3b8;
-
-  font-size: 13px;
-}
-
-.activity-money {
-
-  font-size: 26px;
-
-  font-weight: 800;
-
-  color: #38bdf8;
-}
-/* ================================= */
-/* MOVEMENTS */
-/* ================================= */
-
-.movement-card {
-
-  position: relative;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 20px;
-
-  padding: 22px;
-
-  border-radius: 24px;
-
-  margin-bottom: 16px;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255,255,255,0.03),
-      rgba(255,255,255,0.01)
-    );
-
-  border:
-    1px solid rgba(255,255,255,0.04);
-
-  overflow: hidden;
-
-  transition: 0.2s ease;
-}
-
-.movement-card:hover {
-
-  transform:
-    translateY(-2px);
-
-  box-shadow:
-    0 20px 35px rgba(0,0,0,0.12);
-}
-
-/* INGRESO */
-
-.movement-card.ingreso::before {
-
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  top: 0;
-
-  width: 5px;
-  height: 100%;
-
-  background:
-    linear-gradient(
-      180deg,
-      #22c55e,
-      #16a34a
-    );
-}
-
-/* EGRESO */
-
-.movement-card.egreso::before {
-
-  content: "";
-
-  position: absolute;
-
-  left: 0;
-  top: 0;
-
-  width: 5px;
-  height: 100%;
-
-  background:
-    linear-gradient(
-      180deg,
-      #ef4444,
-      #dc2626
-    );
-}
-table td {
-
-  padding: 14px 16px;
-}
-/* INGREDIENT */
-
-.ingredient-pill {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 6px;
-
-  padding: 7px 12px;
-
-  border-radius: 999px;
-
-  margin: 4px;
-
-  background:
-    rgba(14,165,233,0.12);
-
-  color:
-    #38bdf8;
-
-  font-size: 12px;
-
-  font-weight: 700;
 }

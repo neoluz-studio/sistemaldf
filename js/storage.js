@@ -1,554 +1,219 @@
-// =========================
-// USUARIO INICIAL
-// =========================
+// =================================
+// STORAGE DISPONIBLE
+// =================================
 
-if (!localStorage.getItem("usuario")) {
+function storageDisponible() {
 
-  localStorage.setItem("usuario", JSON.stringify({
-    nombre: "Administrador",
-    rol: "ADMIN"
-  }));
+  try {
+
+    localStorage.setItem(
+      "__test",
+      "ok"
+    );
+
+    localStorage.removeItem(
+      "__test"
+    );
+
+    return true;
+
+  } catch {
+
+    return false;
+  }
 }
 
-// =========================
-// SIDEBAR
-// =========================
+// =================================
+// GET STORAGE
+// =================================
 
-// =========================
-// SIDEBAR
-// =========================
+function getStorage(
 
-// =========================
-// MOBILE SIDEBAR
-// =========================
+  key,
+  fallback = []
 
-function toggleSidebar() {
+) {
 
-  const sidebar =
-    document.getElementById("sidebar");
+  // STORAGE OFF
+  if (!storageDisponible()) {
 
-  if (!sidebar) return;
+    console.error(
+      "LocalStorage no disponible"
+    );
 
-  sidebar.classList.toggle("mobile-open");
-}
-
-// =========================
-// DARK MODE
-// =========================
-
-function toggleDarkMode() {
-
-  document.body.classList.toggle("dark");
-
-  const dark = document.body.classList.contains("dark");
-
-  localStorage.setItem("darkMode", dark);
-}
-
-// RESTAURAR DARK MODE
-if (localStorage.getItem("darkMode") === "true") {
-
-  document.body.classList.add("dark");
-}
-
-// =========================
-// FORMATO MONEDA
-// =========================
-
-function formatoPeso(valor) {
-
-  return "$" + Number(valor).toLocaleString("es-AR");
-}
-
-// =========================
-// FECHA ACTUAL
-// =========================
-
-function fechaActual() {
-
-  return new Date().toLocaleString("es-AR");
-}
-// =========================
-// TOASTS
-// =========================
-
-function showToast(message, type = "success") {
-
-  let container =
-    document.querySelector(".toast-container");
-
-  if (!container) {
-
-    container = document.createElement("div");
-
-    container.className = "toast-container";
-
-    document.body.appendChild(container);
+    return fallback;
   }
 
-  const toast = document.createElement("div");
+  try {
 
-  toast.className = `toast ${type}`;
+    const data =
+      localStorage.getItem(key);
 
-  toast.innerText = message;
+    // VACIO
+    if (
 
-  container.appendChild(toast);
+      data === null ||
+      data === undefined ||
+      data === ""
 
-  setTimeout(() => {
+    ) {
 
-    toast.remove();
+      return fallback;
+    }
 
-  }, 3000);
-}
+    return JSON.parse(data);
 
-// =========================
-// MODAL CONFIRM
-// =========================
+  } catch (error) {
 
-function showConfirm({
-  title = "Confirmar",
-  message = "¿Seguro?",
-  onConfirm = () => {}
-}) {
+    console.error(
 
-  const overlay =
-    document.createElement("div");
+      `Error leyendo ${key}:`,
 
-  overlay.className = "modal-overlay";
+      error
+    );
 
-  overlay.innerHTML = `
-    <div class="modal">
+    // LIMPIAR DAÑADO
+    localStorage.removeItem(key);
 
-      <h3>${title}</h3>
-
-      <p>${message}</p>
-
-      <div class="modal-actions">
-
-        <button class="btn-cancel">
-          Cancelar
-        </button>
-
-        <button class="btn-danger">
-          Confirmar
-        </button>
-
-      </div>
-
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  // CANCELAR
-  overlay.querySelector(".btn-cancel")
-    .onclick = () => {
-
-      overlay.remove();
-    };
-
-  // CONFIRMAR
-  overlay.querySelector(".btn-danger")
-    .onclick = () => {
-
-      onConfirm();
-
-      overlay.remove();
-    };
-}
-// =========================
-// TICKET POS
-// =========================
-
-function mostrarTicket(venta) {
-
-  let productosHTML = "";
-
-  venta.detalle.forEach(item => {
-
-    productosHTML += `
-
-      <div class="ticket-item">
-
-        <span>
-          ${item.nombre}
-          x${item.cantidad}
-        </span>
-
-        <strong>
-          $${(
-            item.precio *
-            item.cantidad
-          ).toLocaleString()}
-        </strong>
-
-      </div>
-    `;
-  });
-
-  const overlay =
-    document.createElement("div");
-
-  overlay.className =
-    "modal-overlay";
-
-  overlay.innerHTML = `
-
-    <div class="modal ticket-modal">
-
-      <div class="ticket-header">
-
-        <h2>
-          🧊 Lo de Fausti
-        </h2>
-
-        <p>
-          Ticket de venta
-        </p>
-
-      </div>
-
-      <div class="ticket-info">
-
-        <small>
-          ${venta.fecha}
-        </small>
-
-        <small>
-          Pago:
-          ${venta.metodo}
-        </small>
-
-      </div>
-
-      <div class="ticket-products">
-
-        ${productosHTML}
-
-      </div>
-
-      <div class="ticket-total">
-
-        TOTAL:
-        $${venta.total.toLocaleString()}
-
-      </div>
-
-      <div class="modal-actions">
-
-        <button
-          class="btn-cancel"
-          onclick="this.closest('.modal-overlay').remove()"
-        >
-          Cerrar
-        </button>
-
-        <button onclick="window.print()">
-          🖨 Imprimir
-        </button>
-
-      </div>
-
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-}
-// =========================
-// COMMAND PALETTE
-// =========================
-
-document.addEventListener("keydown", e => {
-
-  // CTRL + K
-  if (e.ctrlKey && e.key === "k") {
-
-    e.preventDefault();
-
-    toggleCommandPalette();
+    return fallback;
   }
-
-  // ESC
-  if (e.key === "Escape") {
-
-    cerrarCommandPalette();
-  }
-});
-
-// TOGGLE
-function toggleCommandPalette() {
-
-  const palette =
-    document.getElementById("commandPalette");
-
-  if (!palette) return;
-
-  palette.classList.toggle("hidden");
-
-  const input =
-    document.getElementById("commandInput");
-
-  setTimeout(() => {
-
-    input?.focus();
-
-  }, 100);
 }
 
-// CERRAR
-function cerrarCommandPalette() {
+// =================================
+// SET STORAGE
+// =================================
 
-  const palette =
-    document.getElementById("commandPalette");
+function setStorage(
 
-  if (!palette) return;
+  key,
+  value
 
-  palette.classList.add("hidden");
-}
+) {
 
-// BUSCAR
-function buscarGlobal() {
-
-  const texto =
-    document.getElementById("commandInput")
-      .value
-      .toLowerCase();
-
-  const resultados =
-    document.getElementById("commandResults");
-
-  resultados.innerHTML = "";
-
-  // MODULOS
-  const modulos = [
-
-    {
-      nombre: "Ventas",
-      link: "ventas.html"
-    },
-
-    {
-      nombre: "Productos",
-      link: "productos.html"
-    },
-
-    {
-      nombre: "Caja",
-      link: "caja.html"
-    },
-
-    {
-      nombre: "Producción",
-      link: "produccion.html"
-    },
-
-    {
-      nombre: "Historial",
-      link: "historial.html"
-    }
-  ];
-
-  // PRODUCTOS
-  const productos =
-    JSON.parse(localStorage.getItem("productos")) || [];
-
-  // BUSCAR MODULOS
-  modulos
-    .filter(m =>
-      m.nombre.toLowerCase().includes(texto)
-    )
-    .forEach(m => {
-
-      resultados.innerHTML += `
-
-        <div
-          class="command-item"
-          onclick="window.location.href='${m.link}'"
-        >
-
-          📂 ${m.nombre}
-
-        </div>
-      `;
-  });
-
-  // BUSCAR PRODUCTOS
-  productos
-    .filter(p =>
-      p.nombre.toLowerCase().includes(texto)
-    )
-    .slice(0, 6)
-    .forEach(p => {
-
-      resultados.innerHTML += `
-
-        <div class="command-item">
-
-          📦 ${p.nombre}
-
-          <small>
-            Stock:
-            ${p.stock}
-          </small>
-
-        </div>
-      `;
-  });
-}
-// =========================
-// NOTIFICACIONES AUTO
-// =========================
-
-function verificarNotificaciones() {
-
-  const productos =
-    JSON.parse(localStorage.getItem("productos")) || [];
-
-  const caja =
-    JSON.parse(localStorage.getItem("caja")) || [];
-
-  const ventas =
-    JSON.parse(localStorage.getItem("ventas")) || [];
-
-  // =====================
-  // STOCK CRITICO
-  // =====================
-
-  const stockCritico =
-    productos.filter(p => p.stock <= 3);
-
-  stockCritico.forEach(p => {
-
-    const key =
-      "notif-stock-" + p.id;
-
-    // EVITAR REPETIR
-    if (!sessionStorage.getItem(key)) {
-
-      showToast(
-
-        `⚠️ ${p.nombre} con stock crítico`,
-
-        "error"
-      );
-
-      sessionStorage.setItem(key, "1");
-    }
-  });
-
-  // =====================
-  // SIN STOCK
-  // =====================
-
-  const sinStock =
-    productos.filter(p => p.stock <= 0);
-
-  sinStock.forEach(p => {
-
-    const key =
-      "notif-empty-" + p.id;
-
-    if (!sessionStorage.getItem(key)) {
-
-      showToast(
-
-        `❌ ${p.nombre} sin stock`,
-
-        "error"
-      );
-
-      sessionStorage.setItem(key, "1");
-    }
-  });
-
-  // =====================
-  // CAJA NEGATIVA
-  // =====================
-
-  let saldo = 0;
-
-  caja.forEach(m => {
-
-    saldo +=
-      m.tipo === "ingreso"
-        ? m.monto
-        : -m.monto;
-  });
-
-  if (saldo < 0 &&
-      !sessionStorage.getItem("notif-caja")) {
+  if (!storageDisponible()) {
 
     showToast(
-      "⚠️ Caja negativa",
+      "El navegador no permite guardar datos",
       "error"
     );
 
-    sessionStorage.setItem(
-      "notif-caja",
-      "1"
-    );
+    return false;
   }
 
-  // =====================
-  // VENTA ALTA
-  // =====================
+  try {
 
-  const ultimaVenta =
-    ventas[ventas.length - 1];
+    localStorage.setItem(
 
-  if (
-    ultimaVenta &&
-    ultimaVenta.total >= 50000 &&
-    !sessionStorage.getItem(
-      "venta-" + ultimaVenta.id
-    )
-  ) {
+      key,
+
+      JSON.stringify(value)
+    );
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+
+      `Error guardando ${key}:`,
+
+      error
+    );
 
     showToast(
-      "🔥 Venta alta registrada",
-      "success"
+      "Error guardando datos",
+      "error"
     );
 
-    sessionStorage.setItem(
-      "venta-" + ultimaVenta.id,
-      "1"
-    );
+    return false;
   }
 }
 
-// INIT
-setTimeout(() => {
-
-  verificarNotificaciones();
-
-}, 800);
-// CERRAR SIDEBAR AL TOCAR LINK
-document.querySelectorAll(".nav-link")
-  .forEach(link => {
-
-    link.addEventListener("click", () => {
-
-      if (window.innerWidth <= 768) {
-
-        document
-          .getElementById("sidebar")
-          ?.classList
-          .remove("mobile-open");
-      }
-    });
-});
 // =================================
-// LOADER
+// REMOVE STORAGE
 // =================================
 
-window.addEventListener("load", () => {
+function removeStorage(key) {
 
-  setTimeout(() => {
+  try {
 
-    document
-      .getElementById("loader")
-      ?.classList
-      .add("hidden");
+    localStorage.removeItem(key);
 
-  }, 900);
-});
+    return true;
+
+  } catch (error) {
+
+    console.error(
+
+      `Error eliminando ${key}:`,
+
+      error
+    );
+
+    return false;
+  }
+}
+
+// =================================
+// CLEAR STORAGE
+// =================================
+
+function clearStorage() {
+
+  try {
+
+    localStorage.clear();
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Error limpiando storage",
+      error
+    );
+
+    return false;
+  }
+}
+
+// =================================
+// EXISTE STORAGE
+// =================================
+
+function hasStorage(key) {
+
+  return (
+    localStorage.getItem(key)
+    !== null
+  );
+}
+
+// =================================
+// UPDATE STORAGE
+// =================================
+
+function updateStorage(
+
+  key,
+  callback,
+  fallback = []
+
+) {
+
+  const actual =
+    getStorage(
+      key,
+      fallback
+    );
+
+  const actualizado =
+    callback(actual);
+
+  setStorage(
+    key,
+    actualizado
+  );
+
+  return actualizado;
+}

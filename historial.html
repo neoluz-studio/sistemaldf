@@ -1,133 +1,221 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <title>Historial de Ventas</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Historial de Ventas
+  </title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/dashboard.css">
-<link rel="stylesheet" href="css/forms.css">
-<link rel="stylesheet" href="css/ventas.css">
-<link rel="stylesheet" href="css/tables.css">
-<link rel="stylesheet" href="css/darkmode.css">
-<link rel="stylesheet" href="css/animations.css">
-<link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/ventas.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
 </head>
+
 <body>
+
+<!-- ================================= -->
+<!-- LAYOUT -->
+<!-- ================================= -->
 
 <div class="layout">
 
+  <!-- ================================= -->
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
+  <!-- ================================= -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
 
     <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-icon">🧊</div>
 
-        <div>
-          <h2>Lo de Fausti</h2>
-          <p>Sistema de Gestión</p>
-        </div>
+      <div class="brand">
+
+           <div class="brand-icon">
+
+  <img
+    src="assets/icons/images/logo.png"
+    alt="FAUSTI"
+  >
+
+</div>
+
       </div>
 
-      <button class="collapse-btn" onclick="toggleSidebar()">☰</button>
+     
     </div>
 
+    <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a href="index.html" class="nav-link">
+      <a
+        href="index.html"
+        class="nav-link"
+      >
         <b>Inicio</b>
       </a>
 
-      <a href="ventas.html" class="nav-link">
+      <a
+        href="ventas.html"
+        class="nav-link"
+      >
         <b>Ventas</b>
       </a>
 
-      
-      <a href="productos.html" class="nav-link">
+      <a
+        href="productos.html"
+        class="nav-link"
+      >
         <b>Productos</b>
       </a>
 
-      <a href="caja.html" class="nav-link">
+      <a
+        href="caja.html"
+        class="nav-link"
+      >
         <b>Caja</b>
       </a>
 
-      <a href="produccion.html" class="nav-link">
+      <a
+        href="produccion.html"
+        class="nav-link"
+      >
         <b>Producción</b>
       </a>
-      <a href="proveedores.html" class="nav-link admin-only ">
-      <b>Proveedores</b>
-    </a>
-      <a href="historial.html" class="nav-link active">
+
+      <a
+        href="proveedores.html"
+        class="nav-link admin-only"
+      >
+        <b>Proveedores</b>
+      </a>
+
+      <a
+        href="historial.html"
+        class="nav-link active"
+      >
         <b>Historial</b>
       </a>
 
-
     </nav>
-<div class="user-box">
 
- 
+    <!-- USER -->
+    <div class="user-box">
 
-  <div class="user-info">
+      <div class="user-info">
 
-   
+        <small class="user-role">
+          Sesión activa
+        </small>
 
-    <small class="user-role">
-      Sesión activa
-    </small>
+      </div>
 
-  </div>
+      <button
+        type="button"
+        onclick="logout()"
+        class="switch-btn"
+      >
 
-  <button
-    onclick="window.location.href='login.html'"
-    class="switch-btn"
-  >
-    🔄 Cambiar cuenta
-  </button>
+        🔄 Cerrar Sesión
 
-  
-
-</div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-<div class="topbar">
-
-  <div class="topbar-left">
-
-    <div>
-
-      <h2>
-        🕒 Historial
-      </h2>
-
-      <p>
-        Actividad completa del sistema
-      </p>
+      </button>
 
     </div>
 
-  </div>
+  </aside>
 
-  
+  <!-- ================================= -->
+  <!-- MAIN -->
+  <!-- ================================= -->
 
-</div>
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+      <div class="topbar-left">
+
+        <div>
+
+          <h2>
+            🕒 Historial
+          </h2>
+
+          <p>
+            Actividad completa del sistema
+          </p>
+<button
+  class="danger-btn"
+  onclick="limpiarHistorial()"
+>
+
+  🗑️ Limpiar historial
+
+</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================================= -->
+    <!-- CONTENT -->
+    <!-- ================================= -->
+
     <div class="page-content">
+
+      <!-- ================================= -->
+      <!-- TABLA VENTAS -->
+      <!-- ================================= -->
 
       <div class="table-box">
 
         <table class="pro-table">
 
           <thead>
+
             <tr>
-              <th>Fecha</th>
-              <th>Total</th>
-              <th>Método</th>
-              <th>Usuario</th>
-              <th>Detalle</th>
+
+              <th>
+                Fecha
+              </th>
+
+              <th>
+                Total
+              </th>
+
+              <th>
+                Método
+              </th>
+
+              <th>
+                Usuario
+              </th>
+
+              <th>
+                Detalle
+              </th>
+
             </tr>
+
           </thead>
 
           <tbody id="listaVentas"></tbody>
@@ -136,21 +224,30 @@
 
       </div>
 
+      <!-- ================================= -->
+      <!-- HISTORIAL GLOBAL -->
+      <!-- ================================= -->
+
+      <div class="box fade-in">
+
+        <div id="listaHistorial"></div>
+
+      </div>
+
     </div>
 
   </main>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/toast.js"></script>
-<script src="js/roles.js"></script>
-<script src="js/historial.js"></script>
-<script src="js/historial-page.js"></script>
-<script src="js/app.js"></script>
-<div id="commandPalette" class="command-palette hidden">
+
+<!-- ================================= -->
+<!-- COMMAND PALETTE -->
+<!-- ================================= -->
+
+<div
+  id="commandPalette"
+  class="command-palette hidden"
+>
 
   <div class="command-box">
 
@@ -158,6 +255,7 @@
       type="text"
       id="commandInput"
       placeholder="Buscar productos, ventas o módulos..."
+      autocomplete="off"
       oninput="buscarGlobal()"
     >
 
@@ -166,10 +264,32 @@
   </div>
 
 </div>
-<div class="box">
 
-  <div id="listaHistorial"></div>
+<!-- ================================= -->
+<!-- SCRIPTS -->
+<!-- ================================= -->
 
-</div>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
+  onerror="console.error('Error cargando Supabase')"
+></script>
+
+<script defer src="js/supabase.js"></script>
+
+<script defer src="js/storage.js"></script>
+
+<script defer src="js/auth.js"></script>
+
+<script defer src="js/toast.js"></script>
+
+<script defer src="js/roles.js"></script>
+
+<script defer src="js/historial.js"></script>
+
+
+
+<script defer src="js/app.js"></script>
+
 </body>
 </html>

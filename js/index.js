@@ -1,187 +1,117 @@
-let ventas = JSON.parse(localStorage.getItem("ventas")) || [];
-let productos = JSON.parse(localStorage.getItem("productos")) || [];
+// =================================
+// STORAGE
+// =================================
 
-// ==========================
+const ventas =
+  JSON.parse(
+    localStorage.getItem("ventas")
+  ) || [];
+
+const productos =
+  JSON.parse(
+    localStorage.getItem("productos")
+  ) || [];
+
+// =================================
 // TOTALES
-// ==========================
+// =================================
 
-const totalVentas = ventas.reduce((acc, v) => acc + v.total, 0);
+const totalVentas =
+  ventas.reduce(
+    (acc, v) => acc + v.total,
+    0
+  );
 
-const totalGanancia = ventas.reduce((acc, v) => {
-  return acc + (v.ganancia || 0);
-}, 0);
+const totalGanancia =
+  ventas.reduce(
+    (acc, v) =>
+      acc + (v.ganancia || 0),
+    0
+  );
 
-const totalProductos = productos.length;
+const totalProductos =
+  productos.length;
 
-// ==========================
+// =================================
 // PRODUCTO MÁS VENDIDO
-// ==========================
+// =================================
 
-const contadorProductos = {};
+function getTopProducto() {
 
-ventas.forEach(v => {
-  v.detalle?.forEach(item => {
-    contadorProductos[item.nombre] =
-      (contadorProductos[item.nombre] || 0) + item.cantidad;
-  });
-});
+  const contador = {};
 
-let topProducto = "-";
-let maxVentas = 0;
+  ventas.forEach(v => {
 
-for (let producto in contadorProductos) {
-  if (contadorProductos[producto] > maxVentas) {
-    maxVentas = contadorProductos[producto];
-    topProducto = producto;
-  }
-}
+    v.detalle?.forEach(item => {
 
-// ==========================
-// STOCK BAJO
-// ==========================
+      contador[item.nombre] =
 
-const stockBajo = productos.filter(p => p.stock <= 3);
+        (contador[item.nombre] || 0)
 
-// ==========================
-// RENDER DASHBOARD
-// ==========================
-
-document.getElementById("totalVentas").innerText =
-  totalVentas.toLocaleString();
-
-document.getElementById("totalGanancia").innerText =
-  totalGanancia.toLocaleString();
-
-document.getElementById("totalProductos").innerText =
-  totalProductos;
-
-const topProductoEl = document.getElementById("topProducto");
-
-if (topProductoEl) {
-  topProductoEl.innerText = topProducto;
-}
-
-// ==========================
-// RENDER STOCK BAJO
-// ==========================
-
-const stockBajoEl = document.getElementById("stockBajo");
-
-if (stockBajoEl) {
-
-  if (stockBajo.length === 0) {
-    stockBajoEl.innerHTML = `
-      <div class="empty-state">
-        No hay productos con stock bajo
-      </div>
-    `;
-  } else {
-
-    stockBajo.forEach(p => {
-
-      stockBajoEl.innerHTML += `
-        <div class="movement-card">
-          <div>
-            <h4>${p.nombre}</h4>
-            <small>Stock crítico</small>
-          </div>
-
-          <span class="badge-danger">
-            ${p.stock} ${p.unidad || ""}
-          </span>
-        </div>
-      `;
+        + item.cantidad;
     });
+  });
+
+  let top = "-";
+
+  let max = 0;
+
+  for (let nombre in contador) {
+
+    if (contador[nombre] > max) {
+
+      max = contador[nombre];
+
+      top = nombre;
+    }
+  }
+
+  return top;
+}
+
+// =================================
+// DASHBOARD
+// =================================
+
+function renderDashboard() {
+
+  document.getElementById(
+    "totalVentas"
+  ).innerText =
+    totalVentas.toLocaleString();
+
+  document.getElementById(
+    "totalGanancia"
+  ).innerText =
+    totalGanancia.toLocaleString();
+
+  document.getElementById(
+    "totalProductos"
+  ).innerText =
+    totalProductos;
+
+  const topEl =
+    document.getElementById(
+      "topProducto"
+    );
+
+  if (topEl) {
+
+    topEl.innerText =
+      getTopProducto();
   }
 }
 
-// ==========================
-// GRÁFICO VENTAS POR MES
-// ==========================
-
-const ventasPorMes = {};
-
-ventas.forEach(v => {
-
-  const partes = v.fecha.split("/");
-
-  const mes = partes[1] || "Mes";
-
-  ventasPorMes[mes] =
-    (ventasPorMes[mes] || 0) + v.total;
-});
-
-const ctx = document.getElementById("ventasChart");
-
-if (ctx) {
-
-  new Chart(ctx, {
-    type: "bar",
-
-    data: {
-      labels: Object.keys(ventasPorMes),
-
-      datasets: [{
-        label: "Ventas",
-
-        data: Object.values(ventasPorMes),
-
-        borderRadius: 12
-      }]
-    },
-
-    options: {
-      responsive: true,
-
-      plugins: {
-        legend: {
-          display: false
-        }
-      }
-    }
-  });
-}
-
-// ==========================
-// GRÁFICO MÉTODOS DE PAGO
-// ==========================
-
-const metodos = {};
-
-ventas.forEach(v => {
-  metodos[v.metodo] =
-    (metodos[v.metodo] || 0) + v.total;
-});
-
-const metodoCtx = document.getElementById("metodosChart");
-
-if (metodoCtx) {
-
-  new Chart(metodoCtx, {
-
-    type: "doughnut",
-
-    data: {
-      labels: Object.keys(metodos),
-
-      datasets: [{
-        data: Object.values(metodos)
-      }]
-    },
-
-    options: {
-      responsive: true
-    }
-  });
-}
-// =========================
-// ACTIVIDAD RECIENTE
-// =========================
+// =================================
+// ACTIVIDAD
+// =================================
 
 function renderActividad() {
 
   const cont =
-    document.getElementById("actividadReciente");
+    document.getElementById(
+      "actividadReciente"
+    );
 
   if (!cont) return;
 
@@ -195,6 +125,7 @@ function renderActividad() {
   if (recientes.length === 0) {
 
     cont.innerHTML = `
+
       <div class="empty-state">
         Sin actividad reciente
       </div>
@@ -212,17 +143,24 @@ function renderActividad() {
         <div>
 
           <h4>
-            Venta ${v.metodo}
+
+            Venta
+            ${v.metodo}
+
           </h4>
 
           <small>
+
             ${v.fecha}
+
           </small>
 
         </div>
 
         <strong class="money-in">
+
           +$${v.total.toLocaleString()}
+
         </strong>
 
       </div>
@@ -230,27 +168,32 @@ function renderActividad() {
   });
 }
 
-// =========================
+// =================================
 // STOCK BAJO
-// =========================
+// =================================
 
-function renderStockCritico() {
+function renderStockBajo() {
 
   const cont =
-    document.getElementById("stockBajo");
+    document.getElementById(
+      "stockBajo"
+    );
 
   if (!cont) return;
 
   cont.innerHTML = "";
 
   const bajos =
-    productos.filter(p => p.stock <= 5);
+    productos.filter(
+      p => p.stock <= 5
+    );
 
   if (bajos.length === 0) {
 
     cont.innerHTML = `
+
       <div class="empty-state">
-        No hay stock crítico
+        No hay stock bajo
       </div>
     `;
 
@@ -276,7 +219,10 @@ function renderStockCritico() {
         </div>
 
         <span class="badge-danger">
+
           ${p.stock}
+          ${p.unidad || ""}
+
         </span>
 
       </div>
@@ -284,41 +230,39 @@ function renderStockCritico() {
   });
 }
 
-// =========================
-// INIT EXTRA
-// =========================
-
-renderActividad();
-
-renderStockCritico();
 // =================================
-// STOCK BAJO
+// STOCK CRÍTICO
 // =================================
 
-function renderStockBajo() {
+function renderStockCritico() {
 
   const cont =
-    document.getElementById("stockBajo");
+    document.getElementById(
+      "stockCritico"
+    );
 
   if (!cont) return;
 
-  const bajos =
-    productos.filter(p => p.stock <= 5);
+  cont.innerHTML = "";
 
-  if (bajos.length === 0) {
+  const criticos =
+    productos.filter(
+      p => p.stock <= 2
+    );
+
+  if (criticos.length === 0) {
 
     cont.innerHTML = `
+
       <div class="empty-state">
-        No hay alertas
+        Sin productos críticos
       </div>
     `;
 
     return;
   }
 
-  cont.innerHTML = "";
-
-  bajos.forEach(p => {
+  criticos.forEach(p => {
 
     cont.innerHTML += `
 
@@ -326,18 +270,20 @@ function renderStockBajo() {
 
         <div>
 
-          <h4>${p.nombre}</h4>
+          <h4>
+            ${p.nombre}
+          </h4>
 
-          <p>
-            Quedan:
-            ${p.stock}
-            ${p.unidad || ""}
-          </p>
+          <small>
+            Stock crítico
+          </small>
 
         </div>
 
         <span class="badge-danger">
-          Bajo
+
+          ${p.stock}
+
         </span>
 
       </div>
@@ -345,16 +291,20 @@ function renderStockBajo() {
   });
 }
 
-/* ================================= */
-/* ULTIMAS VENTAS */
-/* ================================= */
+// =================================
+// ÚLTIMAS VENTAS
+// =================================
 
 function renderUltimasVentas() {
 
   const cont =
-    document.getElementById("ultimasVentas");
+    document.getElementById(
+      "ultimasVentas"
+    );
 
   if (!cont) return;
+
+  cont.innerHTML = "";
 
   const ultimas =
     [...ventas]
@@ -364,6 +314,7 @@ function renderUltimasVentas() {
   if (ultimas.length === 0) {
 
     cont.innerHTML = `
+
       <div class="empty-state">
         No hay ventas
       </div>
@@ -371,8 +322,6 @@ function renderUltimasVentas() {
 
     return;
   }
-
-  cont.innerHTML = "";
 
   ultimas.forEach(v => {
 
@@ -383,17 +332,23 @@ function renderUltimasVentas() {
         <div>
 
           <h4>
+
             $${v.total.toLocaleString()}
+
           </h4>
 
           <p>
+
             ${v.metodo}
+
           </p>
 
         </div>
 
         <small>
+
           ${v.fecha}
+
         </small>
 
       </div>
@@ -401,63 +356,118 @@ function renderUltimasVentas() {
   });
 }
 
-// INIT
-renderStockBajo();
-renderUltimasVentas();
 // =================================
-// STOCK CRITICO
+// CHART VENTAS
 // =================================
 
-function renderStockCritico() {
+function renderVentasChart() {
 
-  const cont =
-    document.getElementById("stockCritico");
+  const ctx =
+    document.getElementById(
+      "ventasChart"
+    );
 
-  if (!cont) return;
+  if (!ctx) return;
 
-  const criticos =
-    productos.filter(p => p.stock <= 2);
+  const ventasPorMes = {};
 
-  if (criticos.length === 0) {
+  ventas.forEach(v => {
 
-    cont.innerHTML = `
-      <div class="empty-state">
-        Sin productos críticos
-      </div>
-    `;
+    const partes =
+      v.fecha.split("/");
 
-    return;
-  }
+    const mes =
+      partes[1] || "Mes";
 
-  cont.innerHTML = "";
+    ventasPorMes[mes] =
 
-  criticos.forEach(p => {
+      (ventasPorMes[mes] || 0)
 
-    cont.innerHTML += `
+      + v.total;
+  });
 
-      <div class="movement-card">
+  new Chart(ctx, {
 
-        <div>
+    type: "bar",
 
-          <h4>${p.nombre}</h4>
+    data: {
 
-          <p>
-            Quedan:
-            ${p.stock}
-          </p>
+      labels:
+        Object.keys(ventasPorMes),
 
-        </div>
+      datasets: [{
 
-        <span class="badge-danger">
-          CRÍTICO
-        </span>
+        label: "Ventas",
 
-      </div>
-    `;
+        data:
+          Object.values(ventasPorMes),
+
+        borderRadius: 12
+      }]
+    },
+
+    options: {
+
+      responsive: true,
+
+      plugins: {
+
+        legend: {
+
+          display: false
+        }
+      }
+    }
   });
 }
 
-renderStockCritico();
+// =================================
+// CHART MÉTODOS
+// =================================
+
+function renderMetodosChart() {
+
+  const ctx =
+    document.getElementById(
+      "metodosChart"
+    );
+
+  if (!ctx) return;
+
+  const metodos = {};
+
+  ventas.forEach(v => {
+
+    metodos[v.metodo] =
+
+      (metodos[v.metodo] || 0)
+
+      + v.total;
+  });
+
+  new Chart(ctx, {
+
+    type: "doughnut",
+
+    data: {
+
+      labels:
+        Object.keys(metodos),
+
+      datasets: [{
+
+        data:
+          Object.values(metodos)
+      }]
+    },
+
+    options: {
+
+      responsive: true
+    }
+  });
+}
+
 // =================================
 // CLOCK
 // =================================
@@ -465,24 +475,26 @@ renderStockCritico();
 function updateClock() {
 
   const clock =
-    document.getElementById("clock");
+    document.getElementById(
+      "clock"
+    );
 
   if (!clock) return;
 
-  const now =
-    new Date();
-
   clock.innerText =
-    now.toLocaleTimeString([], {
+    new Date()
+      .toLocaleTimeString([], {
 
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+        hour: "2-digit",
+
+        minute: "2-digit"
+      });
 }
 
 setInterval(updateClock, 1000);
 
 updateClock();
+
 // =================================
 // SALUDO
 // =================================
@@ -490,28 +502,56 @@ updateClock();
 function renderSaludo() {
 
   const saludo =
-    document.getElementById("saludo");
+    document.getElementById(
+      "saludo"
+    );
 
   if (!saludo) return;
 
   const hora =
     new Date().getHours();
 
-  let texto = "👋 Bienvenido";
+  let texto =
+    "👋 Bienvenido";
 
   if (hora < 12) {
-    texto = "☀️ Buenos días";
+
+    texto =
+      "☀️ Buenos días";
   }
 
   else if (hora < 19) {
-    texto = "🌤️ Buenas tardes";
+
+    texto =
+      "🌤️ Buenas tardes";
   }
 
   else {
-    texto = "🌙 Buenas noches";
+
+    texto =
+      "🌙 Buenas noches";
   }
 
-  saludo.innerText = texto;
+  saludo.innerText =
+    texto;
 }
+
+// =================================
+// INIT
+// =================================
+
+renderDashboard();
+
+renderActividad();
+
+renderStockBajo();
+
+renderStockCritico();
+
+renderUltimasVentas();
+
+renderVentasChart();
+
+renderMetodosChart();
 
 renderSaludo();

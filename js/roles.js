@@ -1,19 +1,21 @@
 // =================================
-// USER
+// USUARIO
 // =================================
 
 const usuario =
-  localStorage.getItem(
-    "usuarioActual"
-  );
 
-const rol =
-  localStorage.getItem(
-    "rol"
-  );
+  JSON.parse(
+    localStorage.getItem(
+      "usuario"
+    )
+  ) || null;
 
+// =================================
 // USERNAME
+// =================================
+
 const nombreEl =
+
   document.getElementById(
     "userNombre"
   );
@@ -21,7 +23,10 @@ const nombreEl =
 if (nombreEl) {
 
   nombreEl.innerText =
-    usuario || "Usuario";
+
+    usuario?.nombre ||
+
+    "Usuario";
 }
 
 // =================================
@@ -29,12 +34,17 @@ if (nombreEl) {
 // =================================
 
 const adminItems =
+
   document.querySelectorAll(
     ".admin-only"
   );
 
 // SI NO ES ADMIN
-if (rol !== "ADMIN") {
+if (
+
+  usuario?.rol !== "ADMIN"
+
+) {
 
   adminItems.forEach(el => {
 
@@ -43,23 +53,55 @@ if (rol !== "ADMIN") {
 }
 
 // =================================
+// MOSTRAR ROL
+// =================================
+
+const roleEl =
+
+  document.querySelector(
+    ".user-role"
+  );
+
+if (roleEl) {
+
+  roleEl.innerText =
+
+    usuario?.rol ||
+
+    "LOCAL";
+}
+
+// =================================
 // LOGOUT
 // =================================
 
 function logout() {
 
-  localStorage.removeItem(
-    "auth"
-  );
+  showConfirm({
 
-  localStorage.removeItem(
-    "usuarioActual"
-  );
+    title: "Cerrar sesión",
 
-  localStorage.removeItem(
-    "rol"
-  );
+    message:
+      "¿Querés cambiar de cuenta?",
 
-  window.location.href =
-    "login.html";
+    onConfirm: () => {
+
+      // LIMPIAR SESION
+      localStorage.removeItem(
+        "auth"
+      );
+
+      localStorage.removeItem(
+        "usuario"
+      );
+
+      localStorage.removeItem(
+        "rol"
+      );
+
+      // REDIRECT
+      window.location.href =
+        "login.html";
+    }
+  });
 }

@@ -1,45 +1,128 @@
-let productos = JSON.parse(localStorage.getItem("productos"));
-
-if (!productos || productos.length === 0) {
-  productos = [
-    { id: 1, nombre: "Empanadas", precio: 1000, stock: 10 },
-    { id: 2, nombre: "Milanesas", precio: 2500, stock: 5 },
-    { id: 3, nombre: "Papas fritas", precio: 1500, stock: 8 }
-  ];
-
-  localStorage.setItem("productos", JSON.stringify(productos));
-}
-
-let carrito = [];
+let productos =
+  JSON.parse(
+    localStorage.getItem(
+      "productos"
+    )
+  ) || [];
+  let carrito = [];
 
 // PRODUCTOS
+// PRODUCTOS
 function renderProductos(lista = productos) {
-  const cont = document.getElementById("productosGrid");
+
+  const cont =
+    document.getElementById(
+      "productosGrid"
+    );
+
   cont.innerHTML = "";
 
   lista.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "producto-btn";
-    div.innerHTML = `${p.nombre}<br>$${p.precio}`;
 
- div.onclick = () => {
+    const div =
+      document.createElement("div");
 
-  agregarAlCarrito(p);
+    div.className = `
 
-  document.activeElement.blur();
-};
+      producto-btn
+
+      ${p.stock <= 0
+        ? "sin-stock"
+        : ""}
+
+    `;
+
+    div.innerHTML = `
+
+      ${p.nombre}
+
+      <br>
+
+      $${p.precio}
+
+    `;
+
+    // SIN STOCK
+    if (p.stock <= 0) {
+
+      div.innerHTML += `
+
+        <small class="stock-empty">
+
+          SIN STOCK
+
+        </small>
+      `;
+    }
+
+    div.onclick = () => {
+
+      agregarAlCarrito(p);
+
+      document.activeElement.blur();
+    };
+
     cont.appendChild(div);
   });
-
 }
 // CARRITO
-function agregarAlCarrito(prod) {
-  const existe = carrito.find(p => p.id === prod.id);
 
+ function agregarAlCarrito(prod) {
+
+  // VALIDAR
+  if (!prod) return;
+
+  // SIN STOCK
+  if (prod.stock <= 0) {
+
+    showToast(
+
+      `${prod.nombre} sin stock`,
+
+      "error"
+    );
+
+    return;
+  }
+
+  const existe =
+    carrito.find(
+      p => p.id === prod.id
+    );
+
+  // YA EXISTE
   if (existe) {
+
+    // CONTROL STOCK
+    if (
+
+      existe.cantidad >=
+      prod.stock
+
+    ) {
+
+      showToast(
+
+        `Stock máximo de ${prod.nombre}`,
+
+        "error"
+      );
+
+      return;
+    }
+
     existe.cantidad++;
-  } else {
-    carrito.push({ ...prod, cantidad: 1 });
+
+  }
+
+  else {
+
+    carrito.push({
+
+      ...prod,
+
+      cantidad: 1
+    });
   }
 
   renderCarrito();
@@ -151,135 +234,317 @@ function filtrarProductos() {
 
 // FINALIZAR
 function finalizarVenta(metodo) {
-  event.preventDefault();
-  if (carrito.length === 0) {
-    showToast("El carrito está vacío", "error");
-    return;
-  }
 
-  let ventas = JSON.parse(localStorage.getItem("ventas")) || [];
-  let caja = JSON.parse(localStorage.getItem("caja")) || [];
+  // EVITAR DOBLE CLICK
+  if (window.procesandoVenta) return;
 
-  const total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+  window.procesandoVenta = true;
 
-  const ganancia = carrito.reduce((acc, p) => {
-    return acc + ((p.precio - (p.costo || 0)) * p.cantidad);
-  }, 0);
+  try {
 
-  const nuevaVenta = {
-    id: Date.now(),
-    fecha: new Date().toLocaleString(),
-    metodo,
-    total,
-    ganancia,
-    usuario: JSON.parse(localStorage.getItem("usuario"))?.user || "Local",
-    detalle: carrito.map(p => ({
-      id: p.id,
-      nombre: p.nombre,
-      precio: p.precio,
-      costo: p.costo || 0,
-      cantidad: p.cantidad,
-      subtotal: p.precio * p.cantidad
-    }))
-  };
+    // =========================
+    // CARRITO VACIO
+    // =========================
 
-  // guardar venta
-  ventas.push(nuevaVenta);
-  localStorage.setItem("ventas", JSON.stringify(ventas));
+    if (carrito.length === 0) {
 
-  // registrar ingreso automático en caja
-  caja.push({
+      showToast(
+        "El carrito está vacío",
+        "error"
+      );
+
+      return;
+    }
+
+    let ventas =
+      JSON.parse(
+        localStorage.getItem("ventas")
+      ) || [];
+
+    let caja =
+      JSON.parse(
+        localStorage.getItem("caja")
+      ) || [];
+
+    // =========================
+    // VALIDAR STOCK
+    // =========================
+
+    for (const item of carrito) {
+
+      const producto =
+        productos.find(
+          p => p.id === item.id
+        );
+
+      if (!producto) {
+
+        showToast(
+          `${item.nombre} ya no existe`,
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        item.cantidad >
+        producto.stock
+      ) {
+
+        showToast(
+          `Stock insuficiente de ${producto.nombre}`,
+          "error"
+        );
+
+        return;
+      }
+    }
+
+    // =========================
+    // TOTAL
+    // =========================
+
+    const total =
+      carrito.reduce(
+
+        (acc, p) =>
+
+          acc +
+          (p.precio * p.cantidad),
+
+        0
+      );
+
+    // =========================
+    // GANANCIA
+    // =========================
+
+    const ganancia =
+      carrito.reduce(
+
+        (acc, p) => {
+
+          return acc +
+
+            (
+              (p.precio - (p.costo || 0))
+              * p.cantidad
+            );
+        },
+
+        0
+      );
+
+    // =========================
+    // COPIA DEL CARRITO
+    // =========================
+
+    const ticketDetalle =
+      [...carrito];
+
+    // =========================
+    // NUEVA VENTA
+    // =========================
+
+    const nuevaVenta = {
+
+      id: Date.now(),
+
+      fecha:
+        new Date()
+          .toLocaleString(),
+
+      metodo,
+
+      total,
+
+      ganancia,
+
+      usuario:
+
+        JSON.parse(
+          localStorage.getItem(
+            "usuario"
+          )
+        )?.nombre || "Local",
+
+      detalle:
+
+        carrito.map(p => ({
+
+          id: p.id,
+
+          nombre: p.nombre,
+
+          precio: p.precio,
+
+          costo: p.costo || 0,
+
+          cantidad: p.cantidad,
+
+          subtotal:
+            p.precio * p.cantidad
+        }))
+    };
+
+    // =========================
+    // GUARDAR VENTA
+    // =========================
+
+    ventas.push(nuevaVenta);
+
+    localStorage.setItem(
+      "ventas",
+      JSON.stringify(ventas)
+    );
+
+    // =========================
+    // REGISTRAR CAJA
+    // =========================
+
+    caja.push({
 
   id: Date.now(),
+
+  ventaId: nuevaVenta.id,
 
   tipo: "ingreso",
 
   monto: total,
 
-  motivo: `Venta (${
-
-  metodo === "mp"
-
-    ? "MERCADO PAGO"
-
-
-  : metodo === "transferencia"
-
-    ? "TRANSFERENCIA"
-
-  : "EFECTIVO"
-
-})`,
-
-  fecha: new Date().toLocaleString()
-  
-  
-});
-agregarHistorial({
-
-  tipo: "venta",
-
-  modulo: "Ventas",
-
-  descripcion:
-    `Venta realizada por $${total}`,
-
-  monto: total
-});
-
-localStorage.setItem(
-  "caja",
-  JSON.stringify(caja)
-);
-  // descontar stock
-  productos = productos.map(prod => {
-    const vendido = carrito.find(p => p.id === prod.id);
-
-    if (vendido) {
-      return {
-        ...prod,
-        stock: prod.stock - vendido.cantidad
-      };
-    }
-
-    return prod;
-  });
-
-  localStorage.setItem("productos", JSON.stringify(productos));
-// ==========================
-// MOSTRAR TICKET
-// ==========================
-
-// COPIA LIMPIA
-const ticketDetalle =
-  [...carrito];
-
-mostrarTicket({
+  motivo: `Venta (${metodo})`,
 
   fecha:
-    new Date().toLocaleString(),
+    new Date()
+      .toLocaleString(),
 
-  metodo,
-
-  total,
-
-  detalle:
-    ticketDetalle
+  usuario:
+    nuevaVenta.usuario
 });
 
-// LIMPIAR CARRITO
-carrito = [];
+    localStorage.setItem(
+      "caja",
+      JSON.stringify(caja)
+    );
 
-// RE-RENDER
-renderCarrito();
-renderProductos();
+    // =========================
+    // HISTORIAL
+    // =========================
 
-// TOAST
-showToast(
-  "✅ Venta registrada correctamente",
-  "success"
-);
+    if (
+      typeof agregarHistorial ===
+      "function"
+    ) {
+
+      agregarHistorial({
+
+        tipo: "venta",
+
+        modulo: "Ventas",
+
+        descripcion:
+          `Venta realizada por $${total}`,
+
+        monto: total
+      });
+    }
+
+    // =========================
+    // DESCONTAR STOCK
+    // =========================
+
+    productos = productos.map(prod => {
+
+      const vendido =
+        carrito.find(
+          p => p.id === prod.id
+        );
+
+      if (vendido) {
+
+        return {
+
+          ...prod,
+
+          stock:
+            prod.stock -
+            vendido.cantidad
+        };
+      }
+
+      return prod;
+    });
+
+    localStorage.setItem(
+      "productos",
+      JSON.stringify(productos)
+    );
+
+    // =========================
+    // LIMPIAR CARRITO
+    // =========================
+
+    carrito = [];
+
+    // =========================
+    // REFRESCAR UI
+    // =========================
+
+    renderCarrito();
+
+    renderProductos();
+
+    // =========================
+    // TOAST
+    // =========================
+
+    showToast(
+      "✅ Venta registrada correctamente",
+      "success"
+    );
+    imprimirTicket(nuevaVenta);
+
+    // =========================
+    // MOSTRAR TICKET
+    // =========================
+
+    if (
+      typeof mostrarTicket ===
+      "function"
+    ) {
+
+      mostrarTicket({
+
+        fecha:
+          new Date()
+            .toLocaleString(),
+
+        metodo,
+
+        total,
+
+        detalle:
+          ticketDetalle
+      });
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    
+  }
+
+  finally {
+
+    window.procesandoVenta = false;
+  }
 }
+
+
 // INIT
 renderProductos();
 
@@ -293,20 +558,42 @@ function aumentarCantidad(id) {
     carrito.find(p => p.id === id);
 
   const producto =
-    productos.find(p => p.id === id);
+  productos.find(
+    p => p.id === item.id
+  );
+
+// NO EXISTE
+if (!producto) {
+
+  showToast(
+
+    `El producto "${item.nombre}" ya no existe`,
+
+    "error"
+  );
+
+  return;
+}
 
   if (!item || !producto) return;
 
   // CONTROL STOCK
-  if (item.cantidad >= producto.stock) {
+if (
 
-    showToast(
-      "No hay más stock disponible",
-      "error"
-    );
+  item.cantidad >=
+  producto.stock
 
-    return;
-  }
+) {
+
+  showToast(
+
+    `No hay más stock de ${producto.nombre}`,
+
+    "error"
+  );
+
+  return;
+}
 
   item.cantidad++;
 
@@ -351,4 +638,116 @@ function eliminarDelCarrito(id) {
     "Producto eliminado",
     "info"
   );
+}
+function imprimirTicket(venta) {
+
+  let contenido = `
+  
+  <html>
+  <head>
+    <title>Ticket</title>
+
+    <style>
+
+      body {
+        font-family: monospace;
+        padding: 20px;
+        width: 300px;
+      }
+
+      h2 {
+        text-align: center;
+      }
+
+      .linea {
+        border-top: 1px dashed #000;
+        margin: 10px 0;
+      }
+
+      .item {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+      }
+
+      .total {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+    </style>
+  </head>
+
+  <body>
+
+    <h2> LO DE FAUSTI</h2>
+
+    <p>
+      Fecha:
+      ${venta.fecha}
+    </p>
+
+    <p>
+      Ticket:
+      #${venta.id}
+    </p>
+
+    <div class="linea"></div>
+
+    ${venta.detalle.map(item => `
+
+      <div class="item">
+        <span>
+          ${item.cantidad}x ${item.nombre}
+        </span>
+
+        <span>
+          $${item.precio * item.cantidad}
+        </span>
+      </div>
+
+    `).join("")}
+
+    <div class="linea"></div>
+
+    <p class="total">
+      TOTAL:
+      $${venta.total}
+    </p>
+
+    <p>
+      Método:
+      ${venta.metodo}
+    </p>
+
+    <p>
+      Usuario:
+      ${venta.usuario}
+    </p>
+
+    <br>
+
+    <center>
+      ¡Gracias por su compra!
+    </center>
+
+    <script>
+      window.print();
+      window.close();
+    </script>
+
+  </body>
+  </html>
+  `;
+
+  const ventana =
+    window.open(
+      "",
+      "_blank",
+      "width=400,height=600"
+    );
+
+  ventana.document.write(contenido);
+
+  ventana.document.close();
 }

@@ -1,151 +1,313 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
   <meta charset="UTF-8">
-  <title>Proveedores</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Proveedores
+  </title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/sidebar.css">
-<link rel="stylesheet" href="css/dashboard.css">
-<link rel="stylesheet" href="css/forms.css">
-<link rel="stylesheet" href="css/ventas.css">
-<link rel="stylesheet" href="css/tables.css">
-<link rel="stylesheet" href="css/darkmode.css">
-<link rel="stylesheet" href="css/animations.css">
-<link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/sidebar.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/ventas.css">
+  <link rel="stylesheet" href="css/tables.css">
+  <link rel="stylesheet" href="css/darkmode.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
 </head>
+
 <body>
+
+<!-- ================================= -->
+<!-- LAYOUT -->
+<!-- ================================= -->
 
 <div class="layout">
 
-    <aside class="sidebar" id="sidebar">
+  <!-- ================================= -->
+  <!-- SIDEBAR -->
+  <!-- ================================= -->
 
-  <div class="sidebar-header">
-    <div class="brand">
-      <div class="brand-icon"></div>
-      <div>
-        <h2>Lo de Fausti</h2>
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <div class="sidebar-header">
+
+      <div class="brand">
+
+         <div class="brand-icon">
+
+  <img
+    src="assets/icons/images/logo.png"
+    alt="FAUSTI"
+  >
+
+</div>
+
+<div class="brand-text">
+
+
+</div>
+
       </div>
+
     </div>
 
-   
-  </div>
+    <!-- NAV -->
+    <nav class="sidebar-nav">
 
-  <nav class="sidebar-nav">
-    <a href="index.html" class="nav-link ">
-      <b>Inicio</b>
-    </a>
-
-    <a href="ventas.html" class="nav-link">
-      <b>Ventas</b>
-    </a>
-
-    <a href="productos.html" class="nav-link">
-      <b>Productos</b>
-    </a>
-
-    <a href="caja.html" class="nav-link">
-      <b>Caja</b>
-    </a>
-
-    <a href="produccion.html" class="nav-link">
-      <b>Producción</b>
-    </a>
-
-    <a href="proveedores.html" class="nav-link admin-only active">
-      <b>Proveedores</b>
-    </a>
-    <a href="historial.html" class="nav-link admin-only">
-        <b>Historial</b>
+      <a
+        href="index.html"
+        class="nav-link"
+      >
+        <b>Inicio</b>
       </a>
-  </nav>
 
-  <div class="user-box">
+      <a
+        href="ventas.html"
+        class="nav-link"
+      >
+        <b>Ventas</b>
+      </a>
 
-  
+      <a
+        href="productos.html"
+        class="nav-link"
+      >
+        <b>Productos</b>
+      </a>
 
-  <div class="user-info">
+      <a
+        href="caja.html"
+        class="nav-link"
+      >
+        <b>Caja</b>
+      </a>
 
-   
+      <a
+        href="produccion.html"
+        class="nav-link"
+      >
+        <b>Producción</b>
+      </a>
 
-    <small class="user-role">
-      Sesión activa
-    </small>
+      <a
+        href="proveedores.html"
+        class="nav-link admin-only active"
+      >
+        <b>Proveedores</b>
+      </a>
 
-  </div>
+      
 
-  <button
-    onclick="window.location.href='login.html'"
-    class="switch-btn"
-  >
-    🔄 Cambiar cuenta
-  </button>
+    </nav>
 
-  
-</div>
+    <!-- USER -->
+    <div class="user-box">
+
+      <div class="user-info">
+
+        <small class="user-role">
+          Sesión activa
+        </small>
+
+      </div>
+
+      <button
+        type="button"
+        onclick="logout()"
+        class="switch-btn"
+      >
+
+        🔄 Cerrar Sesión
+
+      </button>
+
+    </div>
 
   </aside>
 
+  <!-- ================================= -->
+  <!-- MAIN -->
+  <!-- ================================= -->
+
   <main class="main">
-<div class="main">
-  <h1>Proveedores</h1>
 
-  <div class="grid-2">
+    <!-- TOPBAR -->
+    <div class="topbar">
 
-    <!-- CREAR -->
-    <div class="box">
-      <h3>Nuevo proveedor</h3>
-      <div class="form">
-        <input id="nombreProv" placeholder="Nombre proveedor">
-        <button onclick="agregarProveedor()">Agregar</button>
-      </div>
+      <h2>
+        🚚 Proveedores
+      </h2>
+
     </div>
 
-    <!-- DEUDA -->
-    <div class="box">
-      <h3>Cargar deuda</h3>
-      <div class="form">
-        <select id="proveedorSelect"></select>
-        <input type="number" id="montoTotal" placeholder="Monto total">
-        <button onclick="agregarCuenta()">Registrar</button>
+    <!-- CONTENT -->
+    <div class="page-content">
+
+      <div class="grid-2">
+
+        <!-- ================================= -->
+        <!-- NUEVO PROVEEDOR -->
+        <!-- ================================= -->
+
+        <div class="box fade-in">
+
+          <h3>
+            Nuevo proveedor
+          </h3>
+
+          <div class="form">
+
+            <input
+              id="nombreProv"
+              type="text"
+              placeholder="Nombre proveedor"
+              autocomplete="off"
+            >
+
+            <button
+              type="button"
+              onclick="agregarProveedor()"
+            >
+
+              Agregar
+
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- ================================= -->
+        <!-- CARGAR DEUDA -->
+        <!-- ================================= -->
+
+        <div class="box fade-in">
+
+          <h3>
+            Cargar deuda
+          </h3>
+
+          <div class="form">
+
+            <select id="proveedorSelect"></select>
+
+            <input
+              type="number"
+              id="montoTotal"
+              placeholder="Monto total"
+              min="0"
+            >
+
+            <button
+              type="button"
+              onclick="agregarCuenta()"
+            >
+
+              Registrar
+
+            </button>
+
+          </div>
+
+        </div>
+
       </div>
-    </div>
 
-  </div>
+      <!-- ================================= -->
+      <!-- PAGAR -->
+      <!-- ================================= -->
 
-  <div class="grid-2" style="margin-top:20px;">
+      <div
+        class="grid-2"
+        style="margin-top:20px;"
+      >
 
-    <!-- PAGAR -->
-    <div class="box">
-      <h3>Pagar deuda</h3>
-      <div class="form">
-        <select id="cuentaSelect"></select>
-        <input type="number" id="montoPago" placeholder="Monto">
-        <button onclick="pagarCuenta()">Pagar</button>
+        <div class="box fade-in">
+
+          <h3>
+            Pagar deuda
+          </h3>
+
+          <div class="form">
+
+            <select id="cuentaSelect"></select>
+
+            <input
+              type="number"
+              id="montoPago"
+              placeholder="Monto"
+              min="0"
+            >
+
+            <button
+              type="button"
+              onclick="pagarCuenta()"
+            >
+
+              Pagar
+
+            </button>
+
+          </div>
+
+        </div>
+
       </div>
+
+      <!-- ================================= -->
+      <!-- LISTA -->
+      <!-- ================================= -->
+
+      <div
+        class="box fade-in"
+        style="margin-top:30px;"
+      >
+
+        <div class="table-header">
+
+          <h2>
+            Cuentas
+          </h2>
+
+        </div>
+
+        <div
+          id="listaCuentas"
+          class="lista"
+        ></div>
+
+      </div>
+
     </div>
-
-  </div>
-
-  <!-- LISTA -->
-  <div style="margin-top:30px;">
-    <h2>Cuentas</h2>
-    <div id="listaCuentas" class="lista"></div>
-  </div>
-</div>
 
   </main>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/toast.js"></script>
-<script src="js/roles.js"></script>
-<script src="js/proveedores.js"></script>
-<script src="js/app.js"></script>
-<div id="commandPalette" class="command-palette hidden">
+
+<!-- ================================= -->
+<!-- COMMAND PALETTE -->
+<!-- ================================= -->
+
+<div
+  id="commandPalette"
+  class="command-palette hidden"
+>
 
   <div class="command-box">
 
@@ -153,6 +315,7 @@
       type="text"
       id="commandInput"
       placeholder="Buscar productos, ventas o módulos..."
+      autocomplete="off"
       oninput="buscarGlobal()"
     >
 
@@ -161,5 +324,30 @@
   </div>
 
 </div>
+
+<!-- ================================= -->
+<!-- SCRIPTS -->
+<!-- ================================= -->
+
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
+  onerror="console.error('Error cargando Supabase')"
+></script>
+
+<script defer src="js/supabase.js"></script>
+
+<script defer src="js/storage.js"></script>
+
+<script defer src="js/auth.js"></script>
+
+<script defer src="js/toast.js"></script>
+
+<script defer src="js/roles.js"></script>
+
+<script defer src="js/proveedores.js"></script>
+
+<script defer src="js/app.js"></script>
+
 </body>
 </html>

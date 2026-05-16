@@ -1,38 +1,106 @@
-let productos = JSON.parse(localStorage.getItem("productos")) || [];
+// =================================
+// STORAGE
+// =================================
 
+let productos =
+  JSON.parse(
+    localStorage.getItem("productos")
+  ) || [];
+
+// =================================
 // GUARDAR
+// =================================
+
 function guardar() {
-  localStorage.setItem("productos", JSON.stringify(productos));
+
+  localStorage.setItem(
+    "productos",
+    JSON.stringify(productos)
+  );
 }
 
+// =================================
 // AGREGAR
+// =================================
+
 function agregarProducto() {
 
-  const nombre = document.getElementById("nombre").value;
-  const precio = Number(document.getElementById("precio").value);
-  const costo = Number(document.getElementById("costo").value);
-  const stock = Number(document.getElementById("stock").value);
-  const tipo = document.getElementById("tipo").value;
-  const unidad = document.getElementById("unidad").value;
+  const nombre =
+    document.getElementById("nombre")
+      .value
+      .trim();
 
-  // VALIDACION
-  if (!nombre || !precio || !stock) {
+  const precio =
+    Number(
+      document.getElementById("precio")
+        .value
+    );
 
-    showToast("Completá los campos obligatorios", "error");
+  const costo =
+    Number(
+      document.getElementById("costo")
+        .value
+    );
+
+  const stock =
+    Number(
+      document.getElementById("stock")
+        .value
+    );
+
+  const tipo =
+    document.getElementById("tipo")
+      .value;
+
+  const unidad =
+    document.getElementById("unidad")
+      .value
+      .trim();
+
+  // VALIDAR
+  if (!nombre || !precio || stock < 0) {
+
+    showToast(
+      "Completá los campos obligatorios",
+      "error"
+    );
+
     return;
   }
 
-  const producto = {
-    id: Date.now(),
-    nombre,
-    precio,
-    costo,
-    stock,
-    tipo,
-    unidad
-  };
+  // DUPLICADO
+  const existe =
+    productos.find(p =>
+      p.nombre.toLowerCase()
+      === nombre.toLowerCase()
+    );
 
-  productos.push(producto);
+  if (existe) {
+
+    showToast(
+      "Ese producto ya existe",
+      "error"
+    );
+
+    return;
+  }
+
+  productos.push({
+
+    id: Date.now(),
+
+    nombre,
+
+    precio,
+
+    costo,
+
+    stock,
+
+    tipo,
+
+    unidad
+  });
 
   guardar();
 
@@ -40,53 +108,69 @@ function agregarProducto() {
 
   render();
 
-  // ✅ TOAST
-  showToast("Producto agregado correctamente");
+  showToast(
+    "Producto agregado correctamente",
+    "success"
+  );
 }
 
+// =================================
 // LIMPIAR
+// =================================
+
 function limpiarForm() {
 
   document.getElementById("nombre").value = "";
+
   document.getElementById("precio").value = "";
+
   document.getElementById("costo").value = "";
+
   document.getElementById("stock").value = "";
+
   document.getElementById("unidad").value = "";
+
+  document.getElementById("tipo").value =
+    "reventa";
 }
 
+// =================================
 // ELIMINAR
+// =================================
+
 function eliminarProducto(id) {
 
-  showConfirm({
+  const confirmar =
+    confirm(
+      "¿Eliminar producto?"
+    );
 
-    title: "Eliminar producto",
+  if (!confirmar) return;
 
-    message: "Esta acción no se puede deshacer.",
+  productos =
+    productos.filter(
+      p => p.id !== id
+    );
 
-    onConfirm: () => {
+  guardar();
 
-      productos =
-        productos.filter(p => p.id !== id);
+  render();
 
-      guardar();
-
-      render();
-
-      showToast(
-        "Producto eliminado",
-        "info"
-      );
-    }
-  });
+  showToast(
+    "Producto eliminado",
+    "info"
+  );
 }
 // =================================
-// EDITAR PRODUCTO
+// EDITAR
 // =================================
 
 function editarProducto(id) {
 
   const producto =
-    productos.find(p => p.id === id);
+    productos.find(
+      p => p.id === id
+    );
 
   if (!producto) return;
 
@@ -107,105 +191,174 @@ function editarProducto(id) {
     producto.tipo;
 
   document.getElementById("unidad").value =
-    producto.unidad;
+    producto.unidad || "";
 
-  // ELIMINAR PRODUCTO VIEJO
+  // BORRAR ORIGINAL
   productos =
-    productos.filter(p => p.id !== id);
+    productos.filter(
+      p => p.id !== id
+    );
 
   guardar();
 
   render();
 
+  window.scrollTo({
+
+    top: 0,
+
+    behavior: "smooth"
+  });
+
   showToast(
-    "volver a editar, producto",
+    "Editando producto",
     "info"
   );
 }
-// RENDER
-function render(lista = productos) {
 
-  const cont = document.getElementById("listaProductos");
+// =================================
+// RENDER
+// =================================
+
+function render(lista = productos) {
+// REFRESCAR STORAGE
+productos =
+  JSON.parse(
+    localStorage.getItem(
+      "productos"
+    )
+  ) || [];
+  const cont =
+    document.getElementById(
+      "listaProductos"
+    );
 
   cont.innerHTML = "";
 
+  // VACIO
   if (lista.length === 0) {
 
     cont.innerHTML = `
+
       <tr>
-        <td colspan="6">No hay productos cargados</td>
+
+        <td colspan="6">
+          No hay productos cargados
+        </td>
+
       </tr>
     `;
 
     return;
   }
 
-  lista.forEach(p => {
+  // MÁS NUEVOS ARRIBA
+  [...lista]
+    .reverse()
+    .forEach(p => {
 
-    const tr = document.createElement("tr");
-    tr.className = "product-row";
-    tr.innerHTML = `
-      <td>
-        <strong>${p.nombre}</strong>
-      </td>
+      const tr =
+        document.createElement("tr");
 
-      <td>
-        $${p.precio}
-      </td>
+      tr.className =
+        "product-row";
 
-      <td>
-        $${p.costo || 0}
-      </td>
+      tr.innerHTML = `
 
-      <td>
+        <td>
 
-  <span class="
-    stock-pill
-    ${p.stock < 5
-      ? "stock-low"
-      : "stock-ok"}
-  ">
+          <strong>
+            ${p.nombre}
+          </strong>
 
-    ${p.stock}
-    ${p.unidad || ""}
+        </td>
 
-  </span>
+        <td>
 
-</td>
+          $${p.precio.toLocaleString()}
 
-      <td>
-        ${p.tipo}
-      </td>
+        </td>
 
-      <<td>
+        <td>
 
+          $${(p.costo || 0)
+            .toLocaleString()}
 
+        </td>
 
-  <button onclick="eliminarProducto(${p.id})">
-    🗑️
-  </button>
+        <td>
 
-</td>
-    `;
+          <span class="
+            stock-pill
+            ${p.stock < 5
+              ? "stock-low"
+              : "stock-ok"}
+          ">
 
-    cont.appendChild(tr);
-  });
+            ${p.stock}
+            ${p.unidad || ""}
+
+          </span>
+
+        </td>
+
+        <td>
+
+         ${p.tipo || "reventa"}
+
+        </td>
+
+        <td>
+
+          <div class="table-actions">
+
+            <button
+              onclick="editarProducto(${p.id})"
+            >
+              ✏️
+            </button>
+
+            <button
+              onclick="eliminarProducto(${p.id})"
+            >
+              🗑️
+            </button>
+
+          </div>
+
+        </td>
+      `;
+
+      cont.appendChild(tr);
+    });
 }
 
+// =================================
 // FILTRAR
+// =================================
+
 function filtrarProductos() {
 
   const texto =
-    document.getElementById("buscador")
-      .value
-      .toLowerCase();
+    document.getElementById(
+      "buscador"
+    )
+    .value
+    .toLowerCase();
 
-  const filtrados = productos.filter(p =>
-    p.nombre.toLowerCase().includes(texto)
-  );
+  const filtrados =
+    productos.filter(p =>
+
+      p.nombre
+        .toLowerCase()
+        .includes(texto)
+    );
 
   render(filtrados);
 }
 
+// =================================
 // INIT
+// =================================
+
 render();
