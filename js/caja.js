@@ -370,6 +370,21 @@ function renderResumenCaja() {
   // DIFERENCIA
   const diferencia =
     resumen.saldo - apertura;
+    // =================================
+// 10% VENTAS
+// =================================
+
+const diezPorciento =
+  caja
+    .filter(m =>
+      m.tipo === "ingreso" &&
+      m.ventaId
+    )
+    .reduce(
+      (acc, m) =>
+        acc + (m.monto * 0.10),
+      0
+    );
 
   // RENDER
   document.getElementById(
@@ -401,6 +416,11 @@ function renderResumenCaja() {
     "diferenciaCaja"
   ).innerText =
     `$${diferencia.toLocaleString()}`;
+    
+    document.getElementById(
+  "diezPorciento"
+).innerText =
+  `$${diezPorciento.toLocaleString()}`;
 }
 
 // =================================

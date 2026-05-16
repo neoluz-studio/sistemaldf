@@ -343,3 +343,75 @@
     padding: 16px;
   }
 }
+/* ================================= */
+/* MOBILE SIDEBAR */
+/* ================================= */
+
+.menu-toggle {
+
+  display: none;
+
+  border: none;
+
+  background: #111;
+
+  color: #fff;
+
+  width: 45px;
+  height: 45px;
+
+  border-radius: 12px;
+
+  font-size: 22px;
+
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+
+  .menu-toggle {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar {
+
+    position: fixed;
+
+    left: -280px;
+
+    top: 0;
+
+    width: 260px;
+
+    height: 100vh;
+
+    z-index: 9999;
+
+    transition: .3s ease;
+  }
+
+  .sidebar.active {
+
+    left: 0;
+  }
+}
+.sidebar-overlay {
+
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,.5);
+
+  z-index: 9998;
+
+  display: none;
+}
+
+.sidebar-overlay.active {
+
+  display: block;
+}

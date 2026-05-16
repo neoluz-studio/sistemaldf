@@ -134,7 +134,11 @@
     </div>
 
   </aside>
-
+<div
+  id="sidebarOverlay"
+  class="sidebar-overlay"
+  onclick="toggleSidebar()"
+></div>
   <!-- ================================= -->
   <!-- MAIN -->
   <!-- ================================= -->
@@ -143,7 +147,12 @@
 
     <!-- TOPBAR -->
     <div class="topbar">
-
+<button
+  class="menu-toggle"
+  onclick="toggleSidebar()"
+>
+  ☰
+</button>
       <div class="topbar-left">
 
         <div>
@@ -243,9 +252,18 @@
           <p>
             SALDO
           </p>
-
+      
         </div>
+<div class="stat-card green">
 
+        <h2 id="diezPorciento">>
+          $0
+        </h2>
+
+        <p>
+          10% DE LAS VENTAS
+        </p>
+      </div>
       </div>
 
       <!-- ================================= -->
