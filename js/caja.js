@@ -673,3 +673,94 @@ function verDetalleVenta(id) {
 render();
 
 renderResumenCaja();
+// =================================
+// DASHBOARD CAJA
+// =================================
+
+function renderStatsCaja() {
+
+  const caja =
+
+    JSON.parse(
+
+      localStorage.getItem(
+        "caja"
+      )
+
+    ) || [];
+
+  let ingresos = 0;
+
+  let egresos = 0;
+
+  caja.forEach(c => {
+
+    if (c.tipo === "ingreso") {
+
+      ingresos +=
+        Number(c.monto || 0);
+    }
+
+    if (c.tipo === "egreso") {
+
+      egresos +=
+        Number(c.monto || 0);
+    }
+  });
+
+  const saldo =
+
+    ingresos - egresos;
+
+  // =================================
+  // RENDER
+  // =================================
+
+  const set = (id, value) => {
+
+    const el =
+
+      document.getElementById(
+        id
+      );
+
+    if (el) {
+
+      el.innerText = value;
+    }
+  };
+
+  set(
+
+    "ingresosCaja",
+
+    `$${ingresos.toLocaleString()}`
+  );
+
+  set(
+
+    "egresosCaja",
+
+    `$${egresos.toLocaleString()}`
+  );
+
+  set(
+
+    "saldoCaja",
+
+    `$${saldo.toLocaleString()}`
+  );
+
+  set(
+
+    "movimientosCaja",
+
+    caja.length
+  );
+}
+
+// =================================
+// INIT
+// =================================
+
+renderStatsCaja();

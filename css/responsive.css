@@ -415,3 +415,95 @@
 
   display: block;
 }
+/* =================================
+RESPONSIVE SIDEBAR
+================================= */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+
+    position: fixed;
+
+    left: -280px;
+
+    top: 0;
+
+    width: 260px;
+
+    height: 100vh;
+
+    z-index: 9999;
+
+    transition: 0.3s ease;
+
+    background:
+      linear-gradient(
+        180deg,
+        #0f172a,
+        #111827
+      );
+  }
+
+  .sidebar.active {
+
+    left: 0;
+  }
+
+  .sidebar-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+      rgba(0,0,0,0.6);
+
+    z-index: 9998;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: 0.3s;
+  }
+
+  .sidebar-overlay.active {
+
+    opacity: 1;
+
+    pointer-events: all;
+  }
+
+  .main {
+
+    margin-left: 0 !important;
+
+    width: 100%;
+  }
+
+  .menu-toggle {
+
+    display: flex !important;
+  }
+}
+
+/* DESKTOP */
+
+@media (min-width: 901px) {
+
+  .sidebar {
+
+    left: 0 !important;
+  }
+
+  .sidebar-overlay {
+
+    display: none;
+  }
+
+  .menu-toggle {
+
+    display: none !important;
+  }
+}

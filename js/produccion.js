@@ -3,104 +3,194 @@
 // =================================
 
 let productos =
+
   JSON.parse(
-    localStorage.getItem("productos")
+
+    localStorage.getItem(
+      "productos"
+    )
+
   ) || [];
 
 let recetas =
+
   JSON.parse(
-    localStorage.getItem("recetas")
+
+    localStorage.getItem(
+      "recetas"
+    )
+
   ) || [];
 
-let recetaTemp = [];
+let historialProduccion =
+
+  JSON.parse(
+
+    localStorage.getItem(
+      "historialProduccion"
+    )
+
+  ) || [];
 
 // =================================
-// CARGAR SELECTS
+// ESTADO
 // =================================
 
-function cargarSelects() {
+let recetaActual = null;
 
-  const prodSelect =
+// =================================
+// GUARDAR
+// =================================
+
+function guardarRecetas() {
+
+  localStorage.setItem(
+
+    "recetas",
+
+    JSON.stringify(recetas)
+  );
+}
+
+function guardarHistorial() {
+
+  localStorage.setItem(
+
+    "historialProduccion",
+
+    JSON.stringify(
+      historialProduccion
+    )
+  );
+}
+
+// =================================
+// CREAR RECETA
+// =================================
+
+function crearReceta() {
+
+  const nombre =
+
     document.getElementById(
-      "productoFinal"
+      "nombreReceta"
+    ).value.trim();
+
+  const cantidad =
+
+    Number(
+
+      document.getElementById(
+        "cantidadProduccion"
+      ).value
     );
 
-  const insumoSelect =
-    document.getElementById(
-      "insumoSelect"
+  // VALIDAR
+  if (
+
+    !nombre ||
+
+    cantidad <= 0
+
+  ) {
+
+    showToast(
+
+      "Completá los campos",
+
+      "error"
     );
 
-  const recetaSelect =
+    return;
+  }
+
+  recetaActual = {
+
+    id: Date.now(),
+
+    nombre,
+
+    cantidad,
+
+    ingredientes: []
+  };
+
+  recetas.push(
+    recetaActual
+  );
+
+  guardarRecetas();
+
+  cargarRecetas();
+
+  showToast(
+
+    "Receta creada",
+
+    "success"
+  );
+
+  document.getElementById(
+    "nombreReceta"
+  ).value = "";
+
+  document.getElementById(
+    "cantidadProduccion"
+  ).value = "";
+}
+
+// =================================
+// CARGAR PRODUCTOS
+// =================================
+
+function cargarProductos() {
+
+  const select =
+
     document.getElementById(
-      "recetaSelect"
+      "productoIngrediente"
     );
 
-  // RESET
-  prodSelect.innerHTML =
-    `<option value="">Producto final</option>`;
+  if (!select) return;
 
-  insumoSelect.innerHTML =
-    `<option value="">Insumo</option>`;
+  select.innerHTML = "";
 
-  recetaSelect.innerHTML =
-    `<option value="">Seleccionar receta</option>`;
-
-  // PRODUCTOS
   productos.forEach(p => {
 
-    const tipo =
-      p.tipo
-        ?.toLowerCase()
-        .trim();
+    select.innerHTML += `
 
-    // ELABORADOS
-    if (
-      tipo === "elaborado" ||
-      tipo === "elaborados"
-    ) {
+      <option value="${p.id}">
 
-      prodSelect.innerHTML += `
+        ${p.nombre}
 
-        <option value="${p.id}">
-          ${p.nombre}
-        </option>
-      `;
-    }
-
-    // INSUMOS
-    else {
-
-      insumoSelect.innerHTML += `
-
-        <option value="${p.id}">
-
-          ${p.nombre}
-
-          - Stock:
-          ${p.stock}
-
-          ${p.unidad || ""}
-
-        </option>
-      `;
-    }
+      </option>
+    `;
   });
+}
 
-  // RECETAS
+// =================================
+// CARGAR RECETAS
+// =================================
+
+function cargarRecetas() {
+
+  const select =
+
+    document.getElementById(
+      "recetaProduccion"
+    );
+
+  if (!select) return;
+
+  select.innerHTML = "";
+
   recetas.forEach(r => {
 
-    const producto =
-      productos.find(
-        p => p.id === r.productoId
-      );
-
-    recetaSelect.innerHTML += `
+    select.innerHTML += `
 
       <option value="${r.id}">
 
-        ${producto
-          ? producto.nombre
-          : "Producto"}
+        ${r.nombre}
 
       </option>
     `;
@@ -113,172 +203,184 @@ function cargarSelects() {
 
 function agregarIngrediente() {
 
-  const insumoId =
+  if (!recetaActual) {
+
+    showToast(
+
+      "Primero creá una receta",
+
+      "error"
+    );
+
+    return;
+  }
+
+  const productoId =
+
     Number(
+
       document.getElementById(
-        "insumoSelect"
+        "productoIngrediente"
       ).value
     );
 
   const cantidad =
+
     Number(
+
       document.getElementById(
-        "cantidadInsumo"
+        "cantidadIngrediente"
       ).value
     );
 
-  if (!insumoId || !cantidad) {
+  const producto =
+
+    productos.find(
+      p => p.id === productoId
+    );
+
+  if (
+
+    !producto ||
+
+    cantidad <= 0
+
+  ) {
 
     showToast(
-      "Completá los datos",
+
+      "Datos inválidos",
+
       "error"
     );
 
     return;
   }
 
-  // DUPLICADO
-  const existe =
-    recetaTemp.find(
-      r => r.insumoId === insumoId
-    );
+  recetaActual.ingredientes.push({
 
-  if (existe) {
+    productoId,
 
-    showToast(
-      "Ese ingrediente ya fue agregado",
-      "error"
-    );
-
-    return;
-  }
-
-  recetaTemp.push({
-
-    insumoId,
+    nombre:
+      producto.nombre,
 
     cantidad
   });
 
+  guardarRecetas();
+
+  renderIngredientes();
+
   document.getElementById(
-    "cantidadInsumo"
+    "cantidadIngrediente"
   ).value = "";
 
   showToast(
+
     "Ingrediente agregado",
+
     "success"
   );
 }
 
 // =================================
-// GUARDAR RECETA
+// RENDER INGREDIENTES
 // =================================
 
-function guardarReceta() {
+function renderIngredientes() {
 
-  const productoId =
-    Number(
-      document.getElementById(
-        "productoFinal"
-      ).value
+  const cont =
+
+    document.getElementById(
+      "listaIngredientes"
     );
+
+  if (!cont) return;
+
+  cont.innerHTML = "";
 
   if (
-    !productoId ||
-    recetaTemp.length === 0
+
+    !recetaActual ||
+
+    recetaActual.ingredientes
+      .length === 0
+
   ) {
 
-    showToast(
-      "Completá la receta",
-      "error"
-    );
+    cont.innerHTML = `
+
+      <tr>
+
+        <td colspan="3">
+
+          No hay ingredientes
+
+        </td>
+
+      </tr>
+    `;
 
     return;
   }
 
-  // EVITAR DUPLICADAS
-  const existe =
-    recetas.find(
-      r => r.productoId === productoId
-    );
+  recetaActual.ingredientes
 
-  if (existe) {
+    .forEach((i, index) => {
 
-    showToast(
-      "Ese producto ya tiene receta",
-      "error"
-    );
+      cont.innerHTML += `
 
-    return;
-  }
+        <tr>
 
-  recetas.push({
+          <td>
 
-    id: Date.now(),
+            ${i.nombre}
 
-    productoId,
+          </td>
 
-    ingredientes:
-      [...recetaTemp]
-  });
+          <td>
 
-  localStorage.setItem(
-    "recetas",
-    JSON.stringify(recetas)
+            ${i.cantidad}
+
+          </td>
+
+          <td>
+
+            <button
+              onclick="eliminarIngrediente(${index})"
+            >
+
+              🗑️
+
+            </button>
+
+          </td>
+
+        </tr>
+      `;
+    });
+}
+
+// =================================
+// ELIMINAR INGREDIENTE
+// =================================
+
+function eliminarIngrediente(index) {
+
+  recetaActual.ingredientes.splice(
+    index,
+    1
   );
 
-  recetaTemp = [];
+  guardarRecetas();
 
-  document.getElementById(
-    "productoFinal"
-  ).value = "";
-
-  cargarSelects();
-
-  render();
+  renderIngredientes();
 
   showToast(
-    "Receta guardada",
-    "success"
-  );
-}
 
-// =================================
-// PRODUCIR FORM
-// =================================
+    "Ingrediente eliminado",
 
-function producirDesdeFormulario() {
-
-  const recetaId =
-    Number(
-      document.getElementById(
-        "recetaSelect"
-      ).value
-    );
-
-  const cantidadProducir =
-    Number(
-      document.getElementById(
-        "cantidadProducir"
-      ).value
-    );
-
-  if (
-    !recetaId ||
-    !cantidadProducir
-  ) {
-
-    showToast(
-      "Seleccioná receta y cantidad",
-      "error"
-    );
-
-    return;
-  }
-
-  producir(
-    recetaId,
-    cantidadProducir
+    "info"
   );
 }
 
@@ -286,271 +388,394 @@ function producirDesdeFormulario() {
 // PRODUCIR
 // =================================
 
-function producir(
-  recetaId,
-  cantidadProducir = 1
-) {
+function producir() {
+
+  const recetaId =
+
+    Number(
+
+      document.getElementById(
+        "recetaProduccion"
+      ).value
+    );
+
+  const cantidadFinal =
+
+    Number(
+
+      document.getElementById(
+        "cantidadFinal"
+      ).value
+    );
 
   const receta =
+
     recetas.find(
       r => r.id === recetaId
     );
 
-  if (!receta) return;
+  if (
 
-  // VALIDAR STOCK
-  for (let ing of receta.ingredientes) {
+    !receta ||
 
-    const insumo =
-      productos.find(
-        p => p.id === ing.insumoId
-      );
-      if (!insumo) {
+    cantidadFinal <= 0
 
-  showToast(
-    "Hay ingredientes eliminados",
-    "error"
-  );
+  ) {
 
-  return;
-}
+    showToast(
 
-    const necesaria =
-      ing.cantidad *
-      cantidadProducir;
+      "Datos inválidos",
 
-    if (!insumo) {
-
-      showToast(
-        "Hay un insumo inexistente",
-        "error"
-      );
-
-      return;
-    }
-
-    if (insumo.stock < necesaria) {
-
-      showToast(
-        `Stock insuficiente de ${insumo.nombre}`,
-        "error"
-      );
-
-      return;
-    }
-  }
-
-  // DESCONTAR
-  receta.ingredientes.forEach(ing => {
-
-    const insumo =
-      productos.find(
-        p => p.id === ing.insumoId
-      );
-
-    const necesaria =
-      ing.cantidad *
-      cantidadProducir;
-
-    insumo.stock -= necesaria;
-  });
-
-  // SUMAR FINAL
-  const productoFinal =
-    productos.find(
-      p => p.id === receta.productoId
+      "error"
     );
 
-  if (productoFinal) {
-
-    productoFinal.stock +=
-      cantidadProducir;
+    return;
   }
 
-  // GUARDAR
+  // =================================
+  // VALIDAR STOCK
+  // =================================
+
+  for (
+
+    const ingrediente
+    of receta.ingredientes
+
+  ) {
+
+    const producto =
+
+      productos.find(
+        p => p.id === ingrediente.productoId
+      );
+
+    if (!producto) continue;
+
+    const requerido =
+
+      ingrediente.cantidad
+
+      * cantidadFinal;
+
+    if (
+
+      producto.stock < requerido
+
+    ) {
+
+      showToast(
+
+        `Stock insuficiente de ${producto.nombre}`,
+
+        "error"
+      );
+
+      return;
+    }
+  }
+
+  // =================================
+  // DESCONTAR STOCK
+  // =================================
+
+  receta.ingredientes.forEach(i => {
+
+    const producto =
+
+      productos.find(
+        p => p.id === i.productoId
+      );
+
+    if (!producto) return;
+
+    producto.stock -=
+
+      i.cantidad
+      * cantidadFinal;
+  });
+
+  // =================================
+  // SUMAR PRODUCTO FINAL
+  // =================================
+
+  let productoFinal =
+
+    productos.find(p =>
+
+      p.nombre.toLowerCase()
+
+      ===
+
+      receta.nombre.toLowerCase()
+    );
+
+  // CREAR SI NO EXISTE
+  if (!productoFinal) {
+
+    productoFinal = {
+
+  id: Date.now(),
+
+  nombre:
+    receta.nombre,
+
+  precio: 0,
+
+  costo:
+    Math.round(
+      costoUnitario
+    ),
+
+  stock: 0,
+
+  tipo:
+    "elaborado",
+
+  unidad:
+    "unidad"
+};
+
+    productos.push(
+      productoFinal
+    );
+  }
+
+  productoFinal.stock +=
+    cantidadFinal;
+
+// =================================
+// ACTUALIZAR COSTO
+// =================================
+
+productoFinal.costo =
+
+  Math.round(
+    costoUnitario
+  );
+
+ // =================================
+// COSTO TOTAL
+// =================================
+
+let costoTotal = 0;
+
+receta.ingredientes.forEach(i => {
+
+  const producto =
+
+    productos.find(
+      p => p.id === i.productoId
+    );
+
+  if (!producto) return;
+
+  const usado =
+
+    i.cantidad
+    * cantidadFinal;
+
+  const costo =
+
+    Number(producto.costo || 0);
+
+  costoTotal +=
+    usado * costo;
+});
+
+// =================================
+// COSTO UNITARIO
+// =================================
+
+const costoUnitario =
+
+  costoTotal / cantidadFinal;
+
+// =================================
+// HISTORIAL
+// =================================
+
+historialProduccion.push({
+
+  receta:
+    receta.nombre,
+
+  cantidad:
+    cantidadFinal,
+
+  costoTotal,
+
+  costoUnitario,
+
+  fecha:
+    new Date()
+      .toISOString()
+});
+
+  // =================================
+  // SAVE
+  // =================================
+
   localStorage.setItem(
+
     "productos",
+
     JSON.stringify(productos)
   );
 
-  document.getElementById(
-    "cantidadProducir"
-  ).value = "";
+  guardarHistorial();
 
-  cargarSelects();
-
-  render();
+  renderHistorial();
 
   showToast(
 
-    `Producción realizada:
-    ${cantidadProducir}
-    ${productoFinal?.unidad || ""}
-    de
-    ${productoFinal?.nombre}`,
+    "Producción realizada",
 
     "success"
   );
+
+  document.getElementById(
+    "cantidadFinal"
+  ).value = "";
 }
 
 // =================================
-// ELIMINAR RECETA
+// RENDER HISTORIAL
 // =================================
 
-function eliminarReceta(id) {
-
-  showConfirm({
-
-    title: "Eliminar receta",
-
-    message:
-      "Esta acción no se puede deshacer.",
-
-    onConfirm: () => {
-
-      recetas =
-        recetas.filter(
-          r => r.id !== id
-        );
-
-      localStorage.setItem(
-        "recetas",
-        JSON.stringify(recetas)
-      );
-
-      cargarSelects();
-
-      render();
-
-      showToast(
-        "Receta eliminada",
-        "info"
-      );
-    }
-  });
-}
-
-// =================================
-// RENDER
-// =================================
-
-function render() {
+function renderHistorial() {
 
   const cont =
+
     document.getElementById(
-      "listaRecetas"
+      "historialProduccion"
     );
+
+  if (!cont) return;
 
   cont.innerHTML = "";
 
-  // VACIO
-  if (recetas.length === 0) {
+  if (
+
+    historialProduccion
+      .length === 0
+
+  ) {
 
     cont.innerHTML = `
 
-      <div class="empty-state">
-        No hay recetas guardadas
-      </div>
+      <tr>
+
+        <td colspan="5">
+
+          No hay producción
+
+        </td>
+
+      </tr>
     `;
 
     return;
   }
 
-  // MÁS NUEVAS ARRIBA
-  [...recetas]
+  let costoGlobal = 0;
+
+  [...historialProduccion]
+
     .reverse()
-    .forEach(r => {
 
-      const producto =
-        productos.find(
-          p => p.id === r.productoId
-        );
+    .forEach(h => {
 
-      const ingredientesTexto =
-        r.ingredientes
-          .map(ing => {
+      costoGlobal +=
+        Number(h.costoTotal || 0);
 
-            const insumo =
-              productos.find(
-                p => p.id === ing.insumoId
-              );
+      cont.innerHTML += `
 
-            return `
+        <tr>
 
-              <span class="ingredient-pill">
+          <td>
 
-                ${insumo
-                  ? insumo.nombre
-                  : "Insumo"}
+            ${h.receta}
 
-                :
+          </td>
 
-                ${ing.cantidad}
+          <td>
 
-                ${insumo?.unidad || ""}
+            ${h.cantidad}
 
-              </span>
-            `;
-          })
-          .join("");
+          </td>
 
-      const div =
-        document.createElement("div");
+          <td>
 
-      div.className =
-        "recipe-card";
+            $${Number(
+              h.costoTotal || 0
+            ).toLocaleString()}
 
-      div.innerHTML = `
+          </td>
 
-        <div>
+          <td>
 
-          <h4>
+            $${Number(
+              h.costoUnitario || 0
+            ).toLocaleString()}
 
-            ${producto
-              ? producto.nombre
-              : "Producto"}
+          </td>
 
-          </h4>
+          <td>
 
-          <div class="recipe-list">
+            ${formatFecha(
+              h.fecha
+            )}
 
-            ${ingredientesTexto}
+          </td>
 
-          </div>
-
-        </div>
-
-        <div class="table-actions">
-
-          <button
-            class="btn-producir"
-            onclick="producir(${r.id}, 1)"
-          >
-
-            +1
-            ${producto?.unidad || ""}
-
-          </button>
-
-          <button
-            onclick="eliminarReceta(${r.id})"
-          >
-
-            🗑️
-
-          </button>
-
-        </div>
+        </tr>
       `;
-
-      cont.appendChild(div);
     });
+
+  // =================================
+  // STATS
+  // =================================
+
+  document.getElementById(
+    "totalProducciones"
+  ).innerText =
+
+    historialProduccion.length;
+
+  document.getElementById(
+    "costoProduccion"
+  ).innerText =
+
+    `$${costoGlobal.toLocaleString()}`;
+
+  document.getElementById(
+    "produccionSemanal"
+  ).innerText =
+
+    historialProduccion.length;
+}
+
+// =================================
+// FECHA
+// =================================
+
+function formatFecha(data) {
+
+  return new Date(data)
+
+    .toLocaleDateString(
+      "es-AR"
+    );
 }
 
 // =================================
 // INIT
 // =================================
 
-cargarSelects();
+cargarProductos();
 
-render();
+cargarRecetas();
+
+renderIngredientes();
+
+renderHistorial();

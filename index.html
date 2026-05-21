@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <!-- CHART -->
   <script
     defer
@@ -94,50 +94,57 @@
     <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a
-        href="index.html"
-        class="nav-link active"
-      >
-        <b>Inicio</b>
-      </a>
+     <nav class="sidebar-nav">
 
-      <a
-        href="ventas.html"
-        class="nav-link"
-      >
-        <b>Ventas</b>
-      </a>
+      <a href="index.html" class="nav-link active">
 
-      <a
-        href="productos.html"
-        class="nav-link"
-      >
-        <b>Productos</b>
-      </a>
+  <i class="fa-solid fa-house"></i>
 
-      <a
-        href="caja.html"
-        class="nav-link"
-      >
-        <b>Caja</b>
-      </a>
+  <b>Inicio</b>
 
-      <a
-        href="produccion.html"
-        class="nav-link"
-      >
-        <b>Producción</b>
-      </a>
+</a>
 
-      <a
-        href="proveedores.html"
-        class="nav-link admin-only"
-      >
-        <b>Proveedores</b>
-      </a>
+      <a href="ventas.html" class="nav-link">
+
+  <i class="fa-solid fa-cart-shopping"></i>
+
+  <b>Ventas</b>
+
+</a>
+
+      <a href="productos.html" class="nav-link">
+
+  <i class="fa-solid fa-box"></i>
+
+  <b>Productos</b>
+
+</a>
+
+      <a href="caja.html" class="nav-link ">
+
+  <i class="fa-solid fa-cash-register"></i>
+
+  <b>Caja</b>
+
+</a>
+      <a href="produccion.html" class="nav-link">
+
+  <i class="fa-solid fa-industry"></i>
+
+  <b>Producción</b>
+
+</a>
+
+      <a href="proveedores.html" class="nav-link">
+
+  <i class="fa-solid fa-truck"></i>
+
+  <b>Proveedores</b>
+
+</a>
 
      
-
+     </nav>
     </nav>
 
     <!-- USER -->
@@ -211,63 +218,138 @@
       </div>
 
     </div>
+<!-- ================================= -->
+<!-- FILTROS -->
+<!-- ================================= -->
 
+<div class="filter-bar fade-in">
+
+  <button
+    class="filter-btn active"
+    onclick="filtrarDashboard('hoy')"
+  >
+    Hoy
+  </button>
+
+  <button
+    class="filter-btn"
+    onclick="filtrarDashboard('semana')"
+  >
+    Semana
+  </button>
+
+  <button
+    class="filter-btn"
+    onclick="filtrarDashboard('mes')"
+  >
+    Mes
+  </button>
+
+  <input
+    type="date"
+    id="fechaDashboard"
+    onchange="filtrarDashboard('custom')"
+  >
+
+</div>
     <!-- ================================= -->
     <!-- STATS -->
     <!-- ================================= -->
 
-    <div class="stats-grid">
+    <div class="stats-grid fade-in">
 
-      <div class="stat-card green">
+  <div class="stat-card">
 
-        <h2>
-          $<span id="totalVentas">0</span>
-        </h2>
+    <h3>
+      💰 Ventas del día
+    </h3>
 
-        <p>
-          VENTAS
-        </p>
+    <h2 id="ventasHoy">
+      $0
+    </h2>
 
-      </div>
+  </div>
 
-      <div class="stat-card orange">
+  <div class="stat-card">
 
-        <h2>
-          $<span id="totalGanancia">0</span>
-        </h2>
+    <h3>
+      📅 Ventas del mes
+    </h3>
 
-        <p>
-          GANANCIA
-        </p>
+    <h2 id="ventasMes">
+      $0
+    </h2>
 
-      </div>
+  </div>
 
-      <div class="stat-card blue">
+  <div class="stat-card">
 
-        <h2>
-          <span id="totalProductos">0</span>
-        </h2>
+    <h3>
+      📈 Ganancia estimada
+    </h3>
 
-        <p>
-          PRODUCTOS
-        </p>
+    <h2 id="gananciaTotal">
+      $0
+    </h2>
 
-      </div>
+  </div>
 
-      <div class="stat-card gray">
+  <div class="stat-card">
 
-        <h2 id="topProducto">
-          -
-        </h2>
+    <h3>
+      🛒 Productos vendidos
+    </h3>
 
-        <p>
-          MÁS VENDIDO
-        </p>
+    <h2 id="productosVendidos">
+      0
+    </h2>
 
-      </div>
+  </div>
 
-    </div>
+</div>
 
+    
+<!-- ================================= -->
+<!-- INVENTARIO SEMANAL -->
+<!-- ================================= -->
+
+<div class="table-box fade-in">
+
+  <div class="table-header">
+
+    <h3>
+      📦 Resumen inventario semanal
+    </h3>
+
+  </div>
+
+  <table class="pro-table">
+
+    <thead>
+
+      <tr>
+
+        <th>
+          Producto
+        </th>
+
+        <th>
+          Stock
+        </th>
+
+        <th>
+          Estado
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody id="inventarioSemanal"></tbody>
+
+  </table>
+
+</div>
     <!-- ================================= -->
     <!-- CHARTS -->
     <!-- ================================= -->

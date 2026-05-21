@@ -751,3 +751,122 @@ function imprimirTicket(venta) {
 
   ventana.document.close();
 }
+// =================================
+// HISTORIAL VENTAS
+// =================================
+
+function renderHistorialVentas() {
+
+  const cont =
+
+    document.getElementById(
+      "historialVentas"
+    );
+
+  if (!cont) return;
+
+  const ventas =
+
+    JSON.parse(
+
+      localStorage.getItem(
+        "ventas"
+      )
+
+    ) || [];
+
+  cont.innerHTML = "";
+
+  // VACIO
+  if (ventas.length === 0) {
+
+    cont.innerHTML = `
+
+      <tr>
+
+        <td colspan="5">
+
+          No hay ventas
+
+        </td>
+
+      </tr>
+    `;
+
+    return;
+  }
+
+  [...ventas]
+
+    .reverse()
+
+    .slice(0, 20)
+
+    .forEach(v => {
+
+      let productos = "";
+
+      if (v.items) {
+
+        productos =
+
+          v.items
+
+            .map(i =>
+
+              `${i.nombre} x${i.cantidad}`
+            )
+
+            .join(", ");
+      }
+
+      cont.innerHTML += `
+
+        <tr>
+
+          <td>
+
+            ${new Date(v.fecha)
+
+              .toLocaleDateString(
+                "es-AR"
+              )}
+
+          </td>
+
+          <td>
+
+            ${productos}
+
+          </td>
+
+          <td>
+
+            ${v.metodo || "-"}
+
+          </td>
+
+          <td>
+
+            ${v.usuario || "-"}
+
+          </td>
+
+          <td>
+
+            $${Number(
+              v.total || 0
+            ).toLocaleString()}
+
+          </td>
+
+        </tr>
+      `;
+    });
+}
+
+// =================================
+// INIT
+// =================================
+
+renderHistorialVentas();

@@ -25,14 +25,10 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 
 <body>
-
-<!-- ================================= -->
-<!-- LAYOUT -->
-<!-- ================================= -->
 
 <div class="layout">
 
@@ -49,102 +45,79 @@
 
       <div class="brand">
 
-         <div class="brand-icon">
+        <div class="brand-icon">
 
-  <img
-    src="assets/icons/images/logo.png"
-    alt="FAUSTI"
-  >
+          <img
+            src="assets/icons/images/logo.png"
+            alt="FAUSTI"
+          >
 
-</div>
-
-<div class="brand-text">
-
-
-</div>
+        </div>
 
       </div>
 
     </div>
 
-    <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a
-        href="index.html"
-        class="nav-link"
-      >
-        <b>Inicio</b>
-      </a>
+      <a href="index.html" class="nav-link ">
 
-      <a
-        href="ventas.html"
-        class="nav-link"
-      >
-        <b>Ventas</b>
-      </a>
+  <i class="fa-solid fa-house"></i>
 
-      <a
-        href="productos.html"
-        class="nav-link"
-      >
-        <b>Productos</b>
-      </a>
+  <b>Inicio</b>
 
-      <a
-        href="caja.html"
-        class="nav-link"
-      >
-        <b>Caja</b>
-      </a>
+</a>
 
-      <a
-        href="produccion.html"
-        class="nav-link active"
-      >
-        <b>Producción</b>
-      </a>
+      <a href="ventas.html" class="nav-link ">
 
-      <a
-        href="proveedores.html"
-        class="nav-link admin-only"
-      >
-        <b>Proveedores</b>
-      </a>
+  <i class="fa-solid fa-cart-shopping"></i>
 
-      
+  <b>Ventas</b>
+
+</a>
+
+      <a href="productos.html" class="nav-link">
+
+  <i class="fa-solid fa-box"></i>
+
+  <b>Productos</b>
+
+</a>
+
+      <a href="caja.html" class="nav-link ">
+
+  <i class="fa-solid fa-cash-register"></i>
+
+  <b>Caja</b>
+
+</a>
+      <a href="produccion.html" class="nav-link active">
+
+  <i class="fa-solid fa-industry"></i>
+
+  <b>Producción</b>
+
+</a>
+
+      <a href="proveedores.html" class="nav-link">
+
+  <i class="fa-solid fa-truck"></i>
+
+  <b>Proveedores</b>
+
+</a>
 
     </nav>
 
-    <!-- USER -->
-    <div class="user-box">
-
-      <div class="user-info">
-
-        <small class="user-role">
-          Sesión activa
-        </small>
-
-      </div>
-
-      <button
-        type="button"
-       onclick="logout()"
-        class="switch-btn"
-      >
-
-        🔄 Cerrar Sesión
-
-      </button>
-
-    </div>
-
   </aside>
-<div
-  id="sidebarOverlay"
-  class="sidebar-overlay"
-  onclick="toggleSidebar()"
-></div>
+
+  <!-- OVERLAY -->
+  <div
+    id="sidebarOverlay"
+    class="sidebar-overlay"
+    onclick="toggleSidebar()"
+  ></div>
+
   <!-- ================================= -->
   <!-- MAIN -->
   <!-- ================================= -->
@@ -155,111 +128,62 @@
     <div class="topbar">
 
       <h2>
-        🏭 Producción
+        Producción
       </h2>
 
-      <span class="badge">
-        Recetas por kilo / unidad
-      </span>
-<button
-  class="menu-toggle"
-  onclick="toggleSidebar()"
->
-  ☰
-</button>
+      <button
+        class="menu-toggle"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
     </div>
 
+    <!-- ================================= -->
     <!-- CONTENT -->
+    <!-- ================================= -->
+
     <div class="page-content">
 
-      <div class="grid-2">
+      <!-- ================================= -->
+      <!-- CREAR RECETA -->
+      <!-- ================================= -->
 
-        <!-- ================================= -->
-        <!-- CREAR RECETA -->
-        <!-- ================================= -->
+      <div class="box fade-in">
 
-        <div class="box fade-in">
+        <h3>
+          Crear receta
+        </h3>
 
-          <h3>
-            Crear receta por unidad / kilo
-          </h3>
+        <div class="form product-form">
 
-          <div class="form production-form">
+          <input
+            type="text"
+            id="nombreReceta"
+            placeholder="Nombre receta"
+          >
 
-            <select id="productoFinal"></select>
+          <input
+            type="number"
+            id="cantidadProduccion"
+            placeholder="Cantidad base producida"
+          >
 
-            <select id="insumoSelect"></select>
+          <button
+            onclick="crearReceta()"
+          >
 
-            <input
-              type="number"
-              id="cantidadInsumo"
-              placeholder="Cantidad usada por 1 kg/unidad"
-              step="0.001"
-              min="0"
-            >
+            Crear receta
 
-            <button
-              type="button"
-              onclick="agregarIngrediente()"
-            >
-
-              Agregar ingrediente
-
-            </button>
-
-            <button
-              type="button"
-              onclick="guardarReceta()"
-            >
-
-              Guardar receta
-
-            </button>
-
-          </div>
-
-        </div>
-
-        <!-- ================================= -->
-        <!-- PRODUCIR -->
-        <!-- ================================= -->
-
-        <div class="box fade-in">
-
-          <h3>
-            Producir
-          </h3>
-
-          <div class="form production-form">
-
-            <select id="recetaSelect"></select>
-
-            <input
-              type="number"
-              id="cantidadProducir"
-              placeholder="Cantidad a producir"
-              step="0.001"
-              min="0"
-            >
-
-            <button
-              type="button"
-              class="btn-producir"
-              onclick="producirDesdeFormulario()"
-            >
-
-              Producir
-
-            </button>
-
-          </div>
+          </button>
 
         </div>
 
       </div>
 
       <!-- ================================= -->
-      <!-- RECETAS -->
+      <!-- INGREDIENTES -->
       <!-- ================================= -->
 
       <div class="table-box fade-in">
@@ -267,15 +191,206 @@
         <div class="table-header">
 
           <h3>
-            Recetas guardadas
+            Ingredientes receta
           </h3>
 
         </div>
 
-        <div
-          id="listaRecetas"
-          class="lista"
-        ></div>
+        <div class="form product-form">
+
+          <select id="productoIngrediente"></select>
+
+          <input
+            type="number"
+            id="cantidadIngrediente"
+            placeholder="Cantidad ingrediente"
+          >
+
+          <button
+            onclick="agregarIngrediente()"
+          >
+
+            Agregar ingrediente
+
+          </button>
+
+        </div>
+
+        <table class="pro-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Producto
+              </th>
+
+              <th>
+                Cantidad
+              </th>
+
+              <th>
+                Acción
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="listaIngredientes">
+
+            <tr>
+
+              <td colspan="3">
+
+                No hay ingredientes
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+      <!-- ================================= -->
+      <!-- PRODUCIR -->
+      <!-- ================================= -->
+
+      <div class="box fade-in">
+
+        <h3>
+          Producción
+        </h3>
+
+        <div class="form product-form">
+
+          <select id="recetaProduccion"></select>
+
+          <input
+            type="number"
+            id="cantidadFinal"
+            placeholder="Cantidad a producir"
+          >
+
+          <button
+            onclick="producir()"
+          >
+
+            Producir
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ================================= -->
+      <!-- STATS -->
+      <!-- ================================= -->
+
+      <div class="stats-grid fade-in">
+
+        <div class="stat-card">
+
+          <h3>
+            Producciones
+          </h3>
+
+          <h2 id="totalProducciones">
+            0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Costo total
+          </h3>
+
+          <h2 id="costoProduccion">
+            $0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Producción semanal
+          </h3>
+
+          <h2 id="produccionSemanal">
+            0
+          </h2>
+
+        </div>
+
+      </div>
+
+      <!-- ================================= -->
+      <!-- HISTORIAL -->
+      <!-- ================================= -->
+
+      <div class="table-box fade-in">
+
+        <div class="table-header">
+
+          <h3>
+            Historial producción
+          </h3>
+
+        </div>
+
+        <table class="pro-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Receta
+              </th>
+
+              <th>
+                Cantidad
+              </th>
+
+              <th>
+                Costo Total
+              </th>
+
+              <th>
+                Costo Unitario
+              </th>
+
+              <th>
+                Fecha
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="historialProduccion">
+
+            <tr>
+
+              <td colspan="5">
+
+                No hay producción
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
 
       </div>
 
@@ -286,41 +401,8 @@
 </div>
 
 <!-- ================================= -->
-<!-- COMMAND PALETTE -->
-<!-- ================================= -->
-
-<div
-  id="commandPalette"
-  class="command-palette hidden"
->
-
-  <div class="command-box">
-
-    <input
-      type="text"
-      id="commandInput"
-      placeholder="Buscar productos, ventas o módulos..."
-      autocomplete="off"
-      oninput="buscarGlobal()"
-    >
-
-    <div id="commandResults"></div>
-
-  </div>
-
-</div>
-
-<!-- ================================= -->
 <!-- SCRIPTS -->
 <!-- ================================= -->
-
-<script
-  defer
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
-  onerror="console.error('Error cargando Supabase')"
-></script>
-
-<script defer src="js/supabase.js"></script>
 
 <script defer src="js/storage.js"></script>
 

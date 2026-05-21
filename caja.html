@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 
 <body>
@@ -65,48 +65,54 @@
     <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a
-        href="index.html"
-        class="nav-link"
-      >
-        <b>Inicio</b>
-      </a>
+      <a href="index.html" class="nav-link ">
 
-      <a
-        href="ventas.html"
-        class="nav-link"
-      >
-        <b>Ventas</b>
-      </a>
+  <i class="fa-solid fa-house"></i>
 
-      <a
-        href="productos.html"
-        class="nav-link"
-      >
-        <b>Productos</b>
-      </a>
+  <b>Inicio</b>
 
-      <a
-        href="caja.html"
-        class="nav-link active"
-      >
-        <b>Caja</b>
-      </a>
+</a>
 
-      <a
-        href="produccion.html"
-        class="nav-link"
-      >
-        <b>Producción</b>
-      </a>
+      <a href="ventas.html" class="nav-link">
 
-      <a
-        href="proveedores.html"
-        class="nav-link admin-only"
-      >
-        <b>Proveedores</b>
-      </a>
+  <i class="fa-solid fa-cart-shopping"></i>
 
+  <b>Ventas</b>
+
+</a>
+
+      <a href="productos.html" class="nav-link">
+
+  <i class="fa-solid fa-box"></i>
+
+  <b>Productos</b>
+
+</a>
+
+      <a href="caja.html" class="nav-link active">
+
+  <i class="fa-solid fa-cash-register"></i>
+
+  <b>Caja</b>
+
+</a>
+      <a href="produccion.html" class="nav-link">
+
+  <i class="fa-solid fa-industry"></i>
+
+  <b>Producción</b>
+
+</a>
+
+      <a href="proveedores.html" class="nav-link">
+
+  <i class="fa-solid fa-truck"></i>
+
+  <b>Proveedores</b>
+
+</a>
+
+     
 
     </nav>
 
@@ -181,90 +187,61 @@
       <!-- STATS -->
       <!-- ================================= -->
 
-      <div class="stats-grid">
+     <!-- ================================= -->
+<!-- STATS -->
+<!-- ================================= -->
 
-        <div class="stat-card green">
+<div class="stats-grid fade-in">
 
-          <h2 id="montoApertura">
-            $0
-          </h2>
+  <div class="stat-card">
 
-          <p>
-            APERTURA
-          </p>
+    <h3>
+      💰 Ingresos
+    </h3>
 
-        </div>
+    <h2 id="ingresosCaja">
+      $0
+    </h2>
 
-        <div class="stat-card blue">
+  </div>
 
-          <h2 id="saldo">
-            $0
-          </h2>
+  <div class="stat-card">
 
-          <p>
-            SALDO ACTUAL
-          </p>
+    <h3>
+      💸 Egresos
+    </h3>
 
-        </div>
+    <h2 id="egresosCaja">
+      $0
+    </h2>
 
-        <div class="stat-card orange">
+  </div>
 
-          <h2 id="diferenciaCaja">
-            $0
-          </h2>
+  <div class="stat-card">
 
-          <p>
-            DIFERENCIA
-          </p>
+    <h3>
+      🏦 Saldo
+    </h3>
 
-        </div>
+    <h2 id="saldoCaja">
+      $0
+    </h2>
 
-        <div class="stat-card green">
+  </div>
 
-          <h2 id="totalIngresos">
-            $0
-          </h2>
+  <div class="stat-card">
 
-          <p>
-            INGRESOS
-          </p>
+    <h3>
+      📊 Movimientos
+    </h3>
 
-        </div>
+    <h2 id="movimientosCaja">
+      0
+    </h2>
 
-        <div class="stat-card red">
+  </div>
 
-          <h2 id="totalEgresos">
-            $0
-          </h2>
-
-          <p>
-            EGRESOS
-          </p>
-
-        </div>
-
-        <div class="stat-card blue">
-
-          <h2 id="saldoActual">
-            $0
-          </h2>
-
-          <p>
-            SALDO
-          </p>
-      
-        </div>
-<div class="stat-card green">
-
-        <h2 id="diezPorciento">>
-          $0
-        </h2>
-
-        <p>
-          10% DE LAS VENTAS
-        </p>
-      </div>
-      </div>
+</div>
 
       <!-- ================================= -->
       <!-- APERTURA -->
@@ -386,7 +363,58 @@
         </div>
 
       </div>
+<!-- ================================= -->
+<!-- HISTORIAL VENTAS -->
+<!-- ================================= -->
 
+<div
+  class="table-box fade-in"
+  style="margin-top:30px;"
+>
+
+  <div class="table-header">
+
+    <h3>
+      🧾 Últimas ventas
+    </h3>
+
+  </div>
+
+  <table class="pro-table">
+
+    <thead>
+
+      <tr>
+
+        <th>
+          Fecha
+        </th>
+
+        <th>
+          Productos
+        </th>
+
+        <th>
+          Método
+        </th>
+
+        <th>
+          Usuario
+        </th>
+
+        <th>
+          Total
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody id="historialVentas"></tbody>
+
+  </table>
+
+</div>
       <!-- ================================= -->
       <!-- LIMPIAR -->
       <!-- ================================= -->

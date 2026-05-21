@@ -1,175 +1,178 @@
 // =================================
-// PROTECCION ADMIN
-// =================================
-
-if (
-  localStorage.getItem("rol")
-  !== "ADMIN"
-) {
-
-  showToast(
-    "Acceso solo para administradores",
-    "error"
-  );
-
-  setTimeout(() => {
-
-    window.location.href =
-      "index.html";
-
-  }, 1200);
-}
-
-// =================================
 // STORAGE
 // =================================
 
 let proveedores =
+
   JSON.parse(
-    localStorage.getItem("proveedores")
+
+    localStorage.getItem(
+      "proveedores"
+    )
+
   ) || [];
 
-let cuentas =
+let caja =
+
   JSON.parse(
-    localStorage.getItem("cuentas")
+
+    localStorage.getItem(
+      "caja"
+    )
+
   ) || [];
 
 // =================================
 // GUARDAR
 // =================================
 
-function guardarTodo() {
+function guardar() {
 
   localStorage.setItem(
+
     "proveedores",
-    JSON.stringify(proveedores)
-  );
 
-  localStorage.setItem(
-    "cuentas",
-    JSON.stringify(cuentas)
+    JSON.stringify(
+      proveedores
+    )
   );
 }
 
 // =================================
-// AGREGAR PROVEEDOR
+// REGISTRAR COMPRA
 // =================================
 
-function agregarProveedor() {
-
-  const input =
-    document.getElementById(
-      "nombreProv"
-    );
+function registrarCompraProveedor() {
 
   const nombre =
-    input.value.trim();
 
-  if (!nombre) {
+    document.getElementById(
+      "nombreProveedor"
+    ).value.trim();
+
+  const monto =
+
+    Number(
+
+      document.getElementById(
+        "montoCompra"
+      ).value
+    );
+
+  const pagado =
+
+    Number(
+
+      document.getElementById(
+        "montoPagado"
+      ).value
+    );
+
+  // VALIDAR
+  if (
+
+    !nombre ||
+
+    monto <= 0
+
+  ) {
 
     showToast(
-      "Ingresá un nombre",
+
+      "Datos inválidos",
+
       "error"
     );
 
     return;
   }
 
-  // EVITAR DUPLICADOS
-  const existe =
-    proveedores.find(p =>
-      p.nombre.toLowerCase()
-      === nombre.toLowerCase()
-    );
+  // =================================
+  // DEUDA
+  // =================================
 
-  if (existe) {
+  const deuda =
 
-    showToast(
-      "Ese proveedor ya existe",
-      "error"
-    );
+    monto - pagado;
 
-    return;
-  }
+  // =================================
+  // REGISTRO
+  // =================================
 
   proveedores.push({
 
     id: Date.now(),
 
-    nombre
+    nombre,
+
+    monto,
+
+    pagado,
+
+    deuda,
+
+    fecha:
+      new Date()
+        .toISOString()
   });
 
-  guardarTodo();
+  // =================================
+  // CAJA
+  // =================================
 
-  input.value = "";
+  if (pagado > 0) {
 
-  cargarSelects();
+    caja.push({
 
-  render();
+      tipo:
+        "egreso",
 
-  showToast(
-    "Proveedor agregado",
-    "success"
-  );
-}
+      descripcion:
+        `Pago proveedor ${nombre}`,
 
-// =================================
-// AGREGAR CUENTA
-// =================================
+      monto:
+        pagado,
 
-function agregarCuenta() {
+      fecha:
+        new Date()
+          .toISOString()
+    });
 
-  const proveedorId =
-    Number(
-      document.getElementById(
-        "proveedorSelect"
-      ).value
+    localStorage.setItem(
+
+      "caja",
+
+      JSON.stringify(caja)
     );
-
-  const total =
-    Number(
-      document.getElementById(
-        "montoTotal"
-      ).value
-    );
-
-  if (!proveedorId || !total) {
-
-    showToast(
-      "Completá los datos",
-      "error"
-    );
-
-    return;
   }
 
-  cuentas.push({
-
-    id: Date.now(),
-
-    proveedorId,
-
-    total,
-
-    pagado: 0,
-
-    estado: "pendiente"
-  });
-
-  guardarTodo();
-
-  document.getElementById(
-    "montoTotal"
-  ).value = "";
+  guardar();
 
   render();
 
-  cargarSelects();
+  actualizarStats();
+
+  cargarSelect();
 
   showToast(
-    "Deuda registrada",
+
+    "Compra registrada",
+
     "success"
   );
+
+  // LIMPIAR
+  document.getElementById(
+    "nombreProveedor"
+  ).value = "";
+
+  document.getElementById(
+    "montoCompra"
+  ).value = "";
+
+  document.getElementById(
+    "montoPagado"
+  ).value = "";
 }
 
 // =================================
@@ -178,130 +181,174 @@ function agregarCuenta() {
 
 function pagarCuenta() {
 
-  const cuentaId =
+  const id =
+
     Number(
+
       document.getElementById(
         "cuentaSelect"
       ).value
     );
 
-  const monto =
+  const montoPago =
+
     Number(
+
       document.getElementById(
         "montoPago"
       ).value
     );
 
   const cuenta =
-    cuentas.find(
-      c => c.id === cuentaId
+
+    proveedores.find(
+      p => p.id === id
     );
 
-  if (!cuenta || !monto) {
+  if (
+
+    !cuenta ||
+
+    montoPago <= 0
+
+  ) {
 
     showToast(
-      "Completá los datos",
+
+      "Datos inválidos",
+
       "error"
     );
 
     return;
   }
 
-  const saldo =
-    cuenta.total - cuenta.pagado;
+  // VALIDAR
+  if (
 
-  // EVITAR PASARSE
-  if (monto > saldo) {
+    montoPago > cuenta.deuda
+
+  ) {
 
     showToast(
+
       "El pago supera la deuda",
+
       "error"
     );
 
     return;
   }
 
-  cuenta.pagado += monto;
+  // =================================
+  // ACTUALIZAR
+  // =================================
 
-  // PAGADA
-  if (cuenta.pagado >= cuenta.total) {
+  cuenta.pagado +=
+    montoPago;
 
-    cuenta.estado = "pagada";
-  }
+  cuenta.deuda -=
+    montoPago;
 
-  guardarTodo();
+  // =================================
+  // CAJA
+  // =================================
+
+  caja.push({
+
+    tipo:
+      "egreso",
+
+    descripcion:
+      `Pago deuda ${cuenta.nombre}`,
+
+    monto:
+      montoPago,
+
+    fecha:
+      new Date()
+        .toISOString()
+  });
+
+  localStorage.setItem(
+
+    "caja",
+
+    JSON.stringify(caja)
+  );
+
+  guardar();
 
   render();
 
-  cargarSelects();
+  actualizarStats();
+
+  cargarSelect();
+
+  showToast(
+
+    "Pago registrado",
+
+    "success"
+  );
 
   document.getElementById(
     "montoPago"
   ).value = "";
-
-  showToast(
-    "Pago registrado",
-    "success"
-  );
 }
 
 // =================================
-// SELECTS
+// SELECT
 // =================================
 
-function cargarSelects() {
+function cargarSelect() {
 
-  const provSel =
-    document.getElementById(
-      "proveedorSelect"
-    );
+  const select =
 
-  const cuentaSel =
     document.getElementById(
       "cuentaSelect"
     );
 
-  provSel.innerHTML = "";
+  if (!select) return;
 
-  cuentaSel.innerHTML = "";
+  select.innerHTML = "";
 
-  // PROVEEDORES
-  proveedores.forEach(p => {
+  const pendientes =
 
-    provSel.innerHTML += `
+    proveedores.filter(
+      p => p.deuda > 0
+    );
 
-      <option value="${p.id}">
-        ${p.nombre}
+  if (
+
+    pendientes.length === 0
+
+  ) {
+
+    select.innerHTML = `
+
+      <option>
+
+        Sin deudas
+
       </option>
     `;
-  });
 
-  // CUENTAS
-  cuentas.forEach(c => {
+    return;
+  }
 
-    const prov =
-      proveedores.find(
-        p => p.id === c.proveedorId
-      );
+  pendientes.forEach(p => {
 
-    const saldo =
-      c.total - c.pagado;
+    select.innerHTML += `
 
-    // SOLO PENDIENTES
-    if (saldo > 0) {
+      <option value="${p.id}">
 
-      cuentaSel.innerHTML += `
+        ${p.nombre}
+        - $
+        ${p.deuda.toLocaleString()}
 
-        <option value="${c.id}">
-
-          ${prov ? prov.nombre : "Proveedor"}
-
-          - Saldo:
-          $${saldo.toLocaleString()}
-
-        </option>
-      `;
-    }
+      </option>
+    `;
   });
 }
 
@@ -312,98 +359,166 @@ function cargarSelects() {
 function render() {
 
   const cont =
+
     document.getElementById(
-      "listaCuentas"
+      "listaProveedores"
     );
+
+  if (!cont) return;
 
   cont.innerHTML = "";
 
   // VACIO
-  if (cuentas.length === 0) {
+  if (
+
+    proveedores.length === 0
+
+  ) {
 
     cont.innerHTML = `
 
-      <div class="empty-state">
-        No hay cuentas registradas
-      </div>
+      <tr>
+
+        <td colspan="6">
+
+          No hay registros
+
+        </td>
+
+      </tr>
     `;
 
     return;
   }
 
-  // MÁS NUEVAS ARRIBA
-  [...cuentas]
+  [...proveedores]
+
     .reverse()
-    .forEach(c => {
 
-      const prov =
-        proveedores.find(
-          p => p.id === c.proveedorId
-        );
+    .forEach(p => {
 
-      const saldo =
-        c.total - c.pagado;
+      const estado =
 
-      const div =
-        document.createElement("div");
+        p.deuda > 0
 
-      div.className = `
-        debt-card
-        ${c.estado === "pagada"
-          ? "deuda-pagada"
-          : ""}
-      `;
-
-      div.innerHTML = `
-
-        <div>
-
-          <h4>
-            ${prov
-              ? prov.nombre
-              : "Proveedor"}
-          </h4>
-
-          <p>
-            Total:
-            $${c.total.toLocaleString()}
-          </p>
-
-          <p>
-            Pagado:
-            $${c.pagado.toLocaleString()}
-          </p>
-
-        </div>
-
-        <div>
-
-          <span class="
-            ${c.estado === "pagada"
-              ? "badge-success"
-              : "badge-danger"}
-          ">
-
-            ${c.estado === "pagada"
-
-              ? "✅ PAGADA"
-
-              : `💰 Saldo: $${saldo.toLocaleString()}`
-            }
-
+        ? `
+          <span class="stock-low">
+            ⚠️ Pendiente
           </span>
+        `
 
-        </div>
+        : `
+          <span class="stock-ok">
+            ✅ Pagado
+          </span>
+        `;
+
+      cont.innerHTML += `
+
+        <tr>
+
+          <td>
+
+            ${p.nombre}
+
+          </td>
+
+          <td>
+
+            $${p.monto.toLocaleString()}
+
+          </td>
+
+          <td>
+
+            $${p.pagado.toLocaleString()}
+
+          </td>
+
+          <td>
+
+            $${p.deuda.toLocaleString()}
+
+          </td>
+
+          <td>
+
+            ${estado}
+
+          </td>
+
+          <td>
+
+            ${new Date(p.fecha)
+
+              .toLocaleDateString(
+                "es-AR"
+              )}
+
+          </td>
+
+        </tr>
       `;
-
-      cont.appendChild(div);
     });
+}
+
+// =================================
+// STATS
+// =================================
+
+function actualizarStats() {
+
+  const totalProv =
+
+    proveedores.length;
+
+  const deudaTotal =
+
+    proveedores.reduce(
+
+      (acc, p) =>
+
+        acc + p.deuda,
+
+      0
+    );
+
+  const totalPagado =
+
+    proveedores.reduce(
+
+      (acc, p) =>
+
+        acc + p.pagado,
+
+      0
+    );
+
+  document.getElementById(
+    "totalProveedores"
+  ).innerText =
+
+    totalProv;
+
+  document.getElementById(
+    "deudaTotal"
+  ).innerText =
+
+    `$${deudaTotal.toLocaleString()}`;
+
+  document.getElementById(
+    "totalPagado"
+  ).innerText =
+
+    `$${totalPagado.toLocaleString()}`;
 }
 
 // =================================
 // INIT
 // =================================
 
-cargarSelects();
-
 render();
+
+actualizarStats();
+
+cargarSelect();

@@ -1,29 +1,28 @@
-/* ================================= */
-/* SIDEBAR PREMIUM */
-/* ================================= */
+/* =================================
+SIDEBAR
+================================= */
 
 .sidebar {
 
+  position: fixed;
+
+  top: 0;
+
+  left: 0;
+
   width: 260px;
 
-  min-width: 260px;
-
-  min-height: 100vh;
+  height: 100vh;
 
   background:
-
     linear-gradient(
-
       180deg,
-
-      #0284c7 0%,
-
-      #0369a1 45%,
-
-      #1e3a8a 100%
+      #020617,
+      #020b1f
     );
 
-  color: white;
+  border-right:
+    1px solid rgba(255,255,255,0.05);
 
   display: flex;
 
@@ -31,58 +30,53 @@
 
   padding: 18px;
 
-  box-shadow:
-    6px 0 25px rgba(0,0,0,0.15);
-
-  transition:
-    all 0.25s ease;
-
   overflow-y: auto;
 
-  overflow-x: hidden;
+  z-index: 999;
+
+  box-shadow:
+    10px 0 40px rgba(0,0,0,0.35);
+}
+/* =================================
+SIDEBAR STRUCTURE
+================================= */
+
+.sidebar {
 
   position: relative;
-
-  z-index: 1000;
 }
 
-/* ================================= */
-/* SIDEBAR SCROLL */
-/* ================================= */
+.sidebar-nav {
 
-.sidebar::-webkit-scrollbar {
-
-  width: 6px;
+  margin-top: 10px;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
+/* USER BOX ABAJO FIJO */
 
-  background:
-    rgba(255,255,255,0.18);
+.user-box {
 
-  border-radius: 20px;
+  margin-top: auto;
 }
-
-/* ================================= */
-/* HEADER */
-/* ================================= */
+/* =================================
+HEADER
+================================= */
 
 .sidebar-header {
+
+  height: 90px;
+
+  min-height: 90px;
 
   display: flex;
 
   align-items: center;
 
-  justify-content: space-between;
+  justify-content: center;
 
-  gap: 12px;
+  margin-bottom: 18px;
 
-  margin-bottom: 30px;
+  overflow: hidden;
 }
-
-/* ================================= */
-/* BRAND */
-/* ================================= */
 
 .brand {
 
@@ -90,321 +84,270 @@
 
   align-items: center;
 
-  gap: 12px;
-}
-
-.brand-icon {
-
-  width: 52px;
-
-  height: 52px;
-
-  border-radius: 18px;
-
-  background:
-    rgba(255,255,255,0.15);
-
-  display: flex;
-
-  align-items: center;
-
   justify-content: center;
-
-  font-size: 24px;
-
-  color: white;
-
-  flex-shrink: 0;
-
-  border:
-    1px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.12);
 }
 
-.brand h2 {
+.brand-icon img {
 
-  margin: 0;
+  width: 130px;
 
-  color: white;
+  object-fit: contain;
 
-  font-size: 26px;
-
-  font-weight: 800;
-
-  line-height: 1;
+  filter:
+    drop-shadow(
+      0 0 18px
+      rgba(59,130,246,0.4)
+    );
 }
 
-.brand p {
-
-  margin-top: 4px;
-
-  color:
-    rgba(255,255,255,0.72);
-
-  font-size: 13px;
-}
-
-/* ================================= */
-/* COLLAPSE BUTTON */
-/* ================================= */
-
-.collapse-btn {
-
-  width: 44px;
-
-  height: 44px;
-
-  border-radius: 14px;
-
-  border:
-    1px solid rgba(255,255,255,0.14);
-
-  background:
-    rgba(255,255,255,0.12);
-
-  color: white;
-
-  cursor: pointer;
-
-  font-size: 18px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  transition:
-    all 0.2s ease;
-}
-
-.collapse-btn:hover {
-
-  background:
-    rgba(255,255,255,0.18);
-
-  transform:
-    scale(1.04);
-}
-
-/* ================================= */
-/* NAV */
-/* ================================= */
-
+/* =================================
+NAV
+================================= */
 .sidebar-nav {
 
   display: flex;
 
   flex-direction: column;
 
-  gap: 10px;
+  gap: 12px;
 
   margin-top: 10px;
 }
-
-/* ================================= */
-/* LINKS */
-/* ================================= */
-
 .nav-link {
 
   display: flex;
 
   align-items: center;
 
-  gap: 14px;
+  gap: 16px;
 
-  padding: 14px 16px;
+  padding: 16px 18px;
 
-  border-radius: 16px;
+  border-radius: 18px;
 
-  color: white;
+  text-decoration: none;
 
-  font-weight: 600;
+  color: #cbd5e1;
 
-  transition:
-    all 0.2s ease;
+  font-weight: 700;
+
+  font-size: 17px;
+
+  transition: 0.25s ease;
 
   position: relative;
 
   overflow: hidden;
 }
 
-.nav-link span {
-
-  width: 22px;
-
-  text-align: center;
-
-  font-size: 18px;
-}
+/* HOVER */
 
 .nav-link:hover {
 
   background:
-    rgba(255,255,255,0.12);
+    rgba(59,130,246,0.12);
 
-  transform:
-    translateX(4px);
+  color: white;
+
+  transform: translateX(4px);
+
+  box-shadow:
+    0 0 20px
+    rgba(59,130,246,0.18);
 }
+
+/* ACTIVE */
 
 .nav-link.active {
 
   background:
-    rgba(255,255,255,0.18);
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    );
+
+  color: white;
 
   box-shadow:
-    inset 3px 0 0 white;
+    0 10px 30px
+    rgba(37,99,235,0.35);
 }
 
-/* ================================= */
-/* USER BOX */
-/* ================================= */
+/* =================================
+USER BOX
+================================= */
 
 .user-box {
 
-  margin-top: auto;
+  margin-top: 30px;
 
-  background:
-    rgba(255,255,255,0.10);
+  padding-top: 20px;
 
-  border:
-    1px solid rgba(255,255,255,0.08);
-
-  border-radius: 22px;
-
-  padding: 16px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 14px;
-
-  backdrop-filter:
-    blur(10px);
+  border-top:
+    1px solid rgba(255,255,255,0.06);
 }
 
-/* ================================= */
-/* AVATAR */
-/* ================================= */
+.user-role {
 
-.user-avatar {
+  color: #94a3b8;
 
-  width: 56px;
+  display: block;
 
-  height: 56px;
+  margin-bottom: 14px;
+}
 
-  border-radius: 18px;
+.switch-btn {
+
+  width: 100%;
+
+  border: none;
 
   background:
-    rgba(255,255,255,0.18);
+    rgba(255,255,255,0.05);
+
+  color: white;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  cursor: pointer;
+
+  font-weight: 700;
+
+  transition: 0.2s;
+}
+
+.switch-btn:hover {
+
+  background:
+    rgba(59,130,246,0.2);
+
+  box-shadow:
+    0 0 20px
+    rgba(59,130,246,0.18);
+}
+
+/* =================================
+TOPBAR
+================================= */
+
+.topbar {
 
   display: flex;
 
   align-items: center;
 
-  justify-content: center;
+  justify-content: space-between;
 
-  font-size: 24px;
-
-  border:
-    1px solid rgba(255,255,255,0.08);
+  margin-bottom: 24px;
 }
 
-/* ================================= */
-/* INFO */
-/* ================================= */
+.topbar h2 {
 
-.user-info p {
+  color: #0f172a;
 
-  margin: 0;
+  font-size: 28px;
 
-  color: white;
-
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.user-role {
+/* =================================
+MENU TOGGLE
+================================= */
 
-  color:
-    rgba(255,255,255,0.72);
+.menu-toggle {
 
-  font-size: 13px;
-}
+  width: 46px;
 
-/* ================================= */
-/* BUTTONS */
-/* ================================= */
-
-.user-info select,
-.user-box button {
-
-  width: 100%;
-}
-
-.switch-btn,
-.logout-btn {
-
-  width: 100%;
-}
-
-/* ================================= */
-/* SWITCH */
-/* ================================= */
-
-.switch-btn {
-
-  background:
-
-    linear-gradient(
-
-      135deg,
-
-      #0ea5e9,
-
-      #2563eb
-    );
-
-  color: white;
+  height: 46px;
 
   border: none;
-}
 
-.switch-btn:hover {
+  border-radius: 14px;
 
-  transform:
-    translateY(-2px);
+  background:
+    #2563eb;
+
+  color: white;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
 
   box-shadow:
-    0 10px 25px rgba(37,99,235,0.30);
+    0 10px 25px
+    rgba(37,99,235,0.35);
 }
 
-/* ================================= */
-/* MOBILE */
-/* ================================= */
+/* =================================
+OVERLAY
+================================= */
 
-@media (max-width: 768px) {
+.sidebar-overlay {
 
-  .sidebar {
+  position: fixed;
 
-    position: fixed;
+  inset: 0;
 
-    left: -100%;
+  background:
+    rgba(0,0,0,0.5);
 
-    top: 0;
+  z-index: 999;
 
-    width: 260px;
+  opacity: 0;
 
-    height: 100vh;
+  pointer-events: none;
 
-    z-index: 99999;
-  }
+  transition: 0.3s;
+}
 
-  .sidebar.mobile-open {
+.sidebar-overlay.active {
 
-    left: 0;
-  }
+  opacity: 1;
+
+  pointer-events: all;
+}
+/* =================================
+ICONOS SIDEBAR
+================================= */
+
+.nav-link i {
+
+  width: 22px;
+
+  font-size: 20px;
+
+  color: #60a5fa;
+
+  transition: 0.25s ease;
+}
+
+.nav-link:hover i {
+
+  transform: scale(1.1);
+
+  color: white;
+}
+
+.nav-link.active i {
+
+  color: white;
+}
+.main {
+
+  margin-left: 260px;
+
+  width: calc(100% - 260px);
+
+  min-height: 100vh;
+
+  padding: 24px;
 }

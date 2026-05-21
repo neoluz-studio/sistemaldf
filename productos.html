@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 
 <body>
@@ -49,19 +49,16 @@
 
       <div class="brand">
 
-         <div class="brand-icon">
+        <div class="brand-icon">
 
-  <img
-    src="assets/icons/images/logo.png"
-    alt="FAUSTI"
-  >
+          <img
+            src="assets/icons/images/logo.png"
+            alt="FAUSTI"
+          >
 
-</div>
+        </div>
 
-<div class="brand-text">
-
-
-</div>
+        <div class="brand-text"></div>
 
       </div>
 
@@ -70,51 +67,54 @@
     <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a
-        href="index.html"
-        class="nav-link"
-      >
-        <b>Inicio</b>
-      </a>
+      <a href="index.html" class="nav-link ">
 
-      <a
-        href="ventas.html"
-        class="nav-link"
-      >
-        <b>Ventas</b>
-      </a>
+  <i class="fa-solid fa-house"></i>
 
-      <a
-        href="productos.html"
-        class="nav-link active"
-      >
-        <b>Productos</b>
-      </a>
+  <b>Inicio</b>
 
-      <a
-        href="caja.html"
-        class="nav-link"
-      >
-        <b>Caja</b>
-      </a>
+</a>
 
-      <a
-        href="produccion.html"
-        class="nav-link"
-      >
-        <b>Producción</b>
-      </a>
+      <a href="ventas.html" class="nav-link ">
 
-      <a
-        href="proveedores.html"
-        class="nav-link admin-only"
-      >
-        <b>Proveedores</b>
-      </a>
+  <i class="fa-solid fa-cart-shopping"></i>
 
-      
+  <b>Ventas</b>
 
+</a>
+
+      <a href="productos.html" class="nav-link active">
+
+  <i class="fa-solid fa-box"></i>
+
+  <b>Productos</b>
+
+</a>
+
+      <a href="caja.html" class="nav-link ">
+
+  <i class="fa-solid fa-cash-register"></i>
+
+  <b>Caja</b>
+
+</a>
+      <a href="produccion.html" class="nav-link">
+
+  <i class="fa-solid fa-industry"></i>
+
+  <b>Producción</b>
+
+</a>
+
+      <a href="proveedores.html" class="nav-link">
+
+  <i class="fa-solid fa-truck"></i>
+
+  <b>Proveedores</b>
+
+</a>
     </nav>
+     
 
     <!-- USER -->
     <div class="user-box">
@@ -140,11 +140,14 @@
     </div>
 
   </aside>
-<div
-  id="sidebarOverlay"
-  class="sidebar-overlay"
-  onclick="toggleSidebar()"
-></div>
+
+  <!-- OVERLAY -->
+  <div
+    id="sidebarOverlay"
+    class="sidebar-overlay"
+    onclick="toggleSidebar()"
+  ></div>
+
   <!-- ================================= -->
   <!-- MAIN -->
   <!-- ================================= -->
@@ -157,12 +160,14 @@
       <h2>
         Productos
       </h2>
-<button
-  class="menu-toggle"
-  onclick="toggleSidebar()"
->
-  ☰
-</button>
+
+      <button
+        class="menu-toggle"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
     </div>
 
     <!-- CONTENT -->
@@ -232,7 +237,7 @@
             onclick="agregarProducto()"
           >
 
-            Agregar
+            Guardar Producto
 
           </button>
 
@@ -255,7 +260,7 @@
           <input
             id="buscador"
             type="text"
-            placeholder="Buscar..."
+            placeholder="Buscar producto..."
             autocomplete="off"
             onkeyup="filtrarProductos()"
           >
@@ -285,7 +290,11 @@
               </th>
 
               <th>
-                Tipo
+                Ganancia
+              </th>
+
+              <th>
+                Fecha
               </th>
 
               <th>
