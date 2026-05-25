@@ -35,30 +35,149 @@ function guardar() {
 // OBTENER SALDOS
 // =================================
 
+// =================================
+// CALCULAR CAJA PROFESIONAL
+// =================================
+
 function calcularCaja() {
 
-  const ingresos =
-    caja
-      .filter(m => m.tipo === "ingreso")
+  const ventas =
+    JSON.parse(
+      localStorage.getItem("ventas")
+    ) || [];
+
+  // =================================
+  // MÉTODOS DE PAGO
+  // =================================
+
+  const efectivo =
+    ventas
+      .filter(v =>
+        v.metodo === "efectivo"
+      )
       .reduce(
-        (acc, m) => acc + m.monto,
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const transferencia =
+    ventas
+      .filter(v =>
+        v.metodo === "transferencia"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const mercadoPago =
+    ventas
+      .filter(v =>
+        v.metodo === "mp"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const qr =
+    ventas
+      .filter(v =>
+        v.metodo === "qr"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const qrBanco =
+    ventas
+      .filter(v =>
+        v.metodo === "qr_banco"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const promoNacion =
+    ventas
+      .filter(v =>
+        v.metodo === "promo_bn"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  // =================================
+  // MOVIMIENTOS MANUALES
+  // =================================
+
+  const ingresosManuales =
+    caja
+      .filter(m =>
+        m.tipo === "ingreso" &&
+        !m.ventaId
+      )
+      .reduce(
+        (acc, m) =>
+          acc + Number(m.monto || 0),
         0
       );
 
   const egresos =
     caja
-      .filter(m => m.tipo === "egreso")
+      .filter(m =>
+        m.tipo === "egreso"
+      )
       .reduce(
-        (acc, m) => acc + m.monto,
+        (acc, m) =>
+          acc + Number(m.monto || 0),
         0
       );
 
+  // =================================
+  // TOTALES
+  // =================================
+
+  const totalDigital =
+    transferencia +
+    mercadoPago +
+    qr +
+    qrBanco +
+    promoNacion;
+
+  const ingresosCaja =
+    efectivo +
+    ingresosManuales;
+
   const saldo =
-    ingresos - egresos;
+    ingresosCaja - egresos;
 
   return {
 
-    ingresos,
+    efectivo,
+
+    transferencia,
+
+    mercadoPago,
+
+    qr,
+
+    qrBanco,
+
+    promoNacion,
+
+    totalDigital,
+
+    ingresosCaja,
 
     egresos,
 
@@ -676,53 +795,15 @@ renderResumenCaja();
 // =================================
 // DASHBOARD CAJA
 // =================================
-
 function renderStatsCaja() {
 
-  const caja =
-
-    JSON.parse(
-
-      localStorage.getItem(
-        "caja"
-      )
-
-    ) || [];
-
-  let ingresos = 0;
-
-  let egresos = 0;
-
-  caja.forEach(c => {
-
-    if (c.tipo === "ingreso") {
-
-      ingresos +=
-        Number(c.monto || 0);
-    }
-
-    if (c.tipo === "egreso") {
-
-      egresos +=
-        Number(c.monto || 0);
-    }
-  });
-
-  const saldo =
-
-    ingresos - egresos;
-
-  // =================================
-  // RENDER
-  // =================================
+  const resumen =
+    calcularCaja();
 
   const set = (id, value) => {
 
     const el =
-
-      document.getElementById(
-        id
-      );
+      document.getElementById(id);
 
     if (el) {
 
@@ -730,31 +811,74 @@ function renderStatsCaja() {
     }
   };
 
-  set(
+  // =================================
+  // PRINCIPALES
+  // =================================
 
+  set(
     "ingresosCaja",
-
-    `$${ingresos.toLocaleString()}`
+    `$${resumen.ingresosCaja.toLocaleString()}`
   );
 
   set(
-
     "egresosCaja",
-
-    `$${egresos.toLocaleString()}`
+    `$${resumen.egresos.toLocaleString()}`
   );
 
   set(
-
     "saldoCaja",
+    `$${resumen.saldo.toLocaleString()}`
+  );
 
-    `$${saldo.toLocaleString()}`
+  // =================================
+  // EFECTIVO Y DIGITAL
+  // =================================
+
+  set(
+    "totalEfectivo",
+    `$${resumen.efectivo.toLocaleString()}`
   );
 
   set(
+    "totalDigital",
+    `$${resumen.totalDigital.toLocaleString()}`
+  );
 
+  // =================================
+  // DETALLE DIGITAL
+  // =================================
+
+  set(
+    "totalTransferencia",
+    `$${resumen.transferencia.toLocaleString()}`
+  );
+
+  set(
+    "totalMP",
+    `$${resumen.mercadoPago.toLocaleString()}`
+  );
+
+  set(
+    "totalQR",
+    `$${resumen.qr.toLocaleString()}`
+  );
+
+  set(
+    "totalQRBanco",
+    `$${resumen.qrBanco.toLocaleString()}`
+  );
+
+  set(
+    "totalPromoBN",
+    `$${resumen.promoNacion.toLocaleString()}`
+  );
+
+  // =================================
+  // MOVIMIENTOS
+  // =================================
+
+  set(
     "movimientosCaja",
-
     caja.length
   );
 }
@@ -763,4 +887,6 @@ function renderStatsCaja() {
 // INIT
 // =================================
 
+render();
+renderResumenCaja();
 renderStatsCaja();
