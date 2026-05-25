@@ -2,7 +2,6 @@
 <html lang="es">
 
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -10,9 +9,7 @@
     content="width=device-width, initial-scale=1.0"
   />
 
-  <title>
-    Caja
-  </title>
+  <title>Caja</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
@@ -25,106 +22,76 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="css/caja.css">
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
 </head>
 
 <body>
 
-<!-- ================================= -->
-<!-- LAYOUT -->
-<!-- ================================= -->
-
 <div class="layout">
 
-  <!-- ================================= -->
   <!-- SIDEBAR -->
-  <!-- ================================= -->
-
-  <aside
-    class="sidebar"
-    id="sidebar"
-  >
+  <aside class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-
       <div class="brand">
-
-          <div class="brand-icon">
-
-  <img
-    src="assets/icons/images/logo.png"
-    alt="FAUSTI"
-  >
-
-</div>
-
+        <div class="brand-icon">
+          <img
+            src="assets/icons/images/logo.png"
+            alt="FAUSTI"
+          >
+        </div>
       </div>
-
     </div>
 
-    <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a href="index.html" class="nav-link ">
-
-  <i class="fa-solid fa-house"></i>
-
-  <b>Inicio</b>
-
-</a>
+      <a href="index.html" class="nav-link">
+        <i class="fa-solid fa-house"></i>
+        <b>Inicio</b>
+      </a>
 
       <a href="ventas.html" class="nav-link">
-
-  <i class="fa-solid fa-cart-shopping"></i>
-
-  <b>Ventas</b>
-
-</a>
+        <i class="fa-solid fa-cart-shopping"></i>
+        <b>Ventas</b>
+      </a>
 
       <a href="productos.html" class="nav-link">
-
-  <i class="fa-solid fa-box"></i>
-
-  <b>Productos</b>
-
-</a>
+        <i class="fa-solid fa-box"></i>
+        <b>Productos</b>
+      </a>
 
       <a href="caja.html" class="nav-link active">
+        <i class="fa-solid fa-cash-register"></i>
+        <b>Caja</b>
+      </a>
 
-  <i class="fa-solid fa-cash-register"></i>
-
-  <b>Caja</b>
-
-</a>
       <a href="produccion.html" class="nav-link">
-
-  <i class="fa-solid fa-industry"></i>
-
-  <b>Producción</b>
-
-</a>
+        <i class="fa-solid fa-industry"></i>
+        <b>Producción</b>
+      </a>
 
       <a href="proveedores.html" class="nav-link">
+        <i class="fa-solid fa-truck"></i>
+        <b>Proveedores</b>
+      </a>
 
-  <i class="fa-solid fa-truck"></i>
-
-  <b>Proveedores</b>
-
-</a>
-
-     
+      <a href="historial.html" class="nav-link">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <b>Historial</b>
+      </a>
 
     </nav>
 
-    <!-- USER -->
     <div class="user-box">
-
       <div class="user-info">
-
         <small class="user-role">
           Sesión activa
         </small>
-
       </div>
 
       <button
@@ -132,381 +99,249 @@
         onclick="logout()"
         class="switch-btn"
       >
-
-        🔄 Cerrar Sesión
-
+        Cerrar Sesión
       </button>
-
     </div>
 
   </aside>
-<div
-  id="sidebarOverlay"
-  class="sidebar-overlay"
-  onclick="toggleSidebar()"
-></div>
-  <!-- ================================= -->
-  <!-- MAIN -->
-  <!-- ================================= -->
 
+  <div
+    id="sidebarOverlay"
+    class="sidebar-overlay"
+    onclick="toggleSidebar()"
+  ></div>
+
+  <!-- MAIN -->
   <main class="main">
 
     <!-- TOPBAR -->
     <div class="topbar">
-<button
-  class="menu-toggle"
-  onclick="toggleSidebar()"
->
-  ☰
-</button>
+
+      <button
+        class="menu-toggle"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
       <div class="topbar-left">
-
         <div>
-
-          <h2>
-            💰 Caja diaria
-          </h2>
-
-          <p>
-            Control financiero del local
-          </p>
-
+          <h2>Caja diaria</h2>
+          <p>Control rápido y simple del dinero del local</p>
         </div>
+      </div>
 
+      <div class="caja-status" id="estadoCaja">
+        Caja sin abrir
       </div>
 
     </div>
 
-    <!-- ================================= -->
-    <!-- CONTENT -->
-    <!-- ================================= -->
-
     <div class="page-content">
 
-      <!-- ================================= -->
-      <!-- STATS -->
-      <!-- ================================= -->
+      <!-- RESUMEN PRINCIPAL -->
+      <div class="stats-grid fade-in">
 
-     <!-- ================================= -->
-<!-- STATS -->
-<!-- ================================= -->
+        <div class="stat-card">
+          <h3>Saldo actual</h3>
+          <h2 id="saldoCaja">$0</h2>
+          <p>Efectivo disponible en caja</p>
+        </div>
 
-<div class="stats-grid fade-in">
+        <div class="stat-card">
+          <h3>Efectivo</h3>
+          <h2 id="totalEfectivo">$0</h2>
+          <p>Ventas cobradas en efectivo</p>
+        </div>
 
-  <div class="stat-card">
+        <div class="stat-card">
+          <h3>Digital</h3>
+          <h2 id="totalDigital">$0</h2>
+          <p>Transferencias, MP, QR y bancos</p>
+        </div>
 
-    <h3>
-      💰 Ingresos
-    </h3>
-
-    <h2 id="ingresosCaja">
-      $0
-    </h2>
-
-  </div>
-
-  <div class="stat-card">
-
-    <h3>
-      💸 Egresos
-    </h3>
-
-    <h2 id="egresosCaja">
-      $0
-    </h2>
-
-  </div>
-
-  <div class="stat-card">
-
-    <h3>
-      🏦 Saldo
-    </h3>
-
-    <h2 id="saldoCaja">
-      $0
-    </h2>
-
-  </div>
-
-  <div class="stat-card">
-
-    <h3>
-      📊 Movimientos
-    </h3>
-
-    <h2 id="movimientosCaja">
-      0
-    </h2>
-
-  </div>
-
-</div>
-<div class="stats-grid fade-in">
-
-  <div class="stat-card">
-    <h3>💵 Efectivo</h3>
-    <h2 id="totalEfectivo">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>🏦 Transferencias</h3>
-    <h2 id="totalTransferencia">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>📲 Mercado Pago</h3>
-    <h2 id="totalMP">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>🔳 QR</h3>
-    <h2 id="totalQR">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>🏦 QR Banco</h3>
-    <h2 id="totalQRBanco">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>🇦🇷 Promo Nación</h3>
-    <h2 id="totalPromoBN">$0</h2>
-  </div>
-
-  <div class="stat-card">
-    <h3>💳 Total Digital</h3>
-    <h2 id="totalDigital">$0</h2>
-  </div>
-
-</div>
-
-      <!-- ================================= -->
-      <!-- APERTURA -->
-      <!-- ================================= -->
-
-      <div
-        class="box fade-in"
-        style="margin-bottom: 30px;"
-      >
-
-        <h3>
-          🔓 Apertura de caja
-        </h3>
-
-        <div class="form">
-
-          <input
-            type="number"
-            id="montoInicial"
-            placeholder="Monto inicial"
-            min="0"
-          />
-
-          <button
-            type="button"
-            onclick="abrirCaja()"
-          >
-
-            Abrir caja
-
-          </button>
-
+        <div class="stat-card">
+          <h3>Ventas del día</h3>
+          <h2 id="totalVendido">$0</h2>
+          <p>Total vendido registrado</p>
         </div>
 
       </div>
 
-      <!-- ================================= -->
-      <!-- CIERRE -->
-      <!-- ================================= -->
-
-      <div
-        class="box fade-in"
-        style="margin-bottom: 30px;"
-      >
-
-        <h3>
-          🔒 Cierre de caja
-        </h3>
-
-        <div class="form">
-
-          <input
-            type="number"
-            id="montoCierre"
-            placeholder="Monto cierre"
-            min="0"
-          />
-
-          <button
-            type="button"
-            onclick="cerrarCaja()"
-          >
-
-            Cerrar caja
-
-          </button>
-
-        </div>
-
-      </div>
-<div class="stat-card">
-
-  <h3>
-    💵 Efectivo
-  </h3>
-
-  <h2 id="totalEfectivo">
-    $0
-  </h2>
-
-</div>
-
-<div class="stat-card">
-
-  <h3>
-    📲 Digital
-  </h3>
-
-  <h2 id="totalDigital">
-    $0
-  </h2>
-
-</div>
-      <!-- ================================= -->
-      <!-- MOVIMIENTOS -->
-      <!-- ================================= -->
-
-      <div class="box fade-in">
-
-        <h3>
-          Registrar movimiento
-        </h3>
-
-        <div class="form">
-
-          <select id="tipo">
-
-            <option value="ingreso">
-              Ingreso
-            </option>
-
-            <option value="egreso">
-              Egreso
-            </option>
-
-          </select>
-
-          <input
-            type="number"
-            id="monto"
-            placeholder="Monto"
-            min="0"
-          >
-
-          <input
-            type="text"
-            id="motivo"
-            placeholder="Motivo"
-            autocomplete="off"
-          >
-
-          <button
-            type="button"
-            onclick="registrarMovimiento()"
-          >
-
-            Registrar
-
-          </button>
-
-        </div>
-
-      </div>
-<!-- ================================= -->
-<!-- HISTORIAL VENTAS -->
-<!-- ================================= -->
-
-<div
-  class="table-box fade-in"
-  style="margin-top:30px;"
->
-
-  <div class="table-header">
-
-    <h3>
-      🧾 Últimas ventas
-    </h3>
-
-  </div>
-
-  <table class="pro-table">
-
-    <thead>
-
-      <tr>
-
-        <th>
-          Fecha
-        </th>
-
-        <th>
-          Productos
-        </th>
-
-        <th>
-          Método
-        </th>
-
-        <th>
-          Usuario
-        </th>
-
-        <th>
-          Total
-        </th>
-
-      </tr>
-
-    </thead>
-
-    <tbody id="historialVentas"></tbody>
-
-  </table>
-
-</div>
-      <!-- ================================= -->
-      <!-- LIMPIAR -->
-      <!-- ================================= -->
-
-      <button
-        type="button"
-        class="btn-danger"
-        onclick="limpiarCaja()"
-      >
-
-        🗑 Limpiar movimientos
-
-      </button>
-
-      <!-- ================================= -->
-      <!-- LISTA -->
-      <!-- ================================= -->
-
-      <div class="box fade-in">
+      <!-- ACCIONES RÁPIDAS -->
+      <div class="box fade-in compact-box">
 
         <div class="table-header">
+          <div>
+            <h3>Acciones rápidas</h3>
+            <p>Operaciones principales de caja</p>
+          </div>
+        </div>
 
-          <h3>
-            Movimientos
-          </h3>
+        <div class="quick-actions pro-actions">
+
+          <button
+            type="button"
+            class="action-card"
+            onclick="abrirModalCaja('apertura')"
+          >
+            <i class="fa-solid fa-lock-open"></i>
+            <span>Abrir caja</span>
+            <small>Registrar monto inicial</small>
+          </button>
+
+          <button
+            type="button"
+            class="action-card"
+            onclick="abrirModalCaja('ingreso')"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span>Ingreso</span>
+            <small>Agregar dinero manual</small>
+          </button>
+
+          <button
+            type="button"
+            class="action-card"
+            onclick="abrirModalCaja('egreso')"
+          >
+            <i class="fa-solid fa-minus"></i>
+            <span>Egreso</span>
+            <small>Registrar gasto o retiro</small>
+          </button>
+
+          <button
+            type="button"
+            class="action-card"
+            onclick="abrirModalCaja('cierre')"
+          >
+            <i class="fa-solid fa-lock"></i>
+            <span>Cerrar caja</span>
+            <small>Retirar dinero de caja</small>
+          </button>
 
         </div>
 
-        <div
-          id="listaCaja"
-          class="lista"
-        ></div>
+      </div>
+
+      <!-- DETALLE FINANCIERO -->
+      <div class="stats-grid fade-in">
+
+        <div class="stat-card small-stat">
+          <h3>Ingresos manuales</h3>
+          <h2 id="ingresosCaja">$0</h2>
+        </div>
+
+        <div class="stat-card small-stat">
+          <h3>Egresos</h3>
+          <h2 id="egresosCaja">$0</h2>
+        </div>
+
+        <div class="stat-card small-stat">
+          <h3>Reserva 10%</h3>
+          <h2 id="diezPorciento">$0</h2>
+        </div>
+
+        <div class="stat-card small-stat">
+          <h3>Movimientos</h3>
+          <h2 id="movimientosCaja">0</h2>
+        </div>
+
+      </div>
+
+      <!-- DETALLE DIGITAL -->
+      <div class="box fade-in compact-box">
+
+        <div class="table-header">
+          <div>
+            <h3>Detalle digital</h3>
+            <p>Resumen por método de cobro</p>
+          </div>
+        </div>
+
+        <div class="digital-list">
+
+          <div class="digital-item">
+            <span>Transferencias</span>
+            <strong id="totalTransferencia">$0</strong>
+          </div>
+
+          <div class="digital-item">
+            <span>Mercado Pago</span>
+            <strong id="totalMP">$0</strong>
+          </div>
+
+          <div class="digital-item">
+            <span>QR</span>
+            <strong id="totalQR">$0</strong>
+          </div>
+
+          <div class="digital-item">
+            <span>QR Banco</span>
+            <strong id="totalQRBanco">$0</strong>
+          </div>
+
+          <div class="digital-item">
+            <span>Promo Nación</span>
+            <strong id="totalPromoBN">$0</strong>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TIMELINE Y VENTAS -->
+      <div class="caja-grid">
+
+        <div class="box fade-in">
+
+          <div class="table-header">
+            <div>
+              <h3>Actividad de caja</h3>
+              <p>Últimos movimientos registrados</p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-danger"
+              onclick="limpiarCaja()"
+            >
+              Limpiar
+            </button>
+          </div>
+
+          <div
+            id="listaCaja"
+            class="lista timeline-list"
+          ></div>
+
+        </div>
+
+        <div class="table-box fade-in">
+
+          <div class="table-header">
+            <div>
+              <h3>Últimas ventas</h3>
+              <p>Ventas recientes conectadas a caja</p>
+            </div>
+          </div>
+
+          <table class="pro-table">
+
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Total</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+
+            <tbody id="historialVentas"></tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
@@ -516,10 +351,69 @@
 
 </div>
 
-<!-- ================================= -->
-<!-- COMMAND PALETTE -->
-<!-- ================================= -->
+<!-- MODAL CAJA -->
+<div
+  id="modalCaja"
+  class="modal-overlay hidden"
+>
 
+  <div class="modal caja-modal">
+
+    <h3 id="modalCajaTitulo">
+      Movimiento
+    </h3>
+
+    <p id="modalCajaTexto">
+      Completá los datos para continuar.
+    </p>
+
+    <input
+      type="hidden"
+      id="modalCajaTipo"
+    >
+
+    <div class="form modal-form">
+
+      <input
+        type="number"
+        id="modalCajaMonto"
+        placeholder="Monto"
+        min="0"
+      >
+
+      <input
+        type="text"
+        id="modalCajaMotivo"
+        placeholder="Motivo"
+        autocomplete="off"
+      >
+
+    </div>
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn-cancel"
+        onclick="cerrarModalCaja()"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        onclick="confirmarModalCaja()"
+      >
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- COMMAND PALETTE -->
 <div
   id="commandPalette"
   class="command-palette hidden"
@@ -541,10 +435,7 @@
 
 </div>
 
-<!-- ================================= -->
 <!-- SCRIPTS -->
-<!-- ================================= -->
-
 <script
   defer
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
@@ -552,17 +443,11 @@
 ></script>
 
 <script defer src="js/supabase.js"></script>
-
 <script defer src="js/storage.js"></script>
-
 <script defer src="js/auth.js"></script>
-
 <script defer src="js/toast.js"></script>
-
 <script defer src="js/roles.js"></script>
-
 <script defer src="js/caja.js"></script>
-
 <script defer src="js/app.js"></script>
 
 </body>

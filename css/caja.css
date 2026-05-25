@@ -1,0 +1,314 @@
+/* ================================= */
+/* CAJA PRO - LO DE FAUSTI */
+/* ================================= */
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* HEADER VISUAL */
+
+.topbar h2 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.topbar p {
+  opacity: .65;
+  font-size: 14px;
+}
+
+/* CARDS PRINCIPALES */
+
+.stats-grid {
+  gap: 18px;
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  padding: 22px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,.95),
+    rgba(255,255,255,.72)
+  );
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 14px 40px rgba(15,23,42,.08);
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  right: -25px;
+  top: -25px;
+  background: rgba(59,130,246,.10);
+  border-radius: 50%;
+}
+
+.stat-card h3 {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.stat-card h2 {
+  font-size: 32px;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.stat-card p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* CAJAS */
+
+.box,
+.table-box {
+  border-radius: 24px;
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 12px 35px rgba(15,23,42,.07);
+}
+
+.compact-box {
+  padding: 22px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.table-header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* DETALLE DIGITAL */
+
+.digital-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.digital-item {
+  background: #f8fafc;
+  border: 1px solid rgba(15,23,42,.06);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.digital-item span {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.digital-item strong {
+  font-size: 22px;
+  color: #0f172a;
+}
+
+/* ACCIONES RÁPIDAS */
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.quick-card {
+  background: #f8fafc;
+  border-radius: 22px;
+  padding: 20px;
+  border: 1px solid rgba(15,23,42,.06);
+}
+
+.quick-card h4 {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: #0f172a;
+}
+
+.quick-card .form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quick-card input,
+.quick-card select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.10);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.quick-card button {
+  min-height: 44px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  background: #0f172a;
+  color: #fff;
+  transition: .2s ease;
+}
+
+.quick-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(15,23,42,.18);
+}
+
+/* MINI STATS */
+
+.small-stat h2 {
+  font-size: 24px;
+}
+
+/* TABLA */
+
+.pro-table th {
+  font-size: 13px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.pro-table td {
+  font-size: 14px;
+}
+
+.metodo-badge {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+/* MOVIMIENTOS */
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.movement-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(15,23,42,.06);
+}
+
+.movement-card h4 {
+  margin: 8px 0 4px;
+  color: #0f172a;
+}
+
+.movement-card small {
+  color: #64748b;
+}
+
+.movement-green {
+  border-left: 5px solid #22c55e;
+}
+
+.movement-red {
+  border-left: 5px solid #ef4444;
+}
+
+.money-in {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+.money-out {
+  color: #dc2626;
+  font-size: 18px;
+}
+
+/* BOTONES */
+
+.btn-danger {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.detail-btn {
+  margin-top: 8px;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* EMPTY */
+
+.empty-state {
+  padding: 26px;
+  text-align: center;
+  color: #64748b;
+  background: #f8fafc;
+  border-radius: 18px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+  .digital-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .digital-list {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card h2 {
+    font-size: 26px;
+  }
+
+  .movement-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

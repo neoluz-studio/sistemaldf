@@ -13,7 +13,7 @@ let historial =
   ) || [];
 
 // =================================
-// METODO TEXTO
+// MÉTODOS
 // =================================
 
 function formatearMetodo(metodo) {
@@ -43,11 +43,65 @@ function formatearMetodo(metodo) {
   }
 }
 
+function formatoMoneda(valor) {
+
+  return `$${Number(valor || 0)
+    .toLocaleString()}`;
+}
+
+// =================================
+// STATS
+// =================================
+
+function renderStats(lista = ventas) {
+
+  const total =
+    lista.reduce(
+      (acc, v) =>
+        acc + Number(v.total || 0),
+      0
+    );
+
+  const efectivo =
+    lista
+      .filter(v =>
+        v.metodo === "efectivo"
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+
+  const digital =
+    total - efectivo;
+
+  document.getElementById(
+    "totalVentas"
+  ).innerText =
+    formatoMoneda(total);
+
+  document.getElementById(
+    "totalEfectivo"
+  ).innerText =
+    formatoMoneda(efectivo);
+
+  document.getElementById(
+    "totalDigital"
+  ).innerText =
+    formatoMoneda(digital);
+
+  document.getElementById(
+    "cantidadVentas"
+  ).innerText =
+    lista.length;
+}
+
 // =================================
 // RENDER VENTAS
 // =================================
 
-function renderVentas() {
+function renderVentas(lista = ventas) {
 
   const cont =
     document.getElementById(
@@ -58,8 +112,7 @@ function renderVentas() {
 
   cont.innerHTML = "";
 
-  // VACIO
-  if (ventas.length === 0) {
+  if (lista.length === 0) {
 
     cont.innerHTML = `
 
@@ -74,11 +127,12 @@ function renderVentas() {
       </tr>
     `;
 
+    renderStats([]);
+
     return;
   }
 
-  // MÁS NUEVAS ARRIBA
-  [...ventas]
+  [...lista]
     .reverse()
     .forEach(v => {
 
@@ -90,13 +144,6 @@ function renderVentas() {
         <td>
 
           ${v.fecha || "-"}
-
-        </td>
-
-        <td>
-
-          $${(v.total || 0)
-            .toLocaleString()}
 
         </td>
 
@@ -118,6 +165,16 @@ function renderVentas() {
 
         <td>
 
+          <strong>
+
+            ${formatoMoneda(v.total)}
+
+          </strong>
+
+        </td>
+
+        <td>
+
           <button
             onclick="verDetalle(${v.id})"
           >
@@ -131,6 +188,48 @@ function renderVentas() {
 
       cont.appendChild(tr);
     });
+
+  renderStats(lista);
+}
+
+// =================================
+// FILTRAR
+// =================================
+
+function filtrarVentas() {
+
+  const desde =
+    document.getElementById(
+      "fechaDesde"
+    ).value;
+
+  const hasta =
+    document.getElementById(
+      "fechaHasta"
+    ).value;
+
+  let filtradas =
+    ventas.filter(v => {
+
+      if (!v.fechaISO)
+        return true;
+
+      if (
+        desde &&
+        v.fechaISO < desde
+      )
+        return false;
+
+      if (
+        hasta &&
+        v.fechaISO > hasta
+      )
+        return false;
+
+      return true;
+    });
+
+  renderVentas(filtradas);
 }
 
 // =================================
@@ -141,7 +240,9 @@ function verDetalle(id) {
 
   const venta =
     ventas.find(
-      v => v.id === id
+      v =>
+        Number(v.id) ===
+        Number(id)
     );
 
   if (!venta) return;
@@ -164,7 +265,7 @@ function verDetalle(id) {
 
           ${item.cantidad}
           x
-          $${item.precio}
+          ${formatoMoneda(item.precio)}
 
         </span>
 
@@ -184,15 +285,52 @@ function verDetalle(id) {
 
       <h3>
 
-        🧾 Detalle venta
+        Detalle venta
 
       </h3>
+
+      <p>
+
+        <strong>
+          Fecha:
+        </strong>
+
+        ${venta.fecha || "-"}
+
+      </p>
+
+      <p>
+
+        <strong>
+          Método:
+        </strong>
+
+        ${formatearMetodo(
+          venta.metodo
+        )}
+
+      </p>
 
       <div class="detail-list">
 
         ${detalleHTML}
 
       </div>
+
+      <hr>
+
+      <p>
+
+        Total:
+        <strong>
+
+          ${formatoMoneda(
+            venta.total
+          )}
+
+        </strong>
+
+      </p>
 
       <div class="modal-actions">
 
@@ -211,15 +349,15 @@ function verDetalle(id) {
     overlay
   );
 
-  // CERRAR
   overlay
-    .querySelector(".btn-cancel")
+    .querySelector(
+      ".btn-cancel"
+    )
     .onclick = () => {
 
       overlay.remove();
     };
 
-  // CERRAR AFUERA
   overlay.onclick = e => {
 
     if (
@@ -292,14 +430,13 @@ function renderHistorial() {
 
   cont.innerHTML = "";
 
-  // VACIO
   if (historial.length === 0) {
 
     cont.innerHTML = `
 
       <div class="empty-state">
 
-        No hay movimientos
+        No hay actividad registrada
 
       </div>
     `;
@@ -307,14 +444,21 @@ function renderHistorial() {
     return;
   }
 
-  // MÁS NUEVOS
   historial
-    .slice(0, 20)
+    .slice(0, 25)
     .forEach(h => {
+
+      const clase =
+        h.tipo === "error"
+          ? "movement-red"
+          : "movement-green";
 
       cont.innerHTML += `
 
-        <div class="movement-card">
+        <div class="
+          movement-card
+          ${clase}
+        ">
 
           <div>
 
@@ -332,7 +476,7 @@ function renderHistorial() {
 
             <small>
 
-              ${h.fecha}
+              ${h.fecha || "-"}
 
             </small>
 
@@ -344,7 +488,7 @@ function renderHistorial() {
               : "badge-success"}
           ">
 
-            ${h.usuario}
+            ${h.usuario || "Admin"}
 
           </span>
 
@@ -352,9 +496,6 @@ function renderHistorial() {
       `;
     });
 }
-// =================================
-// LIMPIAR HISTORIAL
-// =================================
 
 // =================================
 // LIMPIAR HISTORIAL
@@ -372,31 +513,28 @@ function limpiarHistorial() {
     return;
   }
 
-  const confirmar = confirm(
-    "¿Eliminar todo el historial?"
-  );
+  const confirmar =
+    confirm(
+      "¿Eliminar historial completo?"
+    );
 
   if (!confirmar) return;
 
-  // VACIAR STORAGE
   localStorage.setItem(
     "historial",
     JSON.stringify([])
   );
 
-  // RESET ARRAY
   historial = [];
 
-  // RE-RENDER
   renderHistorial();
 
   showToast(
-    "🗑️ Historial eliminado",
+    "Historial eliminado",
     "success"
   );
 }
 
-  
 // =================================
 // INIT
 // =================================
@@ -404,3 +542,5 @@ function limpiarHistorial() {
 renderVentas();
 
 renderHistorial();
+
+renderStats();

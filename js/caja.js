@@ -9,14 +9,26 @@ let caja =
 
 let aperturas =
   JSON.parse(
-    localStorage.getItem(
-      "aperturasCaja"
-    )
+    localStorage.getItem("aperturasCaja")
   ) || [];
 
 // =================================
-// GUARDAR
+// HELPERS
 // =================================
+
+function obtenerVentas() {
+
+  return JSON.parse(
+    localStorage.getItem("ventas")
+  ) || [];
+}
+
+function obtenerUsuario() {
+
+  return JSON.parse(
+    localStorage.getItem("usuario")
+  )?.nombre || "Local";
+}
 
 function guardar() {
 
@@ -31,94 +43,113 @@ function guardar() {
   );
 }
 
-// =================================
-// OBTENER SALDOS
-// =================================
+function formatoMoneda(valor) {
+
+  return `$${Number(valor || 0).toLocaleString()}`;
+}
+
+function setTexto(id, valor) {
+
+  const el =
+    document.getElementById(id);
+
+  if (el) {
+    el.innerText = valor;
+  }
+}
+
+function formatearMetodo(metodo) {
+
+  switch (metodo) {
+
+    case "efectivo":
+      return "EFECTIVO";
+
+    case "transferencia":
+      return "TRANSFERENCIA";
+
+    case "mp":
+      return "MERCADO PAGO";
+
+    case "qr":
+      return "QR";
+
+    case "qr_banco":
+      return "QR BANCO";
+
+    case "promo_bn":
+      return "PROMO NACIÓN";
+
+    default:
+      return metodo || "-";
+  }
+}
+
+function avisar(mensaje, tipo = "info") {
+
+  if (typeof showToast === "function") {
+
+    showToast(mensaje, tipo);
+
+  } else {
+
+    alert(mensaje);
+  }
+}
 
 // =================================
-// CALCULAR CAJA PROFESIONAL
+// CALCULAR CAJA
 // =================================
 
 function calcularCaja() {
 
   const ventas =
-    JSON.parse(
-      localStorage.getItem("ventas")
-    ) || [];
+    obtenerVentas();
 
-  // =================================
-  // MÉTODOS DE PAGO
-  // =================================
+  const totalPorMetodo = metodo => {
+
+    return ventas
+      .filter(v =>
+        v.metodo === metodo
+      )
+      .reduce(
+        (acc, v) =>
+          acc + Number(v.total || 0),
+        0
+      );
+  };
 
   const efectivo =
-    ventas
-      .filter(v =>
-        v.metodo === "efectivo"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("efectivo");
 
   const transferencia =
-    ventas
-      .filter(v =>
-        v.metodo === "transferencia"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("transferencia");
 
   const mercadoPago =
-    ventas
-      .filter(v =>
-        v.metodo === "mp"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("mp");
 
   const qr =
-    ventas
-      .filter(v =>
-        v.metodo === "qr"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("qr");
 
   const qrBanco =
-    ventas
-      .filter(v =>
-        v.metodo === "qr_banco"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("qr_banco");
 
   const promoNacion =
-    ventas
-      .filter(v =>
-        v.metodo === "promo_bn"
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+    totalPorMetodo("promo_bn");
 
-  // =================================
-  // MOVIMIENTOS MANUALES
-  // =================================
+  const totalDigital =
+    transferencia +
+    mercadoPago +
+    qr +
+    qrBanco +
+    promoNacion;
+
+  const totalVendido =
+    ventas.reduce(
+      (acc, v) =>
+        acc + Number(v.total || 0),
+      0
+    );
 
   const ingresosManuales =
     caja
@@ -143,23 +174,13 @@ function calcularCaja() {
         0
       );
 
-  // =================================
-  // TOTALES
-  // =================================
-
-  const totalDigital =
-    transferencia +
-    mercadoPago +
-    qr +
-    qrBanco +
-    promoNacion;
-
-  const ingresosCaja =
-    efectivo +
-    ingresosManuales;
-
   const saldo =
-    ingresosCaja - egresos;
+    efectivo +
+    ingresosManuales -
+    egresos;
+
+  const diezPorciento =
+    totalVendido * 0.10;
 
   return {
 
@@ -177,56 +198,159 @@ function calcularCaja() {
 
     totalDigital,
 
-    ingresosCaja,
+    totalVendido,
+
+    ingresosManuales,
 
     egresos,
 
-    saldo
+    saldo,
+
+    diezPorciento
   };
 }
 
 // =================================
-// REGISTRAR MOVIMIENTO
+// MODAL
 // =================================
 
-function registrarMovimiento() {
+function abrirModalCaja(tipo) {
+
+  const modal =
+    document.getElementById(
+      "modalCaja"
+    );
+
+  const titulo =
+    document.getElementById(
+      "modalCajaTitulo"
+    );
+
+  const texto =
+    document.getElementById(
+      "modalCajaTexto"
+    );
+
+  const tipoInput =
+    document.getElementById(
+      "modalCajaTipo"
+    );
+
+  const motivo =
+    document.getElementById(
+      "modalCajaMotivo"
+    );
+
+  tipoInput.value = tipo;
+
+  motivo.style.display =
+    "block";
+
+  switch (tipo) {
+
+    case "apertura":
+
+      titulo.innerText =
+        "Abrir caja";
+
+      texto.innerText =
+        "Ingresá el monto inicial.";
+
+      motivo.value =
+        "Apertura de caja";
+
+      break;
+
+    case "ingreso":
+
+      titulo.innerText =
+        "Registrar ingreso";
+
+      texto.innerText =
+        "Ingresá dinero manual.";
+
+      motivo.value = "";
+
+      break;
+
+    case "egreso":
+
+      titulo.innerText =
+        "Registrar egreso";
+
+      texto.innerText =
+        "Registrá un gasto o retiro.";
+
+      motivo.value = "";
+
+      break;
+
+    case "cierre":
+
+      titulo.innerText =
+        "Cerrar caja";
+
+      texto.innerText =
+        "Ingresá el retiro final.";
+
+      motivo.value =
+        "Cierre de caja";
+
+      break;
+  }
+
+  modal.classList.remove(
+    "hidden"
+  );
+}
+
+function cerrarModalCaja() {
+
+  document
+    .getElementById(
+      "modalCaja"
+    )
+    .classList.add(
+      "hidden"
+    );
+
+  document.getElementById(
+    "modalCajaMonto"
+  ).value = "";
+
+  document.getElementById(
+    "modalCajaMotivo"
+  ).value = "";
+}
+
+function confirmarModalCaja() {
 
   const tipo =
     document.getElementById(
-      "tipo"
+      "modalCajaTipo"
     ).value;
 
   const monto =
     Number(
       document.getElementById(
-        "monto"
+        "modalCajaMonto"
       ).value
     );
 
   const motivo =
-    document.getElementById(
-      "motivo"
-    )
-    .value
-    .trim();
-
-  // VALIDAR
-  if (!motivo) {
-
-    showToast(
-      "Ingresá un motivo",
-      "error"
-    );
-
-    return;
-  }
+    document
+      .getElementById(
+        "modalCajaMotivo"
+      )
+      .value
+      .trim();
 
   if (
     isNaN(monto) ||
     monto <= 0
   ) {
 
-    showToast(
+    avisar(
       "Monto inválido",
       "error"
     );
@@ -237,15 +361,12 @@ function registrarMovimiento() {
   const resumen =
     calcularCaja();
 
-  // VALIDAR EGRESO
   if (
-
     tipo === "egreso" &&
     monto > resumen.saldo
-
   ) {
 
-    showToast(
+    avisar(
       "Saldo insuficiente",
       "error"
     );
@@ -253,300 +374,282 @@ function registrarMovimiento() {
     return;
   }
 
-  caja.push({
-
-    id: Date.now(),
-
-    tipo,
-
-    monto,
-
-    motivo,
-
-    usuario:
-
-      JSON.parse(
-        localStorage.getItem(
-          "usuario"
-        )
-      )?.nombre || "Local",
-
-    fecha:
-      new Date()
-        .toLocaleString()
-  });
-
-  guardar();
-
-  render();
-
-  renderResumenCaja();
-
-  document.getElementById(
-    "monto"
-  ).value = "";
-
-  document.getElementById(
-    "motivo"
-  ).value = "";
-
-  showToast(
-    "Movimiento registrado",
-    "success"
-  );
-}
-
-// =================================
-// ABRIR CAJA
-// =================================
-
-function abrirCaja() {
-
-  const monto =
-    Number(
-      document.getElementById(
-        "montoInicial"
-      ).value
-    );
-
   if (
-    isNaN(monto) ||
-    monto <= 0
+    tipo === "cierre" &&
+    monto > resumen.saldo
   ) {
 
-    showToast(
-      "Ingresá un monto válido",
+    avisar(
+      "No podés retirar más del saldo",
       "error"
     );
 
     return;
   }
 
-  aperturas.push({
-
-    id: Date.now(),
-
-    tipo: "apertura",
-
-    monto,
-
-    usuario:
-
-      JSON.parse(
-        localStorage.getItem(
-          "usuario"
-        )
-      )?.nombre || "Local",
-
-    fecha:
-      new Date()
-        .toLocaleString()
-  });
-
-  caja.push({
-
-    id: Date.now(),
-
-    tipo: "ingreso",
-
-    monto,
-
-    motivo: "Apertura de caja",
-
-    fecha:
-      new Date()
-        .toLocaleString()
-  });
-
-  guardar();
-
-  render();
-
-  renderResumenCaja();
-
-  document.getElementById(
-    "montoInicial"
-  ).value = "";
-
-  showToast(
-    "Caja abierta",
-    "success"
-  );
-}
-
-// =================================
-// CERRAR CAJA
-// =================================
-
-function cerrarCaja() {
-
-  const monto =
-    Number(
-      document.getElementById(
-        "montoCierre"
-      ).value
-    );
-
-  if (
-    isNaN(monto) ||
-    monto <= 0
-  ) {
-
-    showToast(
-      "Ingresá un monto válido",
-      "error"
-    );
-
-    return;
-  }
-
-  const resumen =
-    calcularCaja();
-
-  // VALIDAR
-  if (monto > resumen.saldo) {
-
-    showToast(
-      "No podés retirar más dinero del disponible",
-      "error"
-    );
-
-    return;
-  }
-
-  aperturas.push({
-
-    id: Date.now(),
-
-    tipo: "cierre",
-
-    monto,
-
-    usuario:
-
-      JSON.parse(
-        localStorage.getItem(
-          "usuario"
-        )
-      )?.nombre || "Local",
-
-    fecha:
-      new Date()
-        .toLocaleString()
-  });
-
-  caja.push({
-
-    id: Date.now(),
-
-    tipo: "egreso",
-
-    monto,
-
-    motivo: "Cierre de caja",
-
-    fecha:
-      new Date()
-        .toLocaleString()
-  });
-
-  guardar();
-
-  render();
-
-  renderResumenCaja();
-
-  document.getElementById(
-    "montoCierre"
-  ).value = "";
-
-  showToast(
-    "Caja cerrada",
-    "info"
-  );
-}
-
-// =================================
-// RESUMEN
-// =================================
-
-function renderResumenCaja() {
-
-  const resumen =
-    calcularCaja();
+  const fecha =
+    new Date();
 
   // APERTURA
-  const ultimaApertura =
-    aperturas
-      .filter(a =>
-        a.tipo === "apertura"
-      )
-      .slice(-1)[0];
+  if (tipo === "apertura") {
 
-  const apertura =
-    ultimaApertura?.monto || 0;
+    aperturas.push({
 
-  // DIFERENCIA
-  const diferencia =
-    resumen.saldo - apertura;
-    // =================================
-// 10% VENTAS
-// =================================
+      id: Date.now(),
 
-const diezPorciento =
-  caja
-    .filter(m =>
-      m.tipo === "ingreso" &&
-      m.ventaId
-    )
-    .reduce(
-      (acc, m) =>
-        acc + (m.monto * 0.10),
-      0
+      tipo: "apertura",
+
+      monto,
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    caja.push({
+
+      id: Date.now() + 1,
+
+      tipo: "ingreso",
+
+      monto,
+
+      motivo:
+        motivo || "Apertura de caja",
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    avisar(
+      "Caja abierta",
+      "success"
     );
+  }
 
-  // RENDER
-  document.getElementById(
-    "montoApertura"
-  ).innerText =
-    `$${apertura.toLocaleString()}`;
+  // INGRESO
+  if (tipo === "ingreso") {
 
-  document.getElementById(
-    "totalIngresos"
-  ).innerText =
-    `$${resumen.ingresos.toLocaleString()}`;
+    caja.push({
 
-  document.getElementById(
-    "totalEgresos"
-  ).innerText =
-    `$${resumen.egresos.toLocaleString()}`;
+      id: Date.now(),
 
-  document.getElementById(
-    "saldoActual"
-  ).innerText =
-    `$${resumen.saldo.toLocaleString()}`;
+      tipo: "ingreso",
 
-  document.getElementById(
-    "saldo"
-  ).innerText =
-    `$${resumen.saldo.toLocaleString()}`;
+      monto,
 
-  document.getElementById(
-    "diferenciaCaja"
-  ).innerText =
-    `$${diferencia.toLocaleString()}`;
-    
-    document.getElementById(
-  "diezPorciento"
-).innerText =
-  `$${diezPorciento.toLocaleString()}`;
+      motivo,
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    avisar(
+      "Ingreso registrado",
+      "success"
+    );
+  }
+
+  // EGRESO
+  if (tipo === "egreso") {
+
+    caja.push({
+
+      id: Date.now(),
+
+      tipo: "egreso",
+
+      monto,
+
+      motivo,
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    avisar(
+      "Egreso registrado",
+      "info"
+    );
+  }
+
+  // CIERRE
+  if (tipo === "cierre") {
+
+    aperturas.push({
+
+      id: Date.now(),
+
+      tipo: "cierre",
+
+      monto,
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    caja.push({
+
+      id: Date.now(),
+
+      tipo: "egreso",
+
+      monto,
+
+      motivo:
+        motivo || "Cierre de caja",
+
+      usuario:
+        obtenerUsuario(),
+
+      fecha:
+        fecha.toLocaleString()
+    });
+
+    avisar(
+      "Caja cerrada",
+      "info"
+    );
+  }
+
+  guardar();
+
+  actualizarCaja();
+
+  cerrarModalCaja();
 }
 
 // =================================
-// RENDER
+// STATS
 // =================================
 
-function render() {
+function renderStatsCaja() {
+
+  const resumen =
+    calcularCaja();
+
+  setTexto(
+    "totalEfectivo",
+    formatoMoneda(
+      resumen.efectivo
+    )
+  );
+
+  setTexto(
+    "totalDigital",
+    formatoMoneda(
+      resumen.totalDigital
+    )
+  );
+
+  setTexto(
+    "saldoCaja",
+    formatoMoneda(
+      resumen.saldo
+    )
+  );
+
+  setTexto(
+    "totalVendido",
+    formatoMoneda(
+      resumen.totalVendido
+    )
+  );
+
+  setTexto(
+    "ingresosCaja",
+    formatoMoneda(
+      resumen.ingresosManuales
+    )
+  );
+
+  setTexto(
+    "egresosCaja",
+    formatoMoneda(
+      resumen.egresos
+    )
+  );
+
+  setTexto(
+    "diezPorciento",
+    formatoMoneda(
+      resumen.diezPorciento
+    )
+  );
+
+  setTexto(
+    "movimientosCaja",
+    caja.length
+  );
+
+  setTexto(
+    "totalTransferencia",
+    formatoMoneda(
+      resumen.transferencia
+    )
+  );
+
+  setTexto(
+    "totalMP",
+    formatoMoneda(
+      resumen.mercadoPago
+    )
+  );
+
+  setTexto(
+    "totalQR",
+    formatoMoneda(
+      resumen.qr
+    )
+  );
+
+  setTexto(
+    "totalQRBanco",
+    formatoMoneda(
+      resumen.qrBanco
+    )
+  );
+
+  setTexto(
+    "totalPromoBN",
+    formatoMoneda(
+      resumen.promoNacion
+    )
+  );
+
+  const estado =
+    document.getElementById(
+      "estadoCaja"
+    );
+
+  if (estado) {
+
+    estado.innerText =
+      caja.length > 0
+        ? "Caja activa"
+        : "Caja sin abrir";
+  }
+}
+
+// =================================
+// MOVIMIENTOS
+// =================================
+
+function renderMovimientos() {
 
   const cont =
     document.getElementById(
@@ -557,7 +660,6 @@ function render() {
 
   cont.innerHTML = "";
 
-  // VACIO
   if (caja.length === 0) {
 
     cont.innerHTML = `
@@ -570,17 +672,24 @@ function render() {
     return;
   }
 
-  // MÁS NUEVOS ARRIBA
   [...caja]
     .reverse()
+    .slice(0, 15)
     .forEach(m => {
 
       const div =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
+      const claseColor =
+        m.tipo === "ingreso"
+          ? "movement-green"
+          : "movement-red";
 
       div.className = `
         movement-card
-        ${m.tipo}
+        ${claseColor}
       `;
 
       div.innerHTML = `
@@ -598,15 +707,11 @@ function render() {
           </span>
 
           <h4>
-
-            ${m.motivo}
-
+            ${m.motivo || "-"}
           </h4>
 
           <small>
-
-            ${m.fecha}
-
+            ${m.fecha || "-"}
           </small>
 
         </div>
@@ -621,25 +726,11 @@ function render() {
             ? "+"
             : "-"}
 
-          $${m.monto.toLocaleString()}
+          ${formatoMoneda(
+            m.monto
+          )}
 
         </strong>
-        ${
-  m.ventaId
-
-  ? `
-
-    <button
-      class="detail-btn"
-      onclick="verDetalleVenta(${m.ventaId})"
-    >
-      👁 Ver detalle
-    </button>
-
-  `
-
-  : ""
-}
       `;
 
       cont.appendChild(div);
@@ -647,54 +738,108 @@ function render() {
 }
 
 // =================================
-// LIMPIAR CAJA
+// HISTORIAL VENTAS
 // =================================
 
-function limpiarCaja() {
+function renderHistorialVentas() {
 
-  showConfirm({
+  const cont =
+    document.getElementById(
+      "historialVentas"
+    );
 
-    title: "Limpiar caja",
+  if (!cont) return;
 
-    message:
-      "Se eliminarán todos los movimientos.",
+  const ventas =
+    obtenerVentas();
 
-    onConfirm: () => {
+  cont.innerHTML = "";
 
-      caja = [];
+  if (ventas.length === 0) {
 
-      aperturas = [];
+    cont.innerHTML = `
 
-      guardar();
+      <tr>
 
-      render();
+        <td colspan="4">
 
-      renderResumenCaja();
+          No hay ventas registradas
 
-      showToast(
-        "Caja limpiada",
-        "info"
-      );
-    }
-  });
+        </td>
+
+      </tr>
+    `;
+
+    return;
+  }
+
+  [...ventas]
+    .reverse()
+    .slice(0, 10)
+    .forEach(venta => {
+
+      const tr =
+        document.createElement(
+          "tr"
+        );
+
+      tr.innerHTML = `
+
+        <td>
+          ${venta.fecha || "-"}
+        </td>
+
+        <td>
+          ${formatearMetodo(
+            venta.metodo
+          )}
+        </td>
+
+        <td>
+          <strong>
+            ${formatoMoneda(
+              venta.total
+            )}
+          </strong>
+        </td>
+
+        <td>
+
+          <button
+            class="detail-btn"
+            onclick="verDetalleVenta(${venta.id})"
+          >
+
+            Ver
+
+          </button>
+
+        </td>
+      `;
+
+      cont.appendChild(tr);
+    });
 }
+
+// =================================
+// DETALLE VENTA
+// =================================
+
 function verDetalleVenta(id) {
 
   const ventas =
-    JSON.parse(
-      localStorage.getItem(
-        "ventas"
-      )
-    ) || [];
+    obtenerVentas();
 
   const venta =
     ventas.find(
-      v => v.id === id
+      v =>
+        Number(v.id) ===
+        Number(id)
     );
 
   if (!venta) {
 
-    showToast(
+    avisar(
       "Venta no encontrada",
       "error"
     );
@@ -704,23 +849,23 @@ function verDetalleVenta(id) {
 
   let detalleHTML = "";
 
-  venta.detalle.forEach(item => {
+  venta.detalle?.forEach(item => {
 
     detalleHTML += `
 
       <div class="detail-item">
 
         <strong>
-
           ${item.nombre}
-
         </strong>
 
         <span>
 
           ${item.cantidad}
           x
-          $${item.precio}
+          ${formatoMoneda(
+            item.precio
+          )}
 
         </span>
 
@@ -729,7 +874,9 @@ function verDetalleVenta(id) {
   });
 
   const overlay =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   overlay.className =
     "modal-overlay";
@@ -739,9 +886,7 @@ function verDetalleVenta(id) {
     <div class="modal">
 
       <h3>
-
-        🧾 Detalle venta
-
+        Detalle venta
       </h3>
 
       <div class="detail-list">
@@ -756,7 +901,11 @@ function verDetalleVenta(id) {
 
         Total:
         <strong>
-          $${venta.total.toLocaleString()}
+
+          ${formatoMoneda(
+            venta.total
+          )}
+
         </strong>
 
       </p>
@@ -779,114 +928,67 @@ function verDetalleVenta(id) {
   );
 
   overlay
-    .querySelector(".btn-cancel")
+    .querySelector(
+      ".btn-cancel"
+    )
     .onclick = () => {
 
       overlay.remove();
     };
 }
+
 // =================================
-// INIT
+// LIMPIAR
 // =================================
 
-render();
+function limpiarCaja() {
 
-renderResumenCaja();
+  if (caja.length === 0) {
+
+    avisar(
+      "No hay movimientos",
+      "info"
+    );
+
+    return;
+  }
+
+  const confirmar =
+    confirm(
+      "¿Limpiar caja completa?"
+    );
+
+  if (!confirmar) return;
+
+  caja = [];
+
+  aperturas = [];
+
+  guardar();
+
+  actualizarCaja();
+
+  avisar(
+    "Caja limpiada",
+    "success"
+  );
+}
+
 // =================================
-// DASHBOARD CAJA
+// ACTUALIZAR TODO
 // =================================
-function renderStatsCaja() {
 
-  const resumen =
-    calcularCaja();
+function actualizarCaja() {
 
-  const set = (id, value) => {
+  renderStatsCaja();
 
-    const el =
-      document.getElementById(id);
+  renderMovimientos();
 
-    if (el) {
-
-      el.innerText = value;
-    }
-  };
-
-  // =================================
-  // PRINCIPALES
-  // =================================
-
-  set(
-    "ingresosCaja",
-    `$${resumen.ingresosCaja.toLocaleString()}`
-  );
-
-  set(
-    "egresosCaja",
-    `$${resumen.egresos.toLocaleString()}`
-  );
-
-  set(
-    "saldoCaja",
-    `$${resumen.saldo.toLocaleString()}`
-  );
-
-  // =================================
-  // EFECTIVO Y DIGITAL
-  // =================================
-
-  set(
-    "totalEfectivo",
-    `$${resumen.efectivo.toLocaleString()}`
-  );
-
-  set(
-    "totalDigital",
-    `$${resumen.totalDigital.toLocaleString()}`
-  );
-
-  // =================================
-  // DETALLE DIGITAL
-  // =================================
-
-  set(
-    "totalTransferencia",
-    `$${resumen.transferencia.toLocaleString()}`
-  );
-
-  set(
-    "totalMP",
-    `$${resumen.mercadoPago.toLocaleString()}`
-  );
-
-  set(
-    "totalQR",
-    `$${resumen.qr.toLocaleString()}`
-  );
-
-  set(
-    "totalQRBanco",
-    `$${resumen.qrBanco.toLocaleString()}`
-  );
-
-  set(
-    "totalPromoBN",
-    `$${resumen.promoNacion.toLocaleString()}`
-  );
-
-  // =================================
-  // MOVIMIENTOS
-  // =================================
-
-  set(
-    "movimientosCaja",
-    caja.length
-  );
+  renderHistorialVentas();
 }
 
 // =================================
 // INIT
 // =================================
 
-render();
-renderResumenCaja();
-renderStatsCaja();
+actualizarCaja();

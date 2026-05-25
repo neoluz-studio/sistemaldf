@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,7 +11,7 @@
   />
 
   <title>
-    Historial de Ventas
+    Historial
   </title>
 
   <!-- CSS -->
@@ -26,21 +25,15 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/historial.css">
 
 </head>
 
 <body>
 
-<!-- ================================= -->
-<!-- LAYOUT -->
-<!-- ================================= -->
-
 <div class="layout">
 
-  <!-- ================================= -->
   <!-- SIDEBAR -->
-  <!-- ================================= -->
-
   <aside
     class="sidebar"
     id="sidebar"
@@ -50,21 +43,19 @@
 
       <div class="brand">
 
-           <div class="brand-icon">
+        <div class="brand-icon">
 
-  <img
-    src="assets/icons/images/logo.png"
-    alt="FAUSTI"
-  >
+          <img
+            src="assets/icons/images/logo.png"
+            alt="FAUSTI"
+          >
 
-</div>
+        </div>
 
       </div>
 
-     
     </div>
 
-    <!-- NAV -->
     <nav class="sidebar-nav">
 
       <a
@@ -104,7 +95,7 @@
 
       <a
         href="proveedores.html"
-        class="nav-link admin-only"
+        class="nav-link"
       >
         <b>Proveedores</b>
       </a>
@@ -118,7 +109,6 @@
 
     </nav>
 
-    <!-- USER -->
     <div class="user-box">
 
       <div class="user-info">
@@ -134,19 +124,14 @@
         onclick="logout()"
         class="switch-btn"
       >
-
-        🔄 Cerrar Sesión
-
+        Cerrar Sesión
       </button>
 
     </div>
 
   </aside>
 
-  <!-- ================================= -->
   <!-- MAIN -->
-  <!-- ================================= -->
-
   <main class="main">
 
     <!-- TOPBAR -->
@@ -157,37 +142,139 @@
         <div>
 
           <h2>
-            🕒 Historial
+            Historial
           </h2>
 
           <p>
-            Actividad completa del sistema
+            Ventas y movimientos del sistema
           </p>
-<button
-  class="danger-btn"
-  onclick="limpiarHistorial()"
->
 
-  🗑️ Limpiar historial
-
-</button>
         </div>
 
       </div>
 
+      <button
+        class="danger-btn"
+        onclick="limpiarHistorial()"
+      >
+        Limpiar historial
+      </button>
+
     </div>
 
-    <!-- ================================= -->
     <!-- CONTENT -->
-    <!-- ================================= -->
-
     <div class="page-content">
 
-      <!-- ================================= -->
-      <!-- TABLA VENTAS -->
-      <!-- ================================= -->
+      <!-- FILTROS -->
+      <div class="box filtros-box fade-in">
 
-      <div class="table-box">
+        <div class="filtros-grid">
+
+          <div>
+
+            <label>
+              Desde
+            </label>
+
+            <input
+              type="date"
+              id="fechaDesde"
+            >
+
+          </div>
+
+          <div>
+
+            <label>
+              Hasta
+            </label>
+
+            <input
+              type="date"
+              id="fechaHasta"
+            >
+
+          </div>
+
+          <button
+            onclick="filtrarVentas()"
+          >
+            Filtrar
+          </button>
+
+          <button
+            onclick="renderVentas()"
+          >
+            Ver todo
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- RESUMEN -->
+      <div class="stats-grid fade-in">
+
+        <div class="stat-card">
+
+          <h3>
+            Total vendido
+          </h3>
+
+          <h2 id="totalVentas">
+            $0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Efectivo
+          </h3>
+
+          <h2 id="totalEfectivo">
+            $0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Digital
+          </h3>
+
+          <h2 id="totalDigital">
+            $0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Cantidad ventas
+          </h3>
+
+          <h2 id="cantidadVentas">
+            0
+          </h2>
+
+        </div>
+
+      </div>
+
+      <!-- TABLA -->
+      <div class="table-box fade-in">
+
+        <div class="table-header">
+
+          <h3>
+            Ventas registradas
+          </h3>
+
+        </div>
 
         <table class="pro-table">
 
@@ -200,15 +287,15 @@
               </th>
 
               <th>
-                Total
-              </th>
-
-              <th>
                 Método
               </th>
 
               <th>
                 Usuario
+              </th>
+
+              <th>
+                Total
               </th>
 
               <th>
@@ -225,13 +312,21 @@
 
       </div>
 
-      <!-- ================================= -->
-      <!-- HISTORIAL GLOBAL -->
-      <!-- ================================= -->
-
+      <!-- TIMELINE -->
       <div class="box fade-in">
 
-        <div id="listaHistorial"></div>
+        <div class="table-header">
+
+          <h3>
+            Actividad del sistema
+          </h3>
+
+        </div>
+
+        <div
+          id="listaHistorial"
+          class="timeline-list"
+        ></div>
 
       </div>
 
@@ -241,55 +336,19 @@
 
 </div>
 
-<!-- ================================= -->
-<!-- COMMAND PALETTE -->
-<!-- ================================= -->
-
-<div
-  id="commandPalette"
-  class="command-palette hidden"
->
-
-  <div class="command-box">
-
-    <input
-      type="text"
-      id="commandInput"
-      placeholder="Buscar productos, ventas o módulos..."
-      autocomplete="off"
-      oninput="buscarGlobal()"
-    >
-
-    <div id="commandResults"></div>
-
-  </div>
-
-</div>
-
-<!-- ================================= -->
 <!-- SCRIPTS -->
-<!-- ================================= -->
 
 <script
   defer
   src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
-  onerror="console.error('Error cargando Supabase')"
 ></script>
 
 <script defer src="js/supabase.js"></script>
-
 <script defer src="js/storage.js"></script>
-
 <script defer src="js/auth.js"></script>
-
 <script defer src="js/toast.js"></script>
-
 <script defer src="js/roles.js"></script>
-
 <script defer src="js/historial.js"></script>
-
-
-
 <script defer src="js/app.js"></script>
 
 </body>

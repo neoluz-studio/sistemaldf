@@ -1,114 +1,252 @@
 // =================================
-// STORAGE
+// DASHBOARD PRO
 // =================================
 
-const ventas =
-  JSON.parse(
-    localStorage.getItem("ventas")
-  ) || [];
+function renderDashboardReal() {
 
-const productos =
-  JSON.parse(
-    localStorage.getItem("productos")
-  ) || [];
+  const ventas =
 
-// =================================
-// TOTALES
-// =================================
+    JSON.parse(
+      localStorage.getItem(
+        "ventas"
+      )
+    ) || [];
 
-const totalVentas =
-  ventas.reduce(
-    (acc, v) => acc + v.total,
-    0
-  );
+  const productos =
 
-const totalGanancia =
-  ventas.reduce(
-    (acc, v) =>
-      acc + (v.ganancia || 0),
-    0
-  );
+    JSON.parse(
+      localStorage.getItem(
+        "productos"
+      )
+    ) || [];
 
-const totalProductos =
-  productos.length;
+  const historial =
 
-// =================================
-// PRODUCTO MÁS VENDIDO
-// =================================
+    JSON.parse(
+      localStorage.getItem(
+        "historial"
+      )
+    ) || [];
 
-function getTopProducto() {
+  const hoy =
 
-  const contador = {};
+    new Date()
+      .toLocaleDateString(
+        "es-AR"
+      );
+
+  const mesActual =
+
+    new Date()
+      .getMonth();
+
+  let ventasHoy = 0;
+
+  let ventasMes = 0;
+
+  let ganancia = 0;
+
+  let productosVendidos = 0;
+
+  let stockCritico = 0;
+
+  let stockBajo = 0;
+
+  // =================================
+  // VENTAS
+  // =================================
 
   ventas.forEach(v => {
 
-    v.detalle?.forEach(item => {
+    const fechaVenta =
 
-      contador[item.nombre] =
+      new Date(v.fecha);
 
-        (contador[item.nombre] || 0)
+    const fechaTexto =
 
-        + item.cantidad;
-    });
+      fechaVenta
+        .toLocaleDateString(
+          "es-AR"
+        );
+
+    // HOY
+    if (fechaTexto === hoy) {
+
+      ventasHoy +=
+        Number(v.total || 0);
+    }
+
+    // MES
+    if (
+
+      fechaVenta.getMonth()
+
+      ===
+
+      mesActual
+
+    ) {
+
+      ventasMes +=
+        Number(v.total || 0);
+    }
+
+    // PRODUCTOS
+    if (v.detalle) {
+
+      v.detalle.forEach(i => {
+
+        productosVendidos +=
+
+          Number(
+            i.cantidad || 0
+          );
+
+        const costo =
+
+          Number(
+            i.costo || 0
+          );
+
+        const precio =
+
+          Number(
+            i.precio || 0
+          );
+
+        ganancia +=
+
+          (precio - costo)
+
+          *
+
+          Number(
+            i.cantidad || 0
+          );
+      });
+    }
   });
 
-  let top = "-";
+  // =================================
+  // STOCK
+  // =================================
 
-  let max = 0;
+  productos.forEach(p => {
 
-  for (let nombre in contador) {
+    if (p.stock <= 5) {
 
-    if (contador[nombre] > max) {
+      stockCritico++;
 
-      max = contador[nombre];
+    } else if (
 
-      top = nombre;
+      p.stock <= 10
+
+    ) {
+
+      stockBajo++;
     }
-  }
+  });
 
-  return top;
-}
+  // =================================
+  // SET TEXT
+  // =================================
 
-// =================================
-// DASHBOARD
-// =================================
+  const set = (
 
-function renderDashboard() {
+    id,
+    value
 
-  document.getElementById(
-    "totalVentas"
-  ).innerText =
-    totalVentas.toLocaleString();
+  ) => {
 
-  document.getElementById(
-    "totalGanancia"
-  ).innerText =
-    totalGanancia.toLocaleString();
+    const el =
 
-  document.getElementById(
-    "totalProductos"
-  ).innerText =
-    totalProductos;
+      document.getElementById(
+        id
+      );
 
-  const topEl =
-    document.getElementById(
-      "topProducto"
-    );
+    if (el) {
 
-  if (topEl) {
+      el.innerText = value;
+    }
+  };
 
-    topEl.innerText =
-      getTopProducto();
-  }
+  set(
+    "ventasHoy",
+    `$${ventasHoy.toLocaleString()}`
+  );
+
+  set(
+    "ventasMes",
+    `$${ventasMes.toLocaleString()}`
+  );
+
+  set(
+    "gananciaTotal",
+    `$${Math.round(
+      ganancia
+    ).toLocaleString()}`
+  );
+
+  set(
+    "productosVendidos",
+    productosVendidos
+  );
+
+  set(
+    "cantidadStockCritico",
+    stockCritico
+  );
+
+  set(
+    "cantidadStockBajo",
+    stockBajo
+  );
+
+  set(
+    "cantidadVentas",
+    ventas.length
+  );
+
+  set(
+    "cantidadProductos",
+    productos.length
+  );
+
+  renderActividadReciente(
+    historial
+  );
+
+  renderStockCritico(
+    productos
+  );
+
+  renderStockBajo(
+    productos
+  );
+
+  renderUltimasVentas(
+    ventas
+  );
+
+  renderMetodosChart(
+    ventas
+  );
+
+  renderVentasChart(
+    ventas
+  );
 }
 
 // =================================
 // ACTIVIDAD
 // =================================
 
-function renderActividad() {
+function renderActividadReciente(
+  historial
+) {
 
   const cont =
+
     document.getElementById(
       "actividadReciente"
     );
@@ -117,12 +255,7 @@ function renderActividad() {
 
   cont.innerHTML = "";
 
-  const recientes =
-    [...ventas]
-      .reverse()
-      .slice(0, 5);
-
-  if (recientes.length === 0) {
+  if (historial.length === 0) {
 
     cont.innerHTML = `
 
@@ -134,109 +267,51 @@ function renderActividad() {
     return;
   }
 
-  recientes.forEach(v => {
+  historial
+    .slice(0, 6)
+    .forEach(h => {
 
-    cont.innerHTML += `
+      cont.innerHTML += `
 
-      <div class="movement-card">
+        <div class="movement-card">
 
-        <div>
+          <div>
 
-          <h4>
+            <h4>
 
-            Venta
-            ${v.metodo}
+              ${h.modulo || "Sistema"}
 
-          </h4>
+            </h4>
 
-          <small>
+            <p>
 
-            ${v.fecha}
+              ${h.descripcion || "-"}
 
-          </small>
+            </p>
+
+            <small>
+
+              ${h.fecha || "-"}
+
+            </small>
+
+          </div>
 
         </div>
-
-        <strong class="money-in">
-
-          +$${v.total.toLocaleString()}
-
-        </strong>
-
-      </div>
-    `;
-  });
+      `;
+    });
 }
 
 // =================================
-// STOCK BAJO
+// STOCK CRITICO
 // =================================
 
-function renderStockBajo() {
+function renderStockCritico(
+  productos
+) {
 
   const cont =
-    document.getElementById(
-      "stockBajo"
-    );
 
-  if (!cont) return;
-
-  cont.innerHTML = "";
-
-  const bajos =
-    productos.filter(
-      p => p.stock <= 5
-    );
-
-  if (bajos.length === 0) {
-
-    cont.innerHTML = `
-
-      <div class="empty-state">
-        No hay stock bajo
-      </div>
-    `;
-
-    return;
-  }
-
-  bajos.forEach(p => {
-
-    cont.innerHTML += `
-
-      <div class="movement-card">
-
-        <div>
-
-          <h4>
-            ${p.nombre}
-          </h4>
-
-          <small>
-            Stock bajo
-          </small>
-
-        </div>
-
-        <span class="badge-danger">
-
-          ${p.stock}
-          ${p.unidad || ""}
-
-        </span>
-
-      </div>
-    `;
-  });
-}
-
-// =================================
-// STOCK CRÍTICO
-// =================================
-
-function renderStockCritico() {
-
-  const cont =
     document.getElementById(
       "stockCritico"
     );
@@ -246,8 +321,9 @@ function renderStockCritico() {
   cont.innerHTML = "";
 
   const criticos =
+
     productos.filter(
-      p => p.stock <= 2
+      p => p.stock <= 5
     );
 
   if (criticos.length === 0) {
@@ -255,7 +331,9 @@ function renderStockCritico() {
     cont.innerHTML = `
 
       <div class="empty-state">
-        Sin productos críticos
+
+        Sin stock crítico
+
       </div>
     `;
 
@@ -266,22 +344,17 @@ function renderStockCritico() {
 
     cont.innerHTML += `
 
-      <div class="movement-card">
+      <div class="stock-item critical">
 
-        <div>
+        <strong>
 
-          <h4>
-            ${p.nombre}
-          </h4>
+          ${p.nombre}
 
-          <small>
-            Stock crítico
-          </small>
+        </strong>
 
-        </div>
+        <span>
 
-        <span class="badge-danger">
-
+          Stock:
           ${p.stock}
 
         </span>
@@ -292,12 +365,82 @@ function renderStockCritico() {
 }
 
 // =================================
-// ÚLTIMAS VENTAS
+// STOCK BAJO
 // =================================
 
-function renderUltimasVentas() {
+function renderStockBajo(
+  productos
+) {
 
   const cont =
+
+    document.getElementById(
+      "stockBajo"
+    );
+
+  if (!cont) return;
+
+  cont.innerHTML = "";
+
+  const bajos =
+
+    productos.filter(
+
+      p =>
+
+        p.stock > 5 &&
+
+        p.stock <= 10
+    );
+
+  if (bajos.length === 0) {
+
+    cont.innerHTML = `
+
+      <div class="empty-state">
+
+        Sin stock bajo
+
+      </div>
+    `;
+
+    return;
+  }
+
+  bajos.forEach(p => {
+
+    cont.innerHTML += `
+
+      <div class="stock-item low">
+
+        <strong>
+
+          ${p.nombre}
+
+        </strong>
+
+        <span>
+
+          Stock:
+          ${p.stock}
+
+        </span>
+
+      </div>
+    `;
+  });
+}
+
+// =================================
+// ULTIMAS VENTAS
+// =================================
+
+function renderUltimasVentas(
+  ventas
+) {
+
+  const cont =
+
     document.getElementById(
       "ultimasVentas"
     );
@@ -306,53 +449,129 @@ function renderUltimasVentas() {
 
   cont.innerHTML = "";
 
-  const ultimas =
-    [...ventas]
-      .reverse()
-      .slice(0, 5);
-
-  if (ultimas.length === 0) {
+  if (ventas.length === 0) {
 
     cont.innerHTML = `
 
       <div class="empty-state">
-        No hay ventas
+
+        Sin ventas registradas
+
       </div>
     `;
 
     return;
   }
 
-  ultimas.forEach(v => {
+  [...ventas]
+    .reverse()
+    .slice(0, 6)
+    .forEach(v => {
 
-    cont.innerHTML += `
+      cont.innerHTML += `
 
-      <div class="movement-card">
+        <div class="movement-card">
 
-        <div>
+          <div>
 
-          <h4>
+            <h4>
 
-            $${v.total.toLocaleString()}
+              ${v.fecha || "-"}
 
-          </h4>
+            </h4>
 
-          <p>
+            <p>
 
-            ${v.metodo}
+              ${v.usuario || "Local"}
 
-          </p>
+            </p>
+
+          </div>
+
+          <strong>
+
+            $${Number(
+              v.total || 0
+            ).toLocaleString()}
+
+          </strong>
 
         </div>
+      `;
+    });
+}
 
-        <small>
+// =================================
+// CHART METODOS
+// =================================
 
-          ${v.fecha}
+function renderMetodosChart(
+  ventas
+) {
 
-        </small>
+  const canvas =
 
-      </div>
-    `;
+    document.getElementById(
+      "metodosChart"
+    );
+
+  if (!canvas) return;
+
+  const data = {
+
+    efectivo: 0,
+
+    transferencia: 0,
+
+    mp: 0,
+
+    qr: 0
+  };
+
+  ventas.forEach(v => {
+
+    if (
+      data[v.metodo]
+      !== undefined
+    ) {
+
+      data[v.metodo] +=
+
+        Number(v.total || 0);
+    }
+  });
+
+  new Chart(canvas, {
+
+    type: "doughnut",
+
+    data: {
+
+      labels: [
+
+        "Efectivo",
+
+        "Transferencia",
+
+        "MP",
+
+        "QR"
+      ],
+
+      datasets: [{
+
+        data: [
+
+          data.efectivo,
+
+          data.transferencia,
+
+          data.mp,
+
+          data.qr
+        ]
+      }]
+    }
   });
 }
 
@@ -360,198 +579,202 @@ function renderUltimasVentas() {
 // CHART VENTAS
 // =================================
 
-function renderVentasChart() {
+function renderVentasChart(
+  ventas
+) {
 
-  const ctx =
+  const canvas =
+
     document.getElementById(
       "ventasChart"
     );
 
-  if (!ctx) return;
+  if (!canvas) return;
 
-  const ventasPorMes = {};
+  const labels =
 
-  ventas.forEach(v => {
+    [...ventas]
+      .reverse()
+      .slice(0, 7)
+      .map(v => v.fecha);
 
-    const partes =
-      v.fecha.split("/");
+  const valores =
 
-    const mes =
-      partes[1] || "Mes";
+    [...ventas]
+      .reverse()
+      .slice(0, 7)
+      .map(v => v.total);
 
-    ventasPorMes[mes] =
+  new Chart(canvas, {
 
-      (ventasPorMes[mes] || 0)
-
-      + v.total;
-  });
-
-  new Chart(ctx, {
-
-    type: "bar",
+    type: "line",
 
     data: {
 
-      labels:
-        Object.keys(ventasPorMes),
+      labels,
 
       datasets: [{
 
         label: "Ventas",
 
-        data:
-          Object.values(ventasPorMes),
+        data: valores,
 
-        borderRadius: 12
+        tension: .4
       }]
-    },
-
-    options: {
-
-      responsive: true,
-
-      plugins: {
-
-        legend: {
-
-          display: false
-        }
-      }
     }
   });
 }
 
 // =================================
-// CHART MÉTODOS
+// INVENTARIO
 // =================================
 
-function renderMetodosChart() {
+function renderInventarioSemanal() {
 
-  const ctx =
+  const cont =
+
     document.getElementById(
-      "metodosChart"
+      "inventarioSemanal"
     );
 
-  if (!ctx) return;
+  if (!cont) return;
 
-  const metodos = {};
+  const productos =
 
-  ventas.forEach(v => {
+    JSON.parse(
+      localStorage.getItem(
+        "productos"
+      )
+    ) || [];
 
-    metodos[v.metodo] =
+  cont.innerHTML = "";
 
-      (metodos[v.metodo] || 0)
+  if (productos.length === 0) {
 
-      + v.total;
-  });
+    cont.innerHTML = `
 
-  new Chart(ctx, {
+      <tr>
 
-    type: "doughnut",
+        <td colspan="3">
 
-    data: {
+          No hay productos
 
-      labels:
-        Object.keys(metodos),
+        </td>
 
-      datasets: [{
+      </tr>
+    `;
 
-        data:
-          Object.values(metodos)
-      }]
-    },
+    return;
+  }
 
-    options: {
+  productos.sort(
+    (a, b) =>
+      a.stock - b.stock
+  );
 
-      responsive: true
-    }
+  productos.forEach(p => {
+
+    const estado =
+
+      p.stock <= 5
+
+      ? `
+        <span class="stock-low">
+          CRÍTICO
+        </span>
+      `
+
+      : `
+        <span class="stock-ok">
+          CORRECTO
+        </span>
+      `;
+
+    cont.innerHTML += `
+
+      <tr>
+
+        <td>
+
+          ${p.nombre}
+
+        </td>
+
+        <td>
+
+          ${p.stock}
+
+        </td>
+
+        <td>
+
+          ${estado}
+
+        </td>
+
+      </tr>
+    `;
   });
 }
 
 // =================================
-// CLOCK
+// FILTROS
 // =================================
 
-function updateClock() {
+function filtrarDashboard(
+  tipo
+) {
 
-  const clock =
-    document.getElementById(
-      "clock"
+  document
+
+    .querySelectorAll(
+      ".filter-btn"
+    )
+
+    .forEach(btn => {
+
+      btn.classList.remove(
+        "active"
+      );
+    });
+
+  const botones =
+
+    document.querySelectorAll(
+      ".filter-btn"
     );
 
-  if (!clock) return;
+  if (tipo === "hoy") {
 
-  clock.innerText =
-    new Date()
-      .toLocaleTimeString([], {
-
-        hour: "2-digit",
-
-        minute: "2-digit"
-      });
-}
-
-setInterval(updateClock, 1000);
-
-updateClock();
-
-// =================================
-// SALUDO
-// =================================
-
-function renderSaludo() {
-
-  const saludo =
-    document.getElementById(
-      "saludo"
-    );
-
-  if (!saludo) return;
-
-  const hora =
-    new Date().getHours();
-
-  let texto =
-    "👋 Bienvenido";
-
-  if (hora < 12) {
-
-    texto =
-      "☀️ Buenos días";
+    botones[0]
+      ?.classList.add(
+        "active"
+      );
   }
 
-  else if (hora < 19) {
+  if (tipo === "semana") {
 
-    texto =
-      "🌤️ Buenas tardes";
+    botones[1]
+      ?.classList.add(
+        "active"
+      );
   }
 
-  else {
+  if (tipo === "mes") {
 
-    texto =
-      "🌙 Buenas noches";
+    botones[2]
+      ?.classList.add(
+        "active"
+      );
   }
 
-  saludo.innerText =
-    texto;
+  renderDashboardReal();
 }
 
 // =================================
 // INIT
 // =================================
 
-renderDashboard();
+renderDashboardReal();
 
-renderActividad();
-
-renderStockBajo();
-
-renderStockCritico();
-
-renderUltimasVentas();
-
-renderVentasChart();
-
-renderMetodosChart();
-
-renderSaludo();
+renderInventarioSemanal();
