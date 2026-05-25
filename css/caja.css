@@ -1,6 +1,4 @@
-/* ================================= */
-/* CAJA PRO - LO DE FAUSTI */
-/* ================================= */
+/* CAJA PRO */
 
 .page-content {
   display: flex;
@@ -8,76 +6,55 @@
   gap: 26px;
 }
 
-/* HEADER VISUAL */
-
 .topbar h2 {
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.5px;
 }
 
-.topbar p {
-  opacity: .65;
-  font-size: 14px;
+.caja-status {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-weight: 800;
+  font-size: 13px;
 }
-
-/* CARDS PRINCIPALES */
 
 .stats-grid {
   gap: 18px;
 }
 
 .stat-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
+  border-radius: 24px;
   padding: 22px;
-  background: linear-gradient(
-    135deg,
-    rgba(255,255,255,.95),
-    rgba(255,255,255,.72)
-  );
-  border: 1px solid rgba(0,0,0,.06);
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(15,23,42,.06);
   box-shadow: 0 14px 40px rgba(15,23,42,.08);
-}
-
-.stat-card::after {
-  content: "";
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  right: -25px;
-  top: -25px;
-  background: rgba(59,130,246,.10);
-  border-radius: 50%;
 }
 
 .stat-card h3 {
   font-size: 14px;
   color: #64748b;
   margin-bottom: 8px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .stat-card h2 {
   font-size: 32px;
   font-weight: 900;
   color: #0f172a;
-  margin-bottom: 6px;
 }
 
 .stat-card p {
-  font-size: 13px;
   color: #64748b;
+  font-size: 13px;
 }
-
-/* CAJAS */
 
 .box,
 .table-box {
   border-radius: 24px;
-  background: rgba(255,255,255,.9);
-  border: 1px solid rgba(0,0,0,.06);
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(15,23,42,.06);
   box-shadow: 0 12px 35px rgba(15,23,42,.07);
 }
 
@@ -89,17 +66,63 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
   margin-bottom: 18px;
 }
 
 .table-header h3 {
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 900;
   color: #0f172a;
 }
 
-/* DETALLE DIGITAL */
+.table-header p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ACCIONES PRO */
+
+.pro-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.action-card {
+  border: none;
+  border-radius: 22px;
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid rgba(15,23,42,.06);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: .2s ease;
+}
+
+.action-card i {
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.action-card span {
+  font-weight: 900;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.action-card small {
+  color: #64748b;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(15,23,42,.12);
+}
+
+/* DIGITAL */
 
 .digital-list {
   display: grid;
@@ -109,107 +132,36 @@
 
 .digital-item {
   background: #f8fafc;
-  border: 1px solid rgba(15,23,42,.06);
   border-radius: 18px;
   padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  border: 1px solid rgba(15,23,42,.06);
 }
 
 .digital-item span {
-  font-size: 13px;
   color: #64748b;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .digital-item strong {
+  display: block;
+  margin-top: 8px;
   font-size: 22px;
   color: #0f172a;
 }
 
-/* ACCIONES RÁPIDAS */
+/* GRILLA CAJA */
 
-.quick-actions {
+.caja-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-
-.quick-card {
-  background: #f8fafc;
-  border-radius: 22px;
-  padding: 20px;
-  border: 1px solid rgba(15,23,42,.06);
-}
-
-.quick-card h4 {
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 14px;
-  color: #0f172a;
-}
-
-.quick-card .form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.quick-card input,
-.quick-card select {
-  width: 100%;
-  min-height: 44px;
-  border-radius: 14px;
-  border: 1px solid rgba(15,23,42,.10);
-  padding: 10px 12px;
-  outline: none;
-}
-
-.quick-card button {
-  min-height: 44px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  font-weight: 800;
-  background: #0f172a;
-  color: #fff;
-  transition: .2s ease;
-}
-
-.quick-card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(15,23,42,.18);
-}
-
-/* MINI STATS */
-
-.small-stat h2 {
-  font-size: 24px;
-}
-
-/* TABLA */
-
-.pro-table th {
-  font-size: 13px;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: .3px;
-}
-
-.pro-table td {
-  font-size: 14px;
-}
-
-.metodo-badge {
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
 }
 
 /* MOVIMIENTOS */
 
-.lista {
+.lista,
+.timeline-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -253,6 +205,81 @@
   font-size: 18px;
 }
 
+/* MODAL */
+
+.hidden {
+  display: none !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.caja-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 25px 80px rgba(15,23,42,.25);
+}
+
+.caja-modal h3 {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.caja-modal p {
+  color: #64748b;
+  margin-bottom: 18px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-form input {
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(15,23,42,.12);
+  padding: 10px 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.modal-actions button {
+  border: none;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.modal-actions button:last-child {
+  background: #0f172a;
+  color: #fff;
+}
+
+.btn-cancel {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
 /* BOTONES */
 
 .btn-danger {
@@ -266,7 +293,6 @@
 }
 
 .detail-btn {
-  margin-top: 8px;
   border: none;
   padding: 8px 12px;
   border-radius: 12px;
@@ -275,8 +301,6 @@
   background: #e0f2fe;
   color: #0369a1;
 }
-
-/* EMPTY */
 
 .empty-state {
   padding: 26px;
@@ -289,26 +313,24 @@
 /* RESPONSIVE */
 
 @media (max-width: 1100px) {
-  .digital-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .quick-actions {
+  .pro-actions,
+  .digital-list,
+  .caja-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 700px) {
-  .digital-list {
-    grid-template-columns: 1fr;
-  }
-
   .stat-card h2 {
     font-size: 26px;
   }
 
   .movement-card {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .caja-status {
+    display: none;
   }
 }
