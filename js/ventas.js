@@ -1,73 +1,99 @@
 let productos =
-  JSON.parse(
-    localStorage.getItem(
-      "productos"
-    )
-  ) || [];
+  JSON.parse(localStorage.getItem("productos")) || [];
 
 let carrito = [];
 
 let descuentoCarrito = {
-
   tipo: "porcentaje",
-
   valor: 0
 };
+
+let procesandoVenta = false;
+
+// =================================
+// HELPERS
+// =================================
+
+function money(valor) {
+  return `$${Number(valor || 0).toLocaleString("es-AR")}`;
+}
+
+function getUsuarioActual() {
+  return (
+    JSON.parse(localStorage.getItem("usuario"))?.nombre ||
+    "Local"
+  );
+}
+
+function guardarProductos() {
+  localStorage.setItem("productos", JSON.stringify(productos));
+}
+
+function getStorage(key) {
+  return JSON.parse(localStorage.getItem(key)) || [];
+}
+
+function setStorage(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function limitarNumero(valor, min = 0, max = Infinity) {
+  const numero = Number(valor || 0);
+
+  if (numero < min) return min;
+  if (numero > max) return max;
+
+  return numero;
+}
 
 // =================================
 // PRODUCTOS
 // =================================
 
-function renderProductos(
-  lista = productos
-) {
-
-  const cont =
-    document.getElementById(
-      "productosGrid"
-    );
+function renderProductos(lista = productos) {
+  const cont = document.getElementById("productosGrid");
+  if (!cont) return;
 
   cont.innerHTML = "";
 
-  lista.forEach(p => {
+  if (lista.length === 0) {
+    cont.innerHTML = `
+      <div class="empty-state">
+        No hay productos para mostrar
+      </div>
+    `;
+    return;
+  }
 
-    const div =
-      document.createElement("div");
+  lista.forEach(p => {
+    const stock = Number(p.stock || 0);
+    const precio = Number(p.precio || 0);
+
+    const div = document.createElement("div");
 
     div.className = `
-
       producto-btn
-
-      ${p.stock <= 0
-        ? "sin-stock"
-        : ""}
+      ${stock <= 0 ? "sin-stock" : ""}
     `;
 
     div.innerHTML = `
+      <strong>${p.nombre}</strong>
 
-      <strong>
-        ${p.nombre}
-      </strong>
+      <small>${money(precio)}</small>
 
       <small>
-        $${Number(
-          p.precio
-        ).toLocaleString()}
+        Stock: ${stock}
       </small>
 
-      ${p.stock <= 0
-        ? `
-          <small class="stock-empty">
-            SIN STOCK
-          </small>
-        `
-        : ""}
+      ${
+        stock <= 0
+          ? `<small class="stock-empty">SIN STOCK</small>`
+          : ""
+      }
     `;
 
     div.onclick = () => {
-
       agregarAlCarrito(p);
-
       document.activeElement.blur();
     };
 
@@ -76,59 +102,56 @@ function renderProductos(
 }
 
 // =================================
-// AGREGAR
+// BUSCADOR
+// =================================
+
+function filtrarProductos() {
+  const input = document.getElementById("buscador");
+  if (!input) return;
+
+  const texto = input.value.toLowerCase().trim();
+
+  const filtrados = productos.filter(p =>
+    String(p.nombre || "")
+      .toLowerCase()
+      .includes(texto)
+  );
+
+  renderProductos(filtrados);
+}
+
+// =================================
+// CARRITO
 // =================================
 
 function agregarAlCarrito(prod) {
-
   if (!prod) return;
 
-  if (prod.stock <= 0) {
+  const stock = Number(prod.stock || 0);
 
-    showToast(
-      `${prod.nombre} sin stock`,
-      "error"
-    );
-
+  if (stock <= 0) {
+    showToast(`${prod.nombre} sin stock`, "error");
     return;
   }
 
-  const existe =
-    carrito.find(
-      p => p.id === prod.id
-    );
+  const existe = carrito.find(p => p.id === prod.id);
 
   if (existe) {
-
-    if (
-
-      existe.cantidad >=
-      prod.stock
-
-    ) {
-
-      showToast(
-
-        `Stock máximo de ${prod.nombre}`,
-
-        "error"
-      );
-
+    if (existe.cantidad >= stock) {
+      showToast(`Stock máximo de ${prod.nombre}`, "error");
       return;
     }
 
     existe.cantidad++;
-
   } else {
-
     carrito.push({
-
-      ...prod,
-
+      id: prod.id,
+      nombre: prod.nombre,
+      precio: Number(prod.precio || 0),
+      costo: Number(prod.costo || 0),
+      stock: stock,
       cantidad: 1,
-
       descuentoTipo: "porcentaje",
-
       descuentoValor: 0
     });
   }
@@ -136,51 +159,181 @@ function agregarAlCarrito(prod) {
   renderCarrito();
 }
 
-// =================================
-// CALCULAR DESCUENTO ITEM
-// =================================
+function aumentarCantidad(id) {
+  const item = carrito.find(p => p.id === id);
+  const producto = productos.find(p => p.id === id);
 
-function calcularDescuentoItem(
-  item
-) {
+  if (!item || !producto) return;
 
-  const subtotal =
+  const stock = Number(producto.stock || 0);
 
-    item.precio *
-    item.cantidad;
-
-  let descuento = 0;
-
-  if (
-
-    item.descuentoTipo
-    ===
-    "porcentaje"
-
-  ) {
-
-    descuento =
-
-      subtotal *
-
-      (
-        Number(
-          item.descuentoValor || 0
-        )
-
-        / 100
-      );
-
-  } else {
-
-    descuento =
-
-      Number(
-        item.descuentoValor || 0
-      );
+  if (item.cantidad >= stock) {
+    showToast("No hay más stock disponible", "error");
+    return;
   }
 
-  return descuento;
+  item.cantidad++;
+  renderCarrito();
+}
+
+function disminuirCantidad(id) {
+  const item = carrito.find(p => p.id === id);
+  if (!item) return;
+
+  item.cantidad--;
+
+  if (item.cantidad <= 0) {
+    carrito = carrito.filter(p => p.id !== id);
+  }
+
+  renderCarrito();
+}
+
+function eliminarDelCarrito(id) {
+  carrito = carrito.filter(p => p.id !== id);
+  renderCarrito();
+
+  showToast("Producto eliminado", "info");
+}
+
+// =================================
+// DESCUENTOS
+// =================================
+
+function aplicarDescuentoProducto(id, tipo) {
+  const item = carrito.find(p => p.id === id);
+  if (!item) return;
+
+  const subtotalItem = item.precio * item.cantidad;
+
+  const mensaje =
+    tipo === "porcentaje"
+      ? "¿Qué porcentaje querés descontar? Máximo 100"
+      : `¿Qué monto querés descontar? Máximo ${money(subtotalItem)}`;
+
+  const valor = prompt(mensaje, "0");
+
+  if (valor === null) return;
+
+  let numero = Number(valor || 0);
+
+  if (Number.isNaN(numero)) {
+    showToast("Descuento inválido", "error");
+    return;
+  }
+
+  if (tipo === "porcentaje") {
+    numero = limitarNumero(numero, 0, 100);
+  } else {
+    numero = limitarNumero(numero, 0, subtotalItem);
+  }
+
+  item.descuentoTipo = tipo;
+  item.descuentoValor = numero;
+
+  renderCarrito();
+}
+
+function quitarDescuentoProducto(id) {
+  const item = carrito.find(p => p.id === id);
+  if (!item) return;
+
+  item.descuentoTipo = "porcentaje";
+  item.descuentoValor = 0;
+
+  renderCarrito();
+
+  showToast("Descuento quitado", "info");
+}
+
+function actualizarDescuentoCarrito() {
+  const tipoEl = document.getElementById("tipoDescuentoCarrito");
+  const valorEl = document.getElementById("valorDescuentoCarrito");
+
+  if (!tipoEl || !valorEl) return;
+
+  descuentoCarrito.tipo = tipoEl.value;
+  descuentoCarrito.valor = Number(valorEl.value || 0);
+
+  renderCarrito();
+}
+
+function calcularDescuentoProducto(item) {
+  const subtotalItem = item.precio * item.cantidad;
+  let descuento = 0;
+
+  if (item.descuentoTipo === "porcentaje") {
+    const porcentaje = limitarNumero(item.descuentoValor, 0, 100);
+    descuento = subtotalItem * (porcentaje / 100);
+  } else {
+    descuento = limitarNumero(item.descuentoValor, 0, subtotalItem);
+  }
+
+  return Math.round(descuento);
+}
+
+function calcularTotalesVenta(aplicarLimites = true) {
+  let subtotal = 0;
+  let descuentoProductos = 0;
+  let costoTotal = 0;
+
+  carrito.forEach(item => {
+    const subtotalItem = item.precio * item.cantidad;
+    const descuentoItem = calcularDescuentoProducto(item);
+
+    subtotal += subtotalItem;
+    descuentoProductos += descuentoItem;
+    costoTotal += Number(item.costo || 0) * item.cantidad;
+  });
+
+  const subtotalConDescuentoProductos =
+    subtotal - descuentoProductos;
+
+  let descuentoGeneral = 0;
+
+  if (descuentoCarrito.tipo === "porcentaje") {
+    const porcentaje = aplicarLimites
+      ? limitarNumero(descuentoCarrito.valor, 0, 100)
+      : Number(descuentoCarrito.valor || 0);
+
+    descuentoGeneral =
+      subtotalConDescuentoProductos * (porcentaje / 100);
+  } else {
+    const monto = aplicarLimites
+      ? limitarNumero(
+          descuentoCarrito.valor,
+          0,
+          subtotalConDescuentoProductos
+        )
+      : Number(descuentoCarrito.valor || 0);
+
+    descuentoGeneral = monto;
+  }
+
+  descuentoGeneral = Math.round(descuentoGeneral);
+
+  const descuentoTotal =
+    descuentoProductos + descuentoGeneral;
+
+  const total =
+    Math.max(
+      0,
+      subtotalConDescuentoProductos - descuentoGeneral
+    );
+
+  const ganancia =
+    Math.max(0, total - costoTotal);
+
+  return {
+    subtotal,
+    descuentoProductos,
+    subtotalConDescuentoProductos,
+    descuentoGeneral,
+    descuentoTotal,
+    total,
+    costoTotal,
+    ganancia
+  };
 }
 
 // =================================
@@ -188,100 +341,79 @@ function calcularDescuentoItem(
 // =================================
 
 function renderCarrito() {
+  const cont = document.getElementById("carritoLista");
+  const totalEl = document.getElementById("total");
 
-  const cont =
-    document.getElementById(
-      "carritoLista"
-    );
+  if (!cont || !totalEl) return;
 
-  const totalEl =
-    document.getElementById(
-      "total"
-    );
+  cont.innerHTML = "";
 
-  cont.replaceChildren();
-
-  // VACIO
   if (carrito.length === 0) {
-
     cont.innerHTML = `
-
       <div class="empty-state">
         No hay productos en el carrito
       </div>
     `;
 
-    totalEl.innerText = "0";
-
-    actualizarResumenDescuento(
-      0,
-      0,
-      0
-    );
-
+    resetResumenVenta();
     return;
   }
 
-  let subtotalGeneral = 0;
+  carrito.forEach(item => {
+    const subtotalItem = item.precio * item.cantidad;
+    const descuentoItem = calcularDescuentoProducto(item);
+    const totalItem = subtotalItem - descuentoItem;
 
-  let descuentoProductos = 0;
-
-  carrito.forEach(p => {
-
-    const subtotal =
-      p.precio * p.cantidad;
-
-    const descuento =
-      calcularDescuentoItem(p);
-
-    const subtotalFinal =
-      subtotal - descuento;
-
-    subtotalGeneral +=
-      subtotal;
-
-    descuentoProductos +=
-      descuento;
-
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "cart-item";
+    const div = document.createElement("div");
+    div.className = "cart-item";
 
     div.innerHTML = `
-
       <div class="cart-info">
 
-        <h4>
-          ${p.nombre}
-        </h4>
+        <h4>${item.nombre}</h4>
 
         <small>
-          $${p.precio} c/u
+          ${money(item.precio)} c/u
         </small>
 
-        ${descuento > 0
-          ? `
-            <div class="item-discount-badge">
-              🔥 Descuento aplicado
-            </div>
-          `
-          : ""}
+        ${
+          descuentoItem > 0
+            ? `
+              <div class="item-discount-badge">
+                Descuento: -${money(descuentoItem)}
+              </div>
+            `
+            : ""
+        }
 
         <div class="item-discount">
 
           <button
-            onclick="aplicarDescuentoProducto(${p.id}, 'porcentaje')"
+            type="button"
+            onclick="aplicarDescuentoProducto(${item.id}, 'porcentaje')"
           >
             % OFF
           </button>
 
           <button
-            onclick="aplicarDescuentoProducto(${p.id}, 'monto')"
+            type="button"
+            onclick="aplicarDescuentoProducto(${item.id}, 'monto')"
           >
             $ OFF
           </button>
+
+          ${
+            descuentoItem > 0
+              ? `
+                <button
+                  type="button"
+                  onclick="quitarDescuentoProducto(${item.id})"
+                >
+                  Quitar
+                </button>
+              `
+              : ""
+          }
 
         </div>
 
@@ -290,42 +422,45 @@ function renderCarrito() {
       <div class="cart-actions">
 
         <button
-          class="qty-btn"
-          onclick="disminuirCantidad(${p.id})"
-        >
-          -
-        </button>
+  type="button"
+  class="qty-btn"
+  onclick="disminuirCantidad(${item.id})"
+>
+  −
+</button>
 
-        <span class="qty">
-          ${p.cantidad}
-        </span>
+        <span class="qty">${item.cantidad}</span>
 
         <button
-          class="qty-btn"
-          onclick="aumentarCantidad(${p.id})"
-        >
-          +
-        </button>
+  type="button"
+  class="qty-btn"
+  onclick="aumentarCantidad(${item.id})"
+>
+  +
+</button>
 
       </div>
 
       <div class="cart-subtotal">
 
-        ${descuento > 0
-          ? `
-            <div class="old-price">
-              $${subtotal.toLocaleString()}
-            </div>
-          `
-          : ""}
+        ${
+          descuentoItem > 0
+            ? `
+              <div class="old-price">
+                ${money(subtotalItem)}
+              </div>
+            `
+            : ""
+        }
 
-        $${subtotalFinal.toLocaleString()}
+        ${money(totalItem)}
 
       </div>
 
       <button
+        type="button"
         class="remove-btn"
-        onclick="eliminarDelCarrito(${p.id})"
+        onclick="eliminarDelCarrito(${item.id})"
       >
         ✕
       </button>
@@ -334,797 +469,376 @@ function renderCarrito() {
     cont.appendChild(div);
   });
 
-  // =================================
-  // DESCUENTO GENERAL
-  // =================================
-
-  let descuentoGeneral = 0;
-
-  const subtotalConDescuentoProductos =
-
-    subtotalGeneral -
-    descuentoProductos;
-
-  if (
-
-    descuentoCarrito.tipo
-    ===
-    "porcentaje"
-
-  ) {
-
-    descuentoGeneral =
-
-      subtotalConDescuentoProductos *
-
-      (
-        Number(
-          descuentoCarrito.valor || 0
-        ) / 100
-      );
-
-  } else {
-
-    descuentoGeneral =
-
-      Number(
-        descuentoCarrito.valor || 0
-      );
-  }
-
-  const totalFinal =
-
-    subtotalConDescuentoProductos -
-    descuentoGeneral;
-
-  totalEl.innerText =
-    Math.max(
-      0,
-      totalFinal
-    ).toLocaleString();
-
-  actualizarResumenDescuento(
-
-    subtotalGeneral,
-
-    descuentoProductos
-    +
-    descuentoGeneral,
-
-    totalFinal
-  );
+  actualizarResumenVenta();
 }
 
 // =================================
 // RESUMEN
 // =================================
 
-function actualizarResumenDescuento(
+function resetResumenVenta() {
+  const subtotalEl = document.getElementById("subtotalVenta");
+  const descProdEl = document.getElementById("descuentoProductos");
+  const descCarritoEl = document.getElementById("descuentoCarrito");
+  const totalEl = document.getElementById("total");
 
-  subtotal,
-  descuento,
-  total
+  if (subtotalEl) subtotalEl.innerText = "$0";
+  if (descProdEl) descProdEl.innerText = "-$0";
+  if (descCarritoEl) descCarritoEl.innerText = "-$0";
+  if (totalEl) totalEl.innerText = "0";
+}
 
-) {
+function actualizarResumenVenta() {
+  const totales = calcularTotalesVenta();
 
-  const box =
-    document.getElementById(
-      "discountSummary"
-    );
+  const subtotalEl = document.getElementById("subtotalVenta");
+  const descProdEl = document.getElementById("descuentoProductos");
+  const descCarritoEl = document.getElementById("descuentoCarrito");
+  const totalEl = document.getElementById("total");
 
-  if (!box) return;
+  if (subtotalEl) {
+    subtotalEl.innerText = money(totales.subtotal);
+  }
 
-  box.innerHTML = `
+  if (descProdEl) {
+    descProdEl.innerText = `-${money(totales.descuentoProductos)}`;
+  }
 
-    <div class="discount-summary">
+  if (descCarritoEl) {
+    descCarritoEl.innerText = `-${money(totales.descuentoGeneral)}`;
+  }
 
-      <div class="discount-line">
-
-        <span>
-          Subtotal
-        </span>
-
-        <strong>
-          $${subtotal.toLocaleString()}
-        </strong>
-
-      </div>
-
-      <div class="discount-line">
-
-        <span>
-          Descuento
-        </span>
-
-        <strong>
-          -$${Math.round(
-            descuento
-          ).toLocaleString()}
-        </strong>
-
-      </div>
-
-      <div class="discount-total">
-
-        <span>
-          TOTAL
-        </span>
-
-        <span class="final-total">
-          $${Math.max(
-            0,
-            total
-          ).toLocaleString()}
-        </span>
-
-      </div>
-
-    </div>
-  `;
+  if (totalEl) {
+    totalEl.innerText =
+      Number(totales.total || 0).toLocaleString("es-AR");
+  }
 }
 
 // =================================
-// DESCUENTO ITEM
+// FINALIZAR VENTA
 // =================================
 
-function aplicarDescuentoProducto(
+function finalizarVenta(metodo) {
+  if (procesandoVenta) return;
 
-  id,
-  tipo
-
-) {
-
-  const item =
-    carrito.find(
-      p => p.id === id
-    );
-
-  if (!item) return;
-
-  const valor =
-    prompt(
-
-      tipo === "porcentaje"
-      ?
-      "¿Qué porcentaje descontar?"
-      :
-      "¿Qué monto descontar?"
-    );
-
-  if (
-    valor === null
-  ) return;
-
-  item.descuentoTipo =
-    tipo;
-
-  item.descuentoValor =
-    Number(valor || 0);
-
-  renderCarrito();
-}
-
-// =================================
-// DESCUENTO GENERAL
-// =================================
-
-function actualizarDescuentoCarrito() {
-
-  descuentoCarrito.tipo =
-
-    document.getElementById(
-      "tipoDescuentoCarrito"
-    ).value;
-
-  descuentoCarrito.valor =
-
-    Number(
-
-      document.getElementById(
-        "valorDescuentoCarrito"
-      ).value || 0
-    );
-
-  renderCarrito();
-}
-
-// =================================
-// FILTRAR
-// =================================
-
-function filtrarProductos() {
-
-  const texto =
-
-    document
-      .getElementById(
-        "buscador"
-      )
-
-      .value
-
-      .toLowerCase();
-
-  const filtrados =
-
-    productos.filter(p =>
-
-      p.nombre
-        .toLowerCase()
-        .includes(texto)
-    );
-
-  renderProductos(
-    filtrados
-  );
-}
-
-// =================================
-// FINALIZAR
-// =================================
-
-function finalizarVenta(
-  metodo
-) {
-
-  if (
-    window.procesandoVenta
-  ) return;
-
-  window.procesandoVenta =
-    true;
+  procesandoVenta = true;
 
   try {
-
-    if (
-      carrito.length === 0
-    ) {
-
-      showToast(
-        "Carrito vacío",
-        "error"
-      );
-
+    if (carrito.length === 0) {
+      showToast("El carrito está vacío", "error");
       return;
     }
 
-    let ventas =
-      JSON.parse(
-        localStorage.getItem(
-          "ventas"
-        )
-      ) || [];
-
-    let caja =
-      JSON.parse(
-        localStorage.getItem(
-          "caja"
-        )
-      ) || [];
-
-    // =================================
-    // CALCULOS
-    // =================================
-
-    let subtotal = 0;
-
-    let descuentoProductos = 0;
-
-    carrito.forEach(p => {
-
-      subtotal +=
-        p.precio *
-        p.cantidad;
-
-      descuentoProductos +=
-        calcularDescuentoItem(p);
-    });
-
-    const subtotalConDescuento =
-
-      subtotal -
-      descuentoProductos;
-
-    let descuentoGeneral = 0;
-
-    if (
-
-      descuentoCarrito.tipo
-      ===
-      "porcentaje"
-
-    ) {
-
-      descuentoGeneral =
-
-        subtotalConDescuento *
-
-        (
-          Number(
-            descuentoCarrito.valor || 0
-          ) / 100
-        );
-
-    } else {
-
-      descuentoGeneral =
-
-        Number(
-          descuentoCarrito.valor || 0
-        );
-    }
-
-    const total = Math.max(
-
-      0,
-
-      subtotalConDescuento
-      -
-      descuentoGeneral
-    );
-
-    // =================================
-    // GANANCIA
-    // =================================
-
-    const ganancia =
-
-      carrito.reduce(
-
-        (acc, p) => {
-
-          return acc +
-
-            (
-              (
-                p.precio -
-                (p.costo || 0)
-              )
-
-              *
-
-              p.cantidad
-            );
-
-        },
-
-        0
-      );
-
-    // =================================
-    // NUEVA VENTA
-    // =================================
-
-    const nuevaVenta = {
-
-      id: Date.now(),
-
-      fecha:
-        new Date()
-          .toLocaleString(),
-
-      metodo,
-
-      subtotal,
-
-      descuento:
-
-        descuentoProductos
-        +
-        descuentoGeneral,
-
-      total,
-
-      ganancia,
-
-      usuario:
-
-        JSON.parse(
-          localStorage.getItem(
-            "usuario"
-          )
-        )?.nombre || "Local",
-
-      detalle:
-
-        carrito.map(p => ({
-
-          id: p.id,
-
-          nombre: p.nombre,
-
-          precio: p.precio,
-
-          cantidad: p.cantidad,
-
-          descuentoTipo:
-            p.descuentoTipo,
-
-          descuentoValor:
-            p.descuentoValor,
-
-          subtotal:
-            p.precio * p.cantidad
-        }))
-    };
-
-    ventas.push(
-      nuevaVenta
-    );
-
-    localStorage.setItem(
-
-      "ventas",
-
-      JSON.stringify(
-        ventas
-      )
-    );
-
-    // =================================
-    // CAJA
-    // =================================
-
-    caja.push({
-
-      id: Date.now(),
-
-      ventaId:
-        nuevaVenta.id,
-
-      tipo: "ingreso",
-
-      subtotal,
-
-      descuento:
-
-        nuevaVenta.descuento,
-
-      monto: total,
-
-      motivo:
-
-        `Venta (${metodo})`,
-
-      fecha:
-        new Date()
-          .toLocaleString(),
-
-      usuario:
-        nuevaVenta.usuario
-    });
-
-    localStorage.setItem(
-
-      "caja",
-
-      JSON.stringify(caja)
-    );
-
-    // =================================
-    // DESCONTAR STOCK
-    // =================================
-
-    productos = productos.map(prod => {
-
-      const vendido =
-        carrito.find(
-          p => p.id === prod.id
-        );
-
-      if (vendido) {
-
-        return {
-
-          ...prod,
-
-          stock:
-
-            prod.stock
-            -
-            vendido.cantidad
-        };
+    for (const item of carrito) {
+      const producto = productos.find(p => p.id === item.id);
+
+      if (!producto) {
+        showToast(`${item.nombre} ya no existe`, "error");
+        return;
       }
 
-      return prod;
+      if (item.cantidad > Number(producto.stock || 0)) {
+        showToast(`Stock insuficiente de ${item.nombre}`, "error");
+        return;
+      }
+    }
+
+    const ventas = getStorage("ventas");
+    const caja = getStorage("caja");
+    const usuario = getUsuarioActual();
+    const totales = calcularTotalesVenta();
+
+    const detalle = carrito.map(item => {
+      const subtotalItem = item.precio * item.cantidad;
+      const descuentoItem = calcularDescuentoProducto(item);
+      const totalItem = subtotalItem - descuentoItem;
+
+      return {
+        id: item.id,
+        nombre: item.nombre,
+        precio: item.precio,
+        costo: item.costo || 0,
+        cantidad: item.cantidad,
+        descuentoTipo: item.descuentoTipo,
+        descuentoValor: item.descuentoValor,
+        descuento: descuentoItem,
+        subtotal: subtotalItem,
+        total: totalItem
+      };
     });
 
-    localStorage.setItem(
+    const nuevaVenta = {
+      id: Date.now(),
+      fecha: new Date().toLocaleString(),
+      metodo,
+      subtotal: totales.subtotal,
+      descuentoProductos: totales.descuentoProductos,
+      descuentoCarrito: totales.descuentoGeneral,
+      descuento: totales.descuentoTotal,
+      total: totales.total,
+      costoTotal: totales.costoTotal,
+      ganancia: totales.ganancia,
+      usuario,
+      detalle
+    };
 
-      "productos",
+    ventas.push(nuevaVenta);
+    setStorage("ventas", ventas);
 
-      JSON.stringify(productos)
-    );
+    caja.push({
+      id: Date.now(),
+      ventaId: nuevaVenta.id,
+      tipo: "ingreso",
+      subtotal: nuevaVenta.subtotal,
+      descuento: nuevaVenta.descuento,
+      monto: nuevaVenta.total,
+      metodo,
+      motivo: `Venta (${metodo})`,
+      fecha: nuevaVenta.fecha,
+      usuario
+    });
 
-    // =================================
-    // LIMPIAR
-    // =================================
+    setStorage("caja", caja);
+
+    if (typeof agregarHistorial === "function") {
+      agregarHistorial({
+        tipo: "venta",
+        modulo: "Ventas",
+        descripcion:
+          `Venta registrada: ${money(nuevaVenta.total)} ` +
+          `(desc: ${money(nuevaVenta.descuento)})`,
+        monto: nuevaVenta.total
+      });
+    }
+
+    productos = productos.map(prod => {
+      const vendido = carrito.find(p => p.id === prod.id);
+
+      if (!vendido) return prod;
+
+      return {
+        ...prod,
+        stock: Number(prod.stock || 0) - vendido.cantidad
+      };
+    });
+
+    guardarProductos();
 
     carrito = [];
-
     descuentoCarrito = {
-
       tipo: "porcentaje",
-
       valor: 0
     };
 
-    // =================================
-    // UI
-    // =================================
+    const tipoDesc = document.getElementById("tipoDescuentoCarrito");
+    const valorDesc = document.getElementById("valorDescuentoCarrito");
 
-    renderCarrito();
+    if (tipoDesc) tipoDesc.value = "porcentaje";
+    if (valorDesc) valorDesc.value = "";
 
     renderProductos();
+    renderCarrito();
 
-    showToast(
+    showToast("✅ Venta registrada correctamente", "success");
 
-      "✅ Venta registrada",
+    imprimirTicket(nuevaVenta);
 
-      "success"
-    );
-
-    imprimirTicket(
-      nuevaVenta
-    );
-
-  }
-
-  catch(error) {
-
+  } catch (error) {
     console.error(error);
-
+    showToast("Error al registrar la venta", "error");
+  } finally {
+    procesandoVenta = false;
   }
-
-  finally {
-
-    window.procesandoVenta =
-      false;
-  }
-}
-
-// =================================
-// CANTIDADES
-// =================================
-
-function aumentarCantidad(id) {
-
-  const item =
-    carrito.find(
-      p => p.id === id
-    );
-
-  const producto =
-    productos.find(
-      p => p.id === id
-    );
-
-  if (
-    !item
-    ||
-    !producto
-  ) return;
-
-  if (
-
-    item.cantidad >=
-    producto.stock
-
-  ) {
-
-    showToast(
-      `No hay más stock`,
-      "error"
-    );
-
-    return;
-  }
-
-  item.cantidad++;
-
-  renderCarrito();
-}
-
-function disminuirCantidad(id) {
-
-  const item =
-    carrito.find(
-      p => p.id === id
-    );
-
-  if (!item) return;
-
-  item.cantidad--;
-
-  if (
-    item.cantidad <= 0
-  ) {
-
-    carrito =
-      carrito.filter(
-        p => p.id !== id
-      );
-  }
-
-  renderCarrito();
-}
-
-function eliminarDelCarrito(id) {
-
-  carrito =
-    carrito.filter(
-      p => p.id !== id
-    );
-
-  renderCarrito();
-
-  showToast(
-    "Producto eliminado",
-    "info"
-  );
 }
 
 // =================================
 // TICKET
 // =================================
 
-function imprimirTicket(
-  venta
-) {
+function imprimirTicket(venta) {
+
+  function metodoTicket(metodo) {
+    const metodos = {
+      efectivo: "EFECTIVO",
+      transferencia: "TRANSFERENCIA",
+      mp: "MERCADO PAGO",
+      qr: "QR",
+      qr_banco: "QR BANCO",
+      promo_bn: "PROMO NACIÓN"
+    };
+
+    return metodos[metodo] || metodo || "-";
+  }
+
+  function lineaProducto(item) {
+    const cantidad = item.cantidad || 0;
+    const nombre = String(item.nombre || "Producto").slice(0, 18);
+    const total = Number(item.total || item.subtotal || 0);
+
+    return `${cantidad}x ${nombre.padEnd(18, " ")} ${money(total)}`;
+  }
+
+  const detalle = (venta.detalle || [])
+    .map(item => lineaProducto(item))
+    .join("\n");
 
   const contenido = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket</title>
 
-  <html>
+  <style>
+    @page {
+      size: 58mm auto;
+      margin: 0;
+    }
 
-  <head>
+    body {
+      font-family: "Courier New", monospace;
+      width: 58mm;
+      margin: 0;
+      padding: 6px;
+      background: #fff;
+      color: #000;
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
 
-    <title>
-      Ticket
-    </title>
+    .center {
+      text-align: center;
+    }
 
-    <style>
+    .logo {
+      width: 120px;
+      max-height: 70px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 4px auto;
+      filter: grayscale(1) contrast(1.4);
+    }
 
-      body {
+    .brand {
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
 
-        font-family:
-          monospace;
+    .small {
+      font-size: 10px;
+    }
 
-        padding: 20px;
+    .line {
+      border-top: 1px dashed #000;
+      margin: 7px 0;
+    }
 
-        width: 300px;
-      }
+    pre {
+      font-family: "Courier New", monospace;
+      white-space: pre-wrap;
+      margin: 0;
+    }
 
-      h2 {
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
 
-        text-align:
-          center;
-      }
+    .total {
+      font-size: 17px;
+      font-weight: bold;
+      text-align: center;
+      margin: 8px 0;
+    }
 
-      .linea {
+    img {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  </style>
+</head>
 
-        border-top:
-          1px dashed #000;
+<body>
 
-        margin: 10px 0;
-      }
+  <div class="center">
+    <img
+      src="assets/icons/images/logo1.png"
+      class="logo"
+      onerror="this.style.display='none'"
+    >
 
-      .item {
+    
 
-        display: flex;
+  <div class="line"></div>
 
-        justify-content:
-          space-between;
+  <pre>Fecha: ${venta.fecha || "-"}
+Usuario: Lodefausti
+Venta Nº: ${venta.id || "-"}
+Metodo: ${metodoTicket(venta.metodo)}</pre>
 
-        margin: 5px 0;
-      }
+  <div class="line"></div>
 
-      .total {
+  <pre>${detalle}</pre>
 
-        font-size: 22px;
+  <div class="line"></div>
 
-        font-weight: bold;
-      }
+  <div class="row">
+    <span>Subtotal:</span>
+    <strong>${money(venta.subtotal || venta.total || 0)}</strong>
+  </div>
 
-    </style>
+  <div class="row">
+    <span>Descuento:</span>
+    <strong>-${money(venta.descuento || 0)}</strong>
+  </div>
 
-  </head>
+  <div class="line"></div>
 
-  <body>
+  <div class="total">
+    TOTAL<br>
+    ${money(venta.total || 0)}
+  </div>
 
-    <h2>
-      LO DE FAUSTI
-    </h2>
+  <div class="line"></div>
 
-    <p>
-      Fecha:
-      ${venta.fecha}
-    </p>
+  <div class="center">
+    Gracias por su compra<br>
+    @lodefausti.congelados
+  </div>
 
-    <div class="linea"></div>
+  <script>
+    window.onload = function () {
+      setTimeout(function () {
+        window.print();
+        setTimeout(function () {
+          window.close();
+        }, 600);
+      }, 300);
+    };
+  </script>
 
-    ${venta.detalle.map(item => `
+</body>
+</html>
+`;
 
-      <div class="item">
+  const ventana = window.open("", "_blank", "width=300,height=600");
 
-        <span>
+  if (!ventana) {
+    showToast("El navegador bloqueó el ticket", "error");
+    return;
+  }
 
-          ${item.cantidad}x ${item.nombre}
-
-        </span>
-
-        <span>
-
-          $${(
-
-            item.precio *
-            item.cantidad
-
-          ).toLocaleString()}
-
-        </span>
-
-      </div>
-
-    `).join("")}
-
-    <div class="linea"></div>
-
-    <p>
-      Subtotal:
-      $${venta.subtotal.toLocaleString()}
-    </p>
-
-    <p>
-      Descuento:
-      -$${Math.round(
-        venta.descuento
-      ).toLocaleString()}
-    </p>
-
-    <p class="total">
-      TOTAL:
-      $${venta.total.toLocaleString()}
-    </p>
-
-    <p>
-      Método:
-      ${venta.metodo}
-    </p>
-
-    <br>
-
-    <center>
-      ¡Gracias por su compra!
-    </center>
-
-    <script>
-      window.print();
-      window.close();
-    </script>
-
-  </body>
-
-  </html>
-  `;
-
-  const ventana =
-    window.open(
-      "",
-      "_blank",
-      "width=400,height=600"
-    );
-
-  ventana.document.write(
-    contenido
-  );
-
+  ventana.document.open();
+  ventana.document.write(contenido);
   ventana.document.close();
 }
-
 // =================================
 // INIT
 // =================================
 
-renderProductos();
-
-renderCarrito();
+document.addEventListener("DOMContentLoaded", () => {
+  renderProductos();
+  renderCarrito();
+});

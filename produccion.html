@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producción</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>
-    Producción
-  </title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/sidebar.css">
@@ -25,248 +15,251 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link rel="stylesheet" href="css/produccion.css">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
 
 <div class="layout">
 
-  <!-- ================================= -->
-  <!-- SIDEBAR -->
-  <!-- ================================= -->
-
-  <aside
-    class="sidebar"
-    id="sidebar"
-  >
+  <aside class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-
       <div class="brand">
-
         <div class="brand-icon">
-
-          <img
-            src="assets/icons/images/logo.png"
-            alt="FAUSTI"
-          >
-
+          <img src="assets/icons/images/logo.png" alt="FAUSTI">
         </div>
-
       </div>
-
     </div>
 
     <nav class="sidebar-nav">
 
-      <a href="index.html" class="nav-link ">
+      <a href="index.html" class="nav-link">
+        <i class="fa-solid fa-house"></i>
+        <b>Inicio</b>
+      </a>
 
-  <i class="fa-solid fa-house"></i>
-
-  <b>Inicio</b>
-
-</a>
-
-      <a href="ventas.html" class="nav-link ">
-
-  <i class="fa-solid fa-cart-shopping"></i>
-
-  <b>Ventas</b>
-
-</a>
+      <a href="ventas.html" class="nav-link">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <b>Ventas</b>
+      </a>
 
       <a href="productos.html" class="nav-link">
+        <i class="fa-solid fa-box"></i>
+        <b>Productos</b>
+      </a>
 
-  <i class="fa-solid fa-box"></i>
+      <a href="caja.html" class="nav-link">
+        <i class="fa-solid fa-cash-register"></i>
+        <b>Caja</b>
+      </a>
 
-  <b>Productos</b>
-
-</a>
-
-      <a href="caja.html" class="nav-link ">
-
-  <i class="fa-solid fa-cash-register"></i>
-
-  <b>Caja</b>
-
-</a>
       <a href="produccion.html" class="nav-link active">
-
-  <i class="fa-solid fa-industry"></i>
-
-  <b>Producción</b>
-
-</a>
+        <i class="fa-solid fa-industry"></i>
+        <b>Producción</b>
+      </a>
 
       <a href="proveedores.html" class="nav-link">
+        <i class="fa-solid fa-truck"></i>
+        <b>Proveedores</b>
+      </a>
 
-  <i class="fa-solid fa-truck"></i>
-
-  <b>Proveedores</b>
-
-</a>
+      <a href="historial.html" class="nav-link">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <b>Historial</b>
+      </a>
 
     </nav>
 
+    <div class="user-box">
+      <div class="user-info">
+        <small class="user-role">Sesión activa</small>
+      </div>
+
+      <button type="button" onclick="logout()" class="switch-btn">
+        Cerrar Sesión
+      </button>
+    </div>
+
   </aside>
 
-  <!-- OVERLAY -->
-  <div
-    id="sidebarOverlay"
-    class="sidebar-overlay"
-    onclick="toggleSidebar()"
-  ></div>
-
-  <!-- ================================= -->
-  <!-- MAIN -->
-  <!-- ================================= -->
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <main class="main">
 
-    <!-- TOPBAR -->
     <div class="topbar">
 
-      <h2>
-        Producción
-      </h2>
-
-      <button
-        class="menu-toggle"
-        onclick="toggleSidebar()"
-      >
+      <button class="menu-toggle" onclick="toggleSidebar()">
         ☰
       </button>
 
+      
+
     </div>
 
-    <!-- ================================= -->
-    <!-- CONTENT -->
-    <!-- ================================= -->
+    <div class="page-content produccion-page">
 
-    <div class="page-content">
+      <section class="produccion-hero fade-in">
+        <div>
+          <span>Gestión de elaboración</span>
+          <h1>Control de producción</h1>
+          <p>
+            Creá recetas, cargá ingredientes, calculá costos y producí stock final descontando insumos automáticamente.
+          </p>
+        </div>
+      </section>
 
-      <!-- ================================= -->
-      <!-- CREAR RECETA -->
-      <!-- ================================= -->
+      <div class="stats-grid fade-in">
 
-      <div class="box fade-in">
+        <div class="stat-card">
+          <h3>Recetas</h3>
+          <h2 id="totalRecetas">0</h2>
+          <p>Recetas creadas</p>
+        </div>
 
-        <h3>
-          Crear receta
-        </h3>
+        <div class="stat-card">
+          <h3>Producciones</h3>
+          <h2 id="totalProducciones">0</h2>
+          <p>Registros realizados</p>
+        </div>
 
-        <div class="form product-form">
+        <div class="stat-card">
+          <h3>Costo total</h3>
+          <h2 id="costoProduccion">$0</h2>
+          <p>Acumulado histórico</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Producción semanal</h3>
+          <h2 id="produccionSemanal">0</h2>
+          <p>Últimos 7 días</p>
+        </div>
+
+      </div>
+
+      <div class="box fade-in produccion-box">
+
+        <div class="table-header">
+          <div>
+            <h3>Crear receta</h3>
+            <p>Definí el producto elaborado y la cantidad base</p>
+          </div>
+        </div>
+
+        <div class="form product-form produccion-form">
 
           <input
             type="text"
             id="nombreReceta"
-            placeholder="Nombre receta"
+            placeholder="Nombre receta o producto final"
           >
 
           <input
             type="number"
             id="cantidadProduccion"
             placeholder="Cantidad base producida"
+            min="1"
           >
 
-          <button
-            onclick="crearReceta()"
-          >
-
+          <button type="button" onclick="crearReceta()">
             Crear receta
-
           </button>
 
         </div>
 
       </div>
 
-      <!-- ================================= -->
-      <!-- INGREDIENTES -->
-      <!-- ================================= -->
-
-      <div class="table-box fade-in">
+      <div class="box fade-in produccion-box">
 
         <div class="table-header">
-
-          <h3>
-            Ingredientes receta
-          </h3>
-
+          <div>
+            <h3>Recetas guardadas</h3>
+            <p>Seleccioná, revisá o producí según stock disponible</p>
+          </div>
         </div>
 
-        <div class="form product-form">
-
-          <select id="productoIngrediente"></select>
-
-          <input
-            type="number"
-            id="cantidadIngrediente"
-            placeholder="Cantidad ingrediente"
-          >
-
-          <button
-            onclick="agregarIngrediente()"
-          >
-
-            Agregar ingrediente
-
-          </button>
-
-        </div>
-
-        <table class="pro-table">
-
-          <thead>
-
-            <tr>
-
-              <th>
-                Producto
-              </th>
-
-              <th>
-                Cantidad
-              </th>
-
-              <th>
-                Acción
-              </th>
-
-            </tr>
-
-          </thead>
-
-          <tbody id="listaIngredientes">
-
-            <tr>
-
-              <td colspan="3">
-
-                No hay ingredientes
-
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        <div id="recetasGrid" class="recetas-grid"></div>
 
       </div>
 
-      <!-- ================================= -->
-      <!-- PRODUCIR -->
-      <!-- ================================= -->
+      <div class="produccion-grid">
 
-      <div class="box fade-in">
+        <div class="table-box fade-in">
 
-        <h3>
-          Producción
-        </h3>
+          <div class="table-header">
+            <div>
+              <h3>Ingredientes receta</h3>
+              <p>Agregá insumos o productos que se consumen</p>
+            </div>
+          </div>
 
-        <div class="form product-form">
+          <div class="form product-form produccion-form">
+
+            <select id="productoIngrediente"></select>
+
+            <input
+              type="number"
+              id="cantidadIngrediente"
+              placeholder="Cantidad ingrediente"
+              min="0"
+              step="0.01"
+            >
+
+            <button type="button" onclick="agregarIngrediente()">
+              Agregar ingrediente
+            </button>
+
+          </div>
+
+          <table class="pro-table">
+
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad base</th>
+                <th>Unidad</th>
+                <th>Costo</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+
+            <tbody id="listaIngredientes">
+              <tr>
+                <td colspan="5">No hay ingredientes</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <div class="box fade-in produccion-box">
+
+          <div class="table-header">
+            <div>
+              <h3>Resumen receta</h3>
+              <p>Costo, capacidad y alertas</p>
+            </div>
+          </div>
+
+          <div id="resumenReceta" class="recipe-summary"></div>
+
+        </div>
+
+      </div>
+
+      <div class="box fade-in produccion-box">
+
+        <div class="table-header">
+          <div>
+            <h3>Producir</h3>
+            <p>Seleccioná una receta y generá stock terminado</p>
+          </div>
+        </div>
+
+        <div class="form product-form produccion-form">
 
           <select id="recetaProduccion"></select>
 
@@ -274,120 +267,44 @@
             type="number"
             id="cantidadFinal"
             placeholder="Cantidad a producir"
+            min="1"
           >
 
-          <button
-            onclick="producir()"
-          >
-
+          <button type="button" onclick="producir()">
             Producir
-
           </button>
 
         </div>
 
       </div>
 
-      <!-- ================================= -->
-      <!-- STATS -->
-      <!-- ================================= -->
-
-      <div class="stats-grid fade-in">
-
-        <div class="stat-card">
-
-          <h3>
-            Producciones
-          </h3>
-
-          <h2 id="totalProducciones">
-            0
-          </h2>
-
-        </div>
-
-        <div class="stat-card">
-
-          <h3>
-            Costo total
-          </h3>
-
-          <h2 id="costoProduccion">
-            $0
-          </h2>
-
-        </div>
-
-        <div class="stat-card">
-
-          <h3>
-            Producción semanal
-          </h3>
-
-          <h2 id="produccionSemanal">
-            0
-          </h2>
-
-        </div>
-
-      </div>
-
-      <!-- ================================= -->
-      <!-- HISTORIAL -->
-      <!-- ================================= -->
-
       <div class="table-box fade-in">
 
         <div class="table-header">
-
-          <h3>
-            Historial producción
-          </h3>
-
+          <div>
+            <h3>Historial producción</h3>
+            <p>Producciones realizadas con costo total y unitario</p>
+          </div>
         </div>
 
         <table class="pro-table">
 
           <thead>
-
             <tr>
-
-              <th>
-                Receta
-              </th>
-
-              <th>
-                Cantidad
-              </th>
-
-              <th>
-                Costo Total
-              </th>
-
-              <th>
-                Costo Unitario
-              </th>
-
-              <th>
-                Fecha
-              </th>
-
+              <th>Lote</th>
+              <th>Receta</th>
+              <th>Cantidad</th>
+              <th>Costo Total</th>
+              <th>Costo Unitario</th>
+              <th>Fecha</th>
+              <th>Detalle</th>
             </tr>
-
           </thead>
 
           <tbody id="historialProduccion">
-
             <tr>
-
-              <td colspan="5">
-
-                No hay producción
-
-              </td>
-
+              <td colspan="7">No hay producción</td>
             </tr>
-
           </tbody>
 
         </table>
@@ -400,20 +317,11 @@
 
 </div>
 
-<!-- ================================= -->
-<!-- SCRIPTS -->
-<!-- ================================= -->
-
 <script defer src="js/storage.js"></script>
-
 <script defer src="js/auth.js"></script>
-
 <script defer src="js/toast.js"></script>
-
 <script defer src="js/roles.js"></script>
-
 <script defer src="js/produccion.js"></script>
-
 <script defer src="js/app.js"></script>
 
 </body>

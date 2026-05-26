@@ -126,13 +126,13 @@
 
       <div class="topbar-left">
         <div>
-          <h2>Caja diaria</h2>
-          <p>Control rápido y simple del dinero del local</p>
+          <h2>💰 Caja PRO</h2>
+          <p>Control diario de efectivo, medios digitales y movimientos</p>
         </div>
       </div>
 
       <div class="caja-status" id="estadoCaja">
-        Caja sin abrir
+        Caja cerrada
       </div>
 
     </div>
@@ -142,7 +142,7 @@
       <!-- RESUMEN PRINCIPAL -->
       <div class="stats-grid fade-in">
 
-        <div class="stat-card">
+        <div class="stat-card primary-card">
           <h3>Saldo actual</h3>
           <h2 id="saldoCaja">$0</h2>
           <p>Efectivo disponible en caja</p>
@@ -157,13 +157,13 @@
         <div class="stat-card">
           <h3>Digital</h3>
           <h2 id="totalDigital">$0</h2>
-          <p>Transferencias, MP, QR y bancos</p>
+          <p>Transferencia, MP, QR y bancos</p>
         </div>
 
         <div class="stat-card">
           <h3>Ventas del día</h3>
           <h2 id="totalVendido">$0</h2>
-          <p>Total vendido registrado</p>
+          <p>Total final vendido</p>
         </div>
 
       </div>
@@ -182,7 +182,7 @@
 
           <button
             type="button"
-            class="action-card"
+            class="action-card action-open"
             onclick="abrirModalCaja('apertura')"
           >
             <i class="fa-solid fa-lock-open"></i>
@@ -192,7 +192,7 @@
 
           <button
             type="button"
-            class="action-card"
+            class="action-card action-income"
             onclick="abrirModalCaja('ingreso')"
           >
             <i class="fa-solid fa-plus"></i>
@@ -202,7 +202,7 @@
 
           <button
             type="button"
-            class="action-card"
+            class="action-card action-expense"
             onclick="abrirModalCaja('egreso')"
           >
             <i class="fa-solid fa-minus"></i>
@@ -212,12 +212,12 @@
 
           <button
             type="button"
-            class="action-card"
+            class="action-card action-close"
             onclick="abrirModalCaja('cierre')"
           >
             <i class="fa-solid fa-lock"></i>
             <span>Cerrar caja</span>
-            <small>Retirar dinero de caja</small>
+            <small>Registrar retiro final</small>
           </button>
 
         </div>
@@ -379,6 +379,7 @@
         id="modalCajaMonto"
         placeholder="Monto"
         min="0"
+        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); confirmarModalCaja(); }"
       >
 
       <input
@@ -386,6 +387,7 @@
         id="modalCajaMotivo"
         placeholder="Motivo"
         autocomplete="off"
+        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); confirmarModalCaja(); }"
       >
 
     </div>

@@ -1,994 +1,528 @@
 // =================================
-// STORAGE
+// CAJA PRO V2 - LO DE FAUSTI
 // =================================
 
-let caja =
-  JSON.parse(
-    localStorage.getItem("caja")
-  ) || [];
+let caja = JSON.parse(localStorage.getItem("caja")) || [];
+let aperturas = JSON.parse(localStorage.getItem("aperturasCaja")) || [];
 
-let aperturas =
-  JSON.parse(
-    localStorage.getItem("aperturasCaja")
-  ) || [];
-
-// =================================
 // HELPERS
-// =================================
-
 function obtenerVentas() {
-
-  return JSON.parse(
-    localStorage.getItem("ventas")
-  ) || [];
+  return JSON.parse(localStorage.getItem("ventas")) || [];
 }
 
 function obtenerUsuario() {
-
-  return JSON.parse(
-    localStorage.getItem("usuario")
-  )?.nombre || "Local";
+  return JSON.parse(localStorage.getItem("usuario"))?.nombre || "Local";
 }
 
-function guardar() {
-
-  localStorage.setItem(
-    "caja",
-    JSON.stringify(caja)
-  );
-
-  localStorage.setItem(
-    "aperturasCaja",
-    JSON.stringify(aperturas)
-  );
+function guardarCaja() {
+  localStorage.setItem("caja", JSON.stringify(caja));
+  localStorage.setItem("aperturasCaja", JSON.stringify(aperturas));
 }
 
 function formatoMoneda(valor) {
-
-  return `$${Number(valor || 0).toLocaleString()}`;
+  return `$${Number(valor || 0).toLocaleString("es-AR")}`;
 }
 
 function setTexto(id, valor) {
-
-  const el =
-    document.getElementById(id);
-
-  if (el) {
-    el.innerText = valor;
-  }
-}
-
-function formatearMetodo(metodo) {
-
-  switch (metodo) {
-
-    case "efectivo":
-      return "EFECTIVO";
-
-    case "transferencia":
-      return "TRANSFERENCIA";
-
-    case "mp":
-      return "MERCADO PAGO";
-
-    case "qr":
-      return "QR";
-
-    case "qr_banco":
-      return "QR BANCO";
-
-    case "promo_bn":
-      return "PROMO NACIÓN";
-
-    default:
-      return metodo || "-";
-  }
+  const el = document.getElementById(id);
+  if (el) el.innerText = valor;
 }
 
 function avisar(mensaje, tipo = "info") {
-
   if (typeof showToast === "function") {
-
     showToast(mensaje, tipo);
-
   } else {
-
     alert(mensaje);
   }
 }
 
-// =================================
-// CALCULAR CAJA
-// =================================
-
-function calcularCaja() {
-
-  const ventas =
-    obtenerVentas();
-
-  const totalPorMetodo = metodo => {
-
-    return ventas
-      .filter(v =>
-        v.metodo === metodo
-      )
-      .reduce(
-        (acc, v) =>
-          acc + Number(v.total || 0),
-        0
-      );
+function formatearMetodo(metodo) {
+  const nombres = {
+    efectivo: "EFECTIVO",
+    transferencia: "TRANSFERENCIA",
+    mp: "MERCADO PAGO",
+    qr: "QR",
+    qr_banco: "QR BANCO",
+    promo_bn: "PROMO NACIÓN"
   };
 
-  const efectivo =
-    totalPorMetodo("efectivo");
+  return nombres[metodo] || metodo || "-";
+}
 
-  const transferencia =
-    totalPorMetodo("transferencia");
+function esApertura(m) {
+  return (
+    m.tipo === "apertura" ||
+    String(m.motivo || "").toLowerCase().includes("apertura")
+  );
+}
 
-  const mercadoPago =
-    totalPorMetodo("mp");
+function esCierre(m) {
+  return (
+    m.tipo === "cierre" ||
+    String(m.motivo || "").toLowerCase().includes("cierre")
+  );
+}
 
-  const qr =
-    totalPorMetodo("qr");
+// CALCULAR CAJA
+function calcularCaja() {
+  const ventas = obtenerVentas();
 
-  const qrBanco =
-    totalPorMetodo("qr_banco");
+  const porMetodo = metodo =>
+    ventas
+      .filter(v => v.metodo === metodo)
+      .reduce((acc, v) => acc + Number(v.total || 0), 0);
 
-  const promoNacion =
-    totalPorMetodo("promo_bn");
+  const efectivo = porMetodo("efectivo");
+  const transferencia = porMetodo("transferencia");
+  const mercadoPago = porMetodo("mp");
+  const qr = porMetodo("qr");
+  const qrBanco = porMetodo("qr_banco");
+  const promoNacion = porMetodo("promo_bn");
 
   const totalDigital =
-    transferencia +
-    mercadoPago +
-    qr +
-    qrBanco +
-    promoNacion;
+    transferencia + mercadoPago + qr + qrBanco + promoNacion;
 
-  const totalVendido =
-    ventas.reduce(
-      (acc, v) =>
-        acc + Number(v.total || 0),
-      0
-    );
+  const totalVendido = ventas.reduce(
+    (acc, v) => acc + Number(v.total || 0),
+    0
+  );
 
-  const ingresosManuales =
-    caja
-      .filter(m =>
-        m.tipo === "ingreso" &&
-        !m.ventaId
-      )
-      .reduce(
-        (acc, m) =>
-          acc + Number(m.monto || 0),
-        0
-      );
+  const totalDescuentos = ventas.reduce(
+    (acc, v) => acc + Number(v.descuento || 0),
+    0
+  );
 
-  const egresos =
-    caja
-      .filter(m =>
-        m.tipo === "egreso"
-      )
-      .reduce(
-        (acc, m) =>
-          acc + Number(m.monto || 0),
-        0
-      );
+  const aperturasMonto = caja
+    .filter(m => esApertura(m))
+    .reduce((acc, m) => acc + Number(m.monto || 0), 0);
+
+  const ingresosManuales = caja
+    .filter(m => m.tipo === "ingreso" && !m.ventaId && !esApertura(m))
+    .reduce((acc, m) => acc + Number(m.monto || 0), 0);
+
+  const egresos = caja
+    .filter(m => m.tipo === "egreso" && !esCierre(m))
+    .reduce((acc, m) => acc + Number(m.monto || 0), 0);
+
+  const cierresMonto = caja
+    .filter(m => esCierre(m))
+    .reduce((acc, m) => acc + Number(m.monto || 0), 0);
 
   const saldo =
-    efectivo +
-    ingresosManuales -
-    egresos;
+    aperturasMonto + efectivo + ingresosManuales - egresos - cierresMonto;
 
-  const diezPorciento =
-    totalVendido * 0.10;
+  const diezPorciento = totalVendido * 0.10;
+
+  const ultimoMovimiento = [...caja].reverse()[0];
+
+  const cajaAbierta =
+    caja.some(m => esApertura(m)) &&
+    !esCierre(ultimoMovimiento || {});
 
   return {
-
     efectivo,
-
     transferencia,
-
     mercadoPago,
-
     qr,
-
     qrBanco,
-
     promoNacion,
-
     totalDigital,
-
     totalVendido,
-
+    totalDescuentos,
+    aperturasMonto,
     ingresosManuales,
-
     egresos,
-
+    cierresMonto,
     saldo,
-
-    diezPorciento
+    diezPorciento,
+    cajaAbierta,
+    movimientos: caja.length
   };
 }
 
-// =================================
 // MODAL
-// =================================
-
 function abrirModalCaja(tipo) {
+  const modal = document.getElementById("modalCaja");
+  const titulo = document.getElementById("modalCajaTitulo");
+  const texto = document.getElementById("modalCajaTexto");
+  const tipoInput = document.getElementById("modalCajaTipo");
+  const monto = document.getElementById("modalCajaMonto");
+  const motivo = document.getElementById("modalCajaMotivo");
 
-  const modal =
-    document.getElementById(
-      "modalCaja"
-    );
-
-  const titulo =
-    document.getElementById(
-      "modalCajaTitulo"
-    );
-
-  const texto =
-    document.getElementById(
-      "modalCajaTexto"
-    );
-
-  const tipoInput =
-    document.getElementById(
-      "modalCajaTipo"
-    );
-
-  const motivo =
-    document.getElementById(
-      "modalCajaMotivo"
-    );
+  if (!modal || !titulo || !texto || !tipoInput || !monto || !motivo) return;
 
   tipoInput.value = tipo;
+  monto.value = "";
+  motivo.value = "";
 
-  motivo.style.display =
-    "block";
+  const config = {
+    apertura: {
+      titulo: "Abrir caja",
+      texto: "Ingresá el monto inicial de efectivo.",
+      motivo: "Apertura de caja"
+    },
+    ingreso: {
+      titulo: "Registrar ingreso",
+      texto: "Agregá dinero manual a la caja.",
+      motivo: ""
+    },
+    egreso: {
+      titulo: "Registrar egreso",
+      texto: "Registrá un gasto o retiro de caja.",
+      motivo: ""
+    },
+    cierre: {
+      titulo: "Cerrar caja",
+      texto: "Ingresá el efectivo retirado al cierre.",
+      motivo: "Cierre de caja"
+    }
+  };
 
-  switch (tipo) {
+  titulo.innerText = config[tipo].titulo;
+  texto.innerText = config[tipo].texto;
+  motivo.value = config[tipo].motivo;
 
-    case "apertura":
-
-      titulo.innerText =
-        "Abrir caja";
-
-      texto.innerText =
-        "Ingresá el monto inicial.";
-
-      motivo.value =
-        "Apertura de caja";
-
-      break;
-
-    case "ingreso":
-
-      titulo.innerText =
-        "Registrar ingreso";
-
-      texto.innerText =
-        "Ingresá dinero manual.";
-
-      motivo.value = "";
-
-      break;
-
-    case "egreso":
-
-      titulo.innerText =
-        "Registrar egreso";
-
-      texto.innerText =
-        "Registrá un gasto o retiro.";
-
-      motivo.value = "";
-
-      break;
-
-    case "cierre":
-
-      titulo.innerText =
-        "Cerrar caja";
-
-      texto.innerText =
-        "Ingresá el retiro final.";
-
-      motivo.value =
-        "Cierre de caja";
-
-      break;
-  }
-
-  modal.classList.remove(
-    "hidden"
-  );
+  modal.classList.remove("hidden");
+  monto.focus();
 }
 
 function cerrarModalCaja() {
+  document.getElementById("modalCaja")?.classList.add("hidden");
 
-  document
-    .getElementById(
-      "modalCaja"
-    )
-    .classList.add(
-      "hidden"
-    );
+  const monto = document.getElementById("modalCajaMonto");
+  const motivo = document.getElementById("modalCajaMotivo");
 
-  document.getElementById(
-    "modalCajaMonto"
-  ).value = "";
-
-  document.getElementById(
-    "modalCajaMotivo"
-  ).value = "";
+  if (monto) monto.value = "";
+  if (motivo) motivo.value = "";
 }
 
 function confirmarModalCaja() {
+  const tipo = document.getElementById("modalCajaTipo")?.value;
+  const monto = Number(document.getElementById("modalCajaMonto")?.value || 0);
+  const motivo = document.getElementById("modalCajaMotivo")?.value.trim();
 
-  const tipo =
-    document.getElementById(
-      "modalCajaTipo"
-    ).value;
+  if (!tipo) return;
 
-  const monto =
-    Number(
-      document.getElementById(
-        "modalCajaMonto"
-      ).value
-    );
-
-  const motivo =
-    document
-      .getElementById(
-        "modalCajaMotivo"
-      )
-      .value
-      .trim();
-
-  if (
-    isNaN(monto) ||
-    monto <= 0
-  ) {
-
-    avisar(
-      "Monto inválido",
-      "error"
-    );
-
+  if (isNaN(monto) || monto <= 0) {
+    avisar("Monto inválido", "error");
     return;
   }
 
-  const resumen =
-    calcularCaja();
+  const resumen = calcularCaja();
 
-  if (
-    tipo === "egreso" &&
-    monto > resumen.saldo
-  ) {
-
-    avisar(
-      "Saldo insuficiente",
-      "error"
-    );
-
+  if ((tipo === "egreso" || tipo === "cierre") && monto > resumen.saldo) {
+    avisar("No podés retirar más del saldo disponible", "error");
     return;
   }
 
-  if (
-    tipo === "cierre" &&
-    monto > resumen.saldo
-  ) {
+  const fecha = new Date().toLocaleString();
+  const usuario = obtenerUsuario();
 
-    avisar(
-      "No podés retirar más del saldo",
-      "error"
-    );
-
-    return;
-  }
-
-  const fecha =
-    new Date();
-
-  // APERTURA
   if (tipo === "apertura") {
-
-    aperturas.push({
-
+    caja.push({
       id: Date.now(),
-
       tipo: "apertura",
-
       monto,
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
+      motivo: motivo || "Apertura de caja",
+      usuario,
+      fecha
     });
-
-    caja.push({
-
-      id: Date.now() + 1,
-
-      tipo: "ingreso",
-
-      monto,
-
-      motivo:
-        motivo || "Apertura de caja",
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
-    });
-
-    avisar(
-      "Caja abierta",
-      "success"
-    );
-  }
-
-  // INGRESO
-  if (tipo === "ingreso") {
-
-    caja.push({
-
-      id: Date.now(),
-
-      tipo: "ingreso",
-
-      monto,
-
-      motivo,
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
-    });
-
-    avisar(
-      "Ingreso registrado",
-      "success"
-    );
-  }
-
-  // EGRESO
-  if (tipo === "egreso") {
-
-    caja.push({
-
-      id: Date.now(),
-
-      tipo: "egreso",
-
-      monto,
-
-      motivo,
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
-    });
-
-    avisar(
-      "Egreso registrado",
-      "info"
-    );
-  }
-
-  // CIERRE
-  if (tipo === "cierre") {
 
     aperturas.push({
-
       id: Date.now(),
-
-      tipo: "cierre",
-
+      tipo: "apertura",
       monto,
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
+      usuario,
+      fecha
     });
 
-    caja.push({
-
-      id: Date.now(),
-
-      tipo: "egreso",
-
-      monto,
-
-      motivo:
-        motivo || "Cierre de caja",
-
-      usuario:
-        obtenerUsuario(),
-
-      fecha:
-        fecha.toLocaleString()
-    });
-
-    avisar(
-      "Caja cerrada",
-      "info"
-    );
+    avisar("Caja abierta correctamente", "success");
   }
 
-  guardar();
+  if (tipo === "ingreso") {
+    caja.push({
+      id: Date.now(),
+      tipo: "ingreso",
+      monto,
+      motivo: motivo || "Ingreso manual",
+      usuario,
+      fecha
+    });
 
-  actualizarCaja();
+    avisar("Ingreso registrado", "success");
+  }
 
+  if (tipo === "egreso") {
+    caja.push({
+      id: Date.now(),
+      tipo: "egreso",
+      monto,
+      motivo: motivo || "Egreso manual",
+      usuario,
+      fecha
+    });
+
+    avisar("Egreso registrado", "info");
+  }
+
+  if (tipo === "cierre") {
+    caja.push({
+      id: Date.now(),
+      tipo: "cierre",
+      monto,
+      motivo: motivo || "Cierre de caja",
+      usuario,
+      fecha
+    });
+
+    aperturas.push({
+      id: Date.now(),
+      tipo: "cierre",
+      monto,
+      usuario,
+      fecha
+    });
+
+    avisar("Caja cerrada", "info");
+  }
+
+  guardarCaja();
   cerrarModalCaja();
+  actualizarCaja();
 }
 
-// =================================
 // STATS
-// =================================
-
 function renderStatsCaja() {
+  const r = calcularCaja();
 
-  const resumen =
-    calcularCaja();
+  setTexto("saldoCaja", formatoMoneda(r.saldo));
+  setTexto("totalEfectivo", formatoMoneda(r.efectivo));
+  setTexto("totalDigital", formatoMoneda(r.totalDigital));
+  setTexto("totalVendido", formatoMoneda(r.totalVendido));
 
-  setTexto(
-    "totalEfectivo",
-    formatoMoneda(
-      resumen.efectivo
-    )
-  );
+  setTexto("ingresosCaja", formatoMoneda(r.ingresosManuales));
+  setTexto("egresosCaja", formatoMoneda(r.egresos));
+  setTexto("diezPorciento", formatoMoneda(r.diezPorciento));
+  setTexto("movimientosCaja", r.movimientos);
 
-  setTexto(
-    "totalDigital",
-    formatoMoneda(
-      resumen.totalDigital
-    )
-  );
+  setTexto("totalTransferencia", formatoMoneda(r.transferencia));
+  setTexto("totalMP", formatoMoneda(r.mercadoPago));
+  setTexto("totalQR", formatoMoneda(r.qr));
+  setTexto("totalQRBanco", formatoMoneda(r.qrBanco));
+  setTexto("totalPromoBN", formatoMoneda(r.promoNacion));
 
-  setTexto(
-    "saldoCaja",
-    formatoMoneda(
-      resumen.saldo
-    )
-  );
-
-  setTexto(
-    "totalVendido",
-    formatoMoneda(
-      resumen.totalVendido
-    )
-  );
-
-  setTexto(
-    "ingresosCaja",
-    formatoMoneda(
-      resumen.ingresosManuales
-    )
-  );
-
-  setTexto(
-    "egresosCaja",
-    formatoMoneda(
-      resumen.egresos
-    )
-  );
-
-  setTexto(
-    "diezPorciento",
-    formatoMoneda(
-      resumen.diezPorciento
-    )
-  );
-
-  setTexto(
-    "movimientosCaja",
-    caja.length
-  );
-
-  setTexto(
-    "totalTransferencia",
-    formatoMoneda(
-      resumen.transferencia
-    )
-  );
-
-  setTexto(
-    "totalMP",
-    formatoMoneda(
-      resumen.mercadoPago
-    )
-  );
-
-  setTexto(
-    "totalQR",
-    formatoMoneda(
-      resumen.qr
-    )
-  );
-
-  setTexto(
-    "totalQRBanco",
-    formatoMoneda(
-      resumen.qrBanco
-    )
-  );
-
-  setTexto(
-    "totalPromoBN",
-    formatoMoneda(
-      resumen.promoNacion
-    )
-  );
-
-  const estado =
-    document.getElementById(
-      "estadoCaja"
-    );
+  const estado = document.getElementById("estadoCaja");
 
   if (estado) {
-
-    estado.innerText =
-      caja.length > 0
-        ? "Caja activa"
-        : "Caja sin abrir";
+    estado.innerText = r.cajaAbierta ? "Caja abierta" : "Caja cerrada";
+    estado.className = r.cajaAbierta
+      ? "caja-status status-open"
+      : "caja-status status-closed";
   }
 }
 
-// =================================
 // MOVIMIENTOS
-// =================================
-
 function renderMovimientos() {
-
-  const cont =
-    document.getElementById(
-      "listaCaja"
-    );
-
+  const cont = document.getElementById("listaCaja");
   if (!cont) return;
 
   cont.innerHTML = "";
 
   if (caja.length === 0) {
-
     cont.innerHTML = `
-
       <div class="empty-state">
         No hay movimientos registrados
       </div>
     `;
-
     return;
   }
 
-  [...caja]
+  cont.innerHTML = [...caja]
     .reverse()
-    .slice(0, 15)
-    .forEach(m => {
+    .slice(0, 20)
+    .map(m => {
+      const ingreso = m.tipo === "ingreso" || m.tipo === "apertura";
+      const clase = ingreso ? "movement-green" : "movement-red";
+      const badge = ingreso ? "badge-success" : "badge-danger";
+      const signo = ingreso ? "+" : "-";
 
-      const div =
-        document.createElement(
-          "div"
-        );
+      return `
+        <div class="movement-card ${clase}">
+          <div>
+            <span class="${badge}">
+              ${String(m.tipo || "-").toUpperCase()}
+            </span>
 
-      const claseColor =
-        m.tipo === "ingreso"
-          ? "movement-green"
-          : "movement-red";
+            <h4>${m.motivo || "-"}</h4>
 
-      div.className = `
-        movement-card
-        ${claseColor}
-      `;
+            <small>${m.fecha || "-"} · ${m.usuario || "Local"}</small>
+          </div>
 
-      div.innerHTML = `
-
-        <div>
-
-          <span class="
-            ${m.tipo === "ingreso"
-              ? "badge-success"
-              : "badge-danger"}
-          ">
-
-            ${m.tipo.toUpperCase()}
-
-          </span>
-
-          <h4>
-            ${m.motivo || "-"}
-          </h4>
-
-          <small>
-            ${m.fecha || "-"}
-          </small>
-
+          <strong class="${ingreso ? "money-in" : "money-out"}">
+            ${signo}${formatoMoneda(m.monto)}
+          </strong>
         </div>
-
-        <strong class="
-          ${m.tipo === "ingreso"
-            ? "money-in"
-            : "money-out"}
-        ">
-
-          ${m.tipo === "ingreso"
-            ? "+"
-            : "-"}
-
-          ${formatoMoneda(
-            m.monto
-          )}
-
-        </strong>
       `;
-
-      cont.appendChild(div);
-    });
+    })
+    .join("");
 }
 
-// =================================
 // HISTORIAL VENTAS
-// =================================
-
 function renderHistorialVentas() {
-
-  const cont =
-    document.getElementById(
-      "historialVentas"
-    );
-
+  const cont = document.getElementById("historialVentas");
   if (!cont) return;
 
-  const ventas =
-    obtenerVentas();
-
-  cont.innerHTML = "";
+  const ventas = obtenerVentas();
 
   if (ventas.length === 0) {
-
     cont.innerHTML = `
-
       <tr>
-
-        <td colspan="4">
-
-          No hay ventas registradas
-
-        </td>
-
+        <td colspan="4">No hay ventas registradas</td>
       </tr>
     `;
-
     return;
   }
 
-  [...ventas]
+  cont.innerHTML = [...ventas]
     .reverse()
-    .slice(0, 10)
-    .forEach(venta => {
-
-      const tr =
-        document.createElement(
-          "tr"
-        );
-
-      tr.innerHTML = `
+    .slice(0, 12)
+    .map(venta => `
+      <tr>
+        <td>${venta.fecha || "-"}</td>
 
         <td>
-          ${venta.fecha || "-"}
+          <span class="method-badge">
+            ${formatearMetodo(venta.metodo)}
+          </span>
         </td>
 
         <td>
-          ${formatearMetodo(
-            venta.metodo
-          )}
+          <strong>${formatoMoneda(venta.total)}</strong>
+          ${
+            Number(venta.descuento || 0) > 0
+              ? `<small class="discount-note">Desc: -${formatoMoneda(venta.descuento)}</small>`
+              : ""
+          }
         </td>
 
         <td>
-          <strong>
-            ${formatoMoneda(
-              venta.total
-            )}
-          </strong>
-        </td>
-
-        <td>
-
           <button
+            type="button"
             class="detail-btn"
             onclick="verDetalleVenta(${venta.id})"
           >
-
             Ver
-
           </button>
-
         </td>
-      `;
-
-      cont.appendChild(tr);
-    });
+      </tr>
+    `)
+    .join("");
 }
 
-// =================================
 // DETALLE VENTA
-// =================================
-
 function verDetalleVenta(id) {
-
-  const ventas =
-    obtenerVentas();
-
-  const venta =
-    ventas.find(
-      v =>
-        Number(v.id) ===
-        Number(id)
-    );
+  const venta = obtenerVentas().find(v => Number(v.id) === Number(id));
 
   if (!venta) {
-
-    avisar(
-      "Venta no encontrada",
-      "error"
-    );
-
+    avisar("Venta no encontrada", "error");
     return;
   }
 
-  let detalleHTML = "";
-
-  venta.detalle?.forEach(item => {
-
-    detalleHTML += `
-
+  const detalleHTML = (venta.detalle || [])
+    .map(item => `
       <div class="detail-item">
-
-        <strong>
-          ${item.nombre}
-        </strong>
+        <div>
+          <strong>${item.nombre}</strong>
+          <small>${item.cantidad} x ${formatoMoneda(item.precio)}</small>
+        </div>
 
         <span>
-
-          ${item.cantidad}
-          x
-          ${formatoMoneda(
-            item.precio
-          )}
-
+          ${formatoMoneda(item.total || item.subtotal || 0)}
         </span>
-
       </div>
-    `;
-  });
+    `)
+    .join("");
 
-  const overlay =
-    document.createElement(
-      "div"
-    );
-
-  overlay.className =
-    "modal-overlay";
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
 
   overlay.innerHTML = `
+    <div class="modal caja-modal">
+      <h3>Detalle de venta</h3>
 
-    <div class="modal">
-
-      <h3>
-        Detalle venta
-      </h3>
+      <p>
+        ${venta.fecha || "-"} · ${formatearMetodo(venta.metodo)}
+      </p>
 
       <div class="detail-list">
-
-        ${detalleHTML}
-
+        ${detalleHTML || `<div class="empty-state">Sin detalle</div>`}
       </div>
 
       <hr>
 
-      <p>
+      <div class="caja-detail-summary">
+        <div>
+          <span>Subtotal</span>
+          <strong>${formatoMoneda(venta.subtotal || venta.total)}</strong>
+        </div>
 
-        Total:
-        <strong>
+        <div>
+          <span>Descuento</span>
+          <strong>-${formatoMoneda(venta.descuento || 0)}</strong>
+        </div>
 
-          ${formatoMoneda(
-            venta.total
-          )}
-
-        </strong>
-
-      </p>
-
-      <div class="modal-actions">
-
-        <button class="btn-cancel">
-
-          Cerrar
-
-        </button>
-
+        <div class="final">
+          <span>Total</span>
+          <strong>${formatoMoneda(venta.total)}</strong>
+        </div>
       </div>
 
+      <div class="modal-actions">
+        <button class="btn-cancel">Cerrar</button>
+      </div>
     </div>
   `;
 
-  document.body.appendChild(
-    overlay
-  );
+  document.body.appendChild(overlay);
 
-  overlay
-    .querySelector(
-      ".btn-cancel"
-    )
-    .onclick = () => {
+  overlay.querySelector(".btn-cancel").onclick = () => overlay.remove();
 
-      overlay.remove();
-    };
+  overlay.onclick = e => {
+    if (e.target === overlay) overlay.remove();
+  };
 }
 
-// =================================
 // LIMPIAR
-// =================================
-
 function limpiarCaja() {
-
   if (caja.length === 0) {
-
-    avisar(
-      "No hay movimientos",
-      "info"
-    );
-
+    avisar("No hay movimientos", "info");
     return;
   }
 
-  const confirmar =
-    confirm(
-      "¿Limpiar caja completa?"
-    );
+  const confirmar = confirm("¿Limpiar caja completa?");
 
   if (!confirmar) return;
 
   caja = [];
-
   aperturas = [];
 
-  guardar();
-
+  guardarCaja();
   actualizarCaja();
 
-  avisar(
-    "Caja limpiada",
-    "success"
-  );
+  avisar("Caja limpiada", "success");
 }
 
-// =================================
-// ACTUALIZAR TODO
-// =================================
-
+// ACTUALIZAR
 function actualizarCaja() {
+  caja = JSON.parse(localStorage.getItem("caja")) || [];
+  aperturas = JSON.parse(localStorage.getItem("aperturasCaja")) || [];
 
   renderStatsCaja();
-
   renderMovimientos();
-
   renderHistorialVentas();
 }
 
-// =================================
 // INIT
-// =================================
-
-actualizarCaja();
+document.addEventListener("DOMContentLoaded", () => {
+  actualizarCaja();
+});

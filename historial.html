@@ -27,6 +27,11 @@
   <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/historial.css">
 
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
 </head>
 
 <body>
@@ -62,6 +67,7 @@
         href="index.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-house"></i>
         <b>Inicio</b>
       </a>
 
@@ -69,6 +75,7 @@
         href="ventas.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-cart-shopping"></i>
         <b>Ventas</b>
       </a>
 
@@ -76,6 +83,7 @@
         href="productos.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-box"></i>
         <b>Productos</b>
       </a>
 
@@ -83,6 +91,7 @@
         href="caja.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-cash-register"></i>
         <b>Caja</b>
       </a>
 
@@ -90,6 +99,7 @@
         href="produccion.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-industry"></i>
         <b>Producción</b>
       </a>
 
@@ -97,6 +107,7 @@
         href="proveedores.html"
         class="nav-link"
       >
+        <i class="fa-solid fa-truck"></i>
         <b>Proveedores</b>
       </a>
 
@@ -104,6 +115,7 @@
         href="historial.html"
         class="nav-link active"
       >
+        <i class="fa-solid fa-clock-rotate-left"></i>
         <b>Historial</b>
       </a>
 
@@ -141,12 +153,12 @@
 
         <div>
 
-          <h2>
-            Historial
-          </h2>
+          <h1>
+           Historial
+          </h1>
 
           <p>
-            Ventas y movimientos del sistema
+            Ventas, descuentos y actividad del sistema
           </p>
 
         </div>
@@ -197,12 +209,14 @@
           </div>
 
           <button
+            type="button"
             onclick="filtrarVentas()"
           >
             Filtrar
           </button>
 
           <button
+            type="button"
             onclick="renderVentas()"
           >
             Ver todo
@@ -212,7 +226,7 @@
 
       </div>
 
-      <!-- RESUMEN -->
+      <!-- STATS -->
       <div class="stats-grid fade-in">
 
         <div class="stat-card">
@@ -263,6 +277,30 @@
 
         </div>
 
+        <div class="stat-card">
+
+          <h3>
+            Descuentos
+          </h3>
+
+          <h2 id="totalDescuentos">
+            $0
+          </h2>
+
+        </div>
+
+        <div class="stat-card">
+
+          <h3>
+            Ticket promedio
+          </h3>
+
+          <h2 id="ticketPromedio">
+            $0
+          </h2>
+
+        </div>
+
       </div>
 
       <!-- TABLA -->
@@ -270,9 +308,17 @@
 
         <div class="table-header">
 
-          <h3>
-            Ventas registradas
-          </h3>
+          <div>
+
+            <h3>
+              Ventas registradas
+            </h3>
+
+            <p>
+              Historial completo de ventas y descuentos
+            </p>
+
+          </div>
 
         </div>
 
@@ -292,6 +338,14 @@
 
               <th>
                 Usuario
+              </th>
+
+              <th>
+                Subtotal
+              </th>
+
+              <th>
+                Descuento
               </th>
 
               <th>
@@ -317,9 +371,17 @@
 
         <div class="table-header">
 
-          <h3>
-            Actividad del sistema
-          </h3>
+          <div>
+
+            <h3>
+              Actividad del sistema
+            </h3>
+
+            <p>
+              Últimos movimientos registrados
+            </p>
+
+          </div>
 
         </div>
 

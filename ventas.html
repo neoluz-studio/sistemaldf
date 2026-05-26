@@ -33,7 +33,6 @@
 
 <div class="layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
 
     <div class="brand-icon">
@@ -108,7 +107,6 @@
     onclick="toggleSidebar()"
   ></div>
 
-  <!-- MAIN -->
   <main class="main">
 
     <div class="topbar">
@@ -164,14 +162,6 @@
               <h3>Carrito</h3>
               <p>Venta actual</p>
             </div>
-
-            <button
-              type="button"
-              class="clear-cart-btn"
-              onclick="limpiarCarrito()"
-            >
-              Limpiar
-            </button>
           </div>
 
           <div
@@ -179,7 +169,7 @@
             class="carrito-lista"
           ></div>
 
-          <!-- DESCUENTO CARRITO -->
+          <!-- DESCUENTO GENERAL -->
           <div class="discount-box">
 
             <div class="discount-title">
@@ -193,18 +183,18 @@
                 id="tipoDescuentoCarrito"
                 onchange="actualizarDescuentoCarrito()"
               >
-                <option value="porcentaje">%</option>
-                <option value="monto">$</option>
+                <option value="porcentaje">Porcentaje %</option>
+                <option value="monto">Monto $</option>
               </select>
 
               <input
-                type="number"
-                id="valorDescuentoCarrito"
-                placeholder="0"
-                min="0"
-                oninput="actualizarDescuentoCarrito()"
-              >
-
+  type="number"
+  id="valorDescuentoCarrito"
+  placeholder="0"
+  min="0"
+  oninput="actualizarDescuentoCarrito()"
+  onkeydown="if(event.key === 'Enter'){ event.preventDefault(); actualizarDescuentoCarrito(); this.blur(); }"
+>
             </div>
 
           </div>
@@ -229,49 +219,13 @@
 
           </div>
 
-          <!-- DESCUENTO GENERAL -->
-<div class="discount-box">
-
-  <h4>
-    Descuento general
-  </h4>
-
-  <div class="discount-row">
-
-    <select
-      id="tipoDescuentoCarrito"
-      onchange="actualizarDescuentoCarrito()"
-    >
-      <option value="porcentaje">
-        Porcentaje %
-      </option>
-
-      <option value="monto">
-        Monto $
-      </option>
-    </select>
-
-    <input
-      type="number"
-      id="valorDescuentoCarrito"
-      placeholder="Valor"
-      min="0"
-      oninput="actualizarDescuentoCarrito()"
-    >
-
-  </div>
-
-  <div id="discountSummary"></div>
-
-</div>
-
-<!-- TOTAL -->
-<div class="total-box">
-
-  Total:
-  $<span id="total">0</span>
-
-</div>
+          <!-- TOTAL -->
+          <div class="total-box">
+            <span>Total</span>
+            <h2>
+              $<span id="total">0</span>
+            </h2>
+          </div>
 
           <!-- PAGOS -->
           <div class="payment-actions">
@@ -330,7 +284,6 @@
 
 </div>
 
-<!-- COMMAND PALETTE -->
 <div
   id="commandPalette"
   class="command-palette hidden"
