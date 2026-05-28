@@ -148,6 +148,13 @@
 
     <!-- TOPBAR -->
     <div class="topbar">
+    <button
+  type="button"
+  class="menu-toggle"
+  onclick="window.toggleSidebar()"
+>
+  ☰
+</button>
 
       <div class="topbar-left">
 
@@ -413,6 +420,19 @@
 <script defer src="js/roles.js"></script>
 <script defer src="js/historial.js"></script>
 <script defer src="js/app.js"></script>
+<script>
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
 
+  if (!sidebar) return;
+
+  sidebar.classList.toggle("active");
+
+  if (overlay) {
+    overlay.classList.toggle("active");
+  }
+};
+</script>
 </body>
 </html>

@@ -507,3 +507,156 @@ RESPONSIVE SIDEBAR
     display: none !important;
   }
 }
+/* SIDEBAR MOBILE FIX */
+
+.sidebar-overlay {
+  display: none;
+}
+
+.sidebar-overlay.active {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    transform: translateX(-110%);
+    transition: transform .25s ease;
+    z-index: 9999;
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .55);
+    z-index: 9998;
+  }
+
+  .menu-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10000;
+  }
+}
+/* =================================
+SIDEBAR RESPONSIVE FINAL
+================================= */
+
+.menu-toggle {
+
+  display: none;
+
+  border: none;
+
+  background: #111827;
+
+  color: #fff;
+
+  width: 45px;
+  height: 45px;
+
+  border-radius: 12px;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  align-items: center;
+  justify-content: center;
+}
+
+/* OVERLAY */
+
+.sidebar-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(3px);
+
+  z-index: 9998;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: 0.25s ease;
+}
+
+.sidebar-overlay.active {
+
+  opacity: 1;
+
+  visibility: visible;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+  .menu-toggle {
+
+    display: flex;
+  }
+
+  .sidebar {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 260px;
+    height: 100vh;
+
+    z-index: 9999;
+
+    transform: translateX(-110%);
+
+    transition: transform .25s ease;
+  }
+
+  .sidebar.active {
+
+    transform: translateX(0);
+  }
+
+  .main {
+
+    margin-left: 0 !important;
+
+    width: 100%;
+  }
+}
+
+/* DESKTOP */
+
+@media (min-width: 901px) {
+
+  .sidebar {
+
+    transform: none !important;
+  }
+
+  .sidebar-overlay {
+
+    display: none !important;
+  }
+
+  .menu-toggle {
+
+    display: none !important;
+  }
+}

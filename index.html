@@ -146,11 +146,12 @@
     <div class="topbar dashboard-topbar">
 
       <button
-        class="menu-toggle"
-        onclick="toggleSidebar()"
-      >
-        ☰
-      </button>
+  type="button"
+  class="menu-toggle"
+  onclick="window.toggleSidebar()"
+>
+  ☰
+</button>
 
       <div class="topbar-left">
 
@@ -515,6 +516,19 @@ window.addEventListener("load", () => {
   setInterval(actualizarRelojBuenosAires, 1000);
 });
 </script>
+<script>
+window.toggleSidebar = function () {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
 
+  if (!sidebar) return;
+
+  sidebar.classList.toggle("active");
+
+  if (overlay) {
+    overlay.classList.toggle("active");
+  }
+};
+</script>
 </body>
 </html>
