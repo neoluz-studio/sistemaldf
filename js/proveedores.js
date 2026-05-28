@@ -1,86 +1,124 @@
 // =================================
-// STORAGE
+// SUPABASE PROVEEDORES
 // =================================
 
-let proveedores =
-
-  JSON.parse(
-
-    localStorage.getItem(
-      "proveedores"
-    )
-
-  ) || [];
-
-let caja =
-
-  JSON.parse(
-
-    localStorage.getItem(
-      "caja"
-    )
-
-  ) || [];
+let proveedores = [];
+let caja = [];
 
 // =================================
-// GUARDAR
+// CARGAR
 // =================================
 
-function guardar() {
+async function cargarProveedores() {
 
-  localStorage.setItem(
+  const {
+    data,
+    error
+  } = await supabaseClient
 
-    "proveedores",
+    .from("proveedores")
 
-    JSON.stringify(
-      proveedores
-    )
-  );
+    .select("*")
+
+    .order(
+      "fecha",
+      { ascending: false }
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    showToast(
+      "Error cargando proveedores",
+      "error"
+    );
+
+    return;
+  }
+
+  proveedores = data || [];
+
+  render();
+
+  actualizarStats();
+
+  cargarSelect();
 }
 
 // =================================
 // REGISTRAR COMPRA
 // =================================
 
-function registrarCompraProveedor() {
+async function registrarCompraProveedor() {
 
   const nombre =
-
     document.getElementById(
       "nombreProveedor"
     ).value.trim();
 
   const monto =
-
     Number(
-
       document.getElementById(
         "montoCompra"
       ).value
     );
 
   const pagado =
-
     Number(
-
       document.getElementById(
         "montoPagado"
       ).value
     );
 
-  // VALIDAR
-  if (
-
-    !nombre ||
-
-    monto <= 0
-
-  ) {
+  if (!nombre || monto <= 0) {
 
     showToast(
-
       "Datos inválidos",
+      "error"
+    );
 
+    return;
+  }
+
+  const deuda =
+    monto - pagado;
+
+  // =================================
+  // INSERTAR PROVEEDOR
+  // =================================
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+
+    .from("proveedores")
+
+    .insert([{
+
+      nombre,
+
+      total: monto,
+
+      pagado,
+
+      deuda,
+
+      estado:
+        deuda > 0
+          ? "pendiente"
+          : "pagado"
+    }])
+
+    .select();
+
+  if (error) {
+
+    console.error(error);
+
+    showToast(
+      "Error registrando proveedor",
       "error"
     );
 
@@ -88,33 +126,35 @@ function registrarCompraProveedor() {
   }
 
   // =================================
-  // DEUDA
+  // HISTORIAL
   // =================================
 
-  const deuda =
+  await supabaseClient
 
-    monto - pagado;
+    .from("proveedor_historial")
 
-  // =================================
-  // REGISTRO
-  // =================================
+    .insert([{
 
-  proveedores.push({
+      proveedor_id:
+        data[0].id,
 
-    id: Date.now(),
+      proveedor:
+        nombre,
 
-    nombre,
+      total: monto,
 
-    monto,
+      pagado,
 
-    pagado,
+      deuda,
 
-    deuda,
+      estado:
+        deuda > 0
+          ? "pendiente"
+          : "pagado",
 
-    fecha:
-      new Date()
-        .toISOString()
-  });
+      detalle:
+        "Compra registrada"
+    }]);
 
   // =================================
   // CAJA
@@ -122,46 +162,28 @@ function registrarCompraProveedor() {
 
   if (pagado > 0) {
 
-    caja.push({
+    await supabaseClient
 
-      tipo:
-        "egreso",
+      .from("caja")
 
-      descripcion:
-        `Pago proveedor ${nombre}`,
+      .insert([{
 
-      monto:
-        pagado,
+        tipo:
+          "egreso",
 
-      fecha:
-        new Date()
-          .toISOString()
-    });
+        descripcion:
+          `Pago proveedor ${nombre}`,
 
-    localStorage.setItem(
-
-      "caja",
-
-      JSON.stringify(caja)
-    );
+        monto:
+          pagado
+      }]);
   }
 
-  guardar();
-
-  render();
-
-  actualizarStats();
-
-  cargarSelect();
-
   showToast(
-
     "Compra registrada",
-
     "success"
   );
 
-  // LIMPIAR
   document.getElementById(
     "nombreProveedor"
   ).value = "";
@@ -173,67 +195,92 @@ function registrarCompraProveedor() {
   document.getElementById(
     "montoPagado"
   ).value = "";
+
+  await cargarProveedores();
 }
 
 // =================================
-// PAGAR
+// PAGAR CUENTA
 // =================================
 
-function pagarCuenta() {
+async function pagarCuenta() {
 
   const id =
-
-    Number(
-
-      document.getElementById(
-        "cuentaSelect"
-      ).value
-    );
+    document.getElementById(
+      "cuentaSelect"
+    ).value;
 
   const montoPago =
-
     Number(
-
       document.getElementById(
         "montoPago"
       ).value
     );
 
   const cuenta =
-
     proveedores.find(
       p => p.id === id
     );
 
-  if (
-
-    !cuenta ||
-
-    montoPago <= 0
-
-  ) {
+  if (!cuenta || montoPago <= 0) {
 
     showToast(
-
       "Datos inválidos",
-
       "error"
     );
 
     return;
   }
 
-  // VALIDAR
-  if (
-
-    montoPago > cuenta.deuda
-
-  ) {
+  if (montoPago > cuenta.deuda) {
 
     showToast(
-
       "El pago supera la deuda",
+      "error"
+    );
 
+    return;
+  }
+
+  const nuevoPagado =
+    Number(cuenta.pagado) + montoPago;
+
+  const nuevaDeuda =
+    Number(cuenta.deuda) - montoPago;
+
+  // =================================
+  // UPDATE
+  // =================================
+
+  const { error } = await supabaseClient
+
+    .from("proveedores")
+
+    .update({
+
+      pagado:
+        nuevoPagado,
+
+      deuda:
+        nuevaDeuda,
+
+      estado:
+        nuevaDeuda > 0
+          ? "pendiente"
+          : "pagado"
+    })
+
+    .eq(
+      "id",
+      cuenta.id
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    showToast(
+      "Error registrando pago",
       "error"
     );
 
@@ -241,60 +288,69 @@ function pagarCuenta() {
   }
 
   // =================================
-  // ACTUALIZAR
+  // HISTORIAL
   // =================================
 
-  cuenta.pagado +=
-    montoPago;
+  await supabaseClient
 
-  cuenta.deuda -=
-    montoPago;
+    .from("proveedor_historial")
+
+    .insert([{
+
+      proveedor_id:
+        cuenta.id,
+
+      proveedor:
+        cuenta.nombre,
+
+      total:
+        cuenta.total,
+
+      pagado:
+        nuevoPagado,
+
+      deuda:
+        nuevaDeuda,
+
+      estado:
+        nuevaDeuda > 0
+          ? "pendiente"
+          : "pagado",
+
+      detalle:
+        `Pago registrado $${montoPago}`
+    }]);
 
   // =================================
   // CAJA
   // =================================
 
-  caja.push({
+  await supabaseClient
 
-    tipo:
-      "egreso",
+    .from("caja")
 
-    descripcion:
-      `Pago deuda ${cuenta.nombre}`,
+    .insert([{
 
-    monto:
-      montoPago,
+      tipo:
+        "egreso",
 
-    fecha:
-      new Date()
-        .toISOString()
-  });
+      descripcion:
+        `Pago deuda ${cuenta.nombre}`,
 
-  localStorage.setItem(
-
-    "caja",
-
-    JSON.stringify(caja)
-  );
-
-  guardar();
-
-  render();
-
-  actualizarStats();
-
-  cargarSelect();
+      monto:
+        montoPago
+    }]);
 
   showToast(
-
     "Pago registrado",
-
     "success"
   );
 
   document.getElementById(
     "montoPago"
   ).value = "";
+
+  await cargarProveedores();
 }
 
 // =================================
@@ -304,7 +360,6 @@ function pagarCuenta() {
 function cargarSelect() {
 
   const select =
-
     document.getElementById(
       "cuentaSelect"
     );
@@ -314,23 +369,15 @@ function cargarSelect() {
   select.innerHTML = "";
 
   const pendientes =
-
     proveedores.filter(
-      p => p.deuda > 0
+      p => Number(p.deuda) > 0
     );
 
-  if (
-
-    pendientes.length === 0
-
-  ) {
+  if (pendientes.length === 0) {
 
     select.innerHTML = `
-
       <option>
-
         Sin deudas
-
       </option>
     `;
 
@@ -340,13 +387,10 @@ function cargarSelect() {
   pendientes.forEach(p => {
 
     select.innerHTML += `
-
       <option value="${p.id}">
-
         ${p.nombre}
         - $
-        ${p.deuda.toLocaleString()}
-
+        ${Number(p.deuda).toLocaleString()}
       </option>
     `;
   });
@@ -359,7 +403,6 @@ function cargarSelect() {
 function render() {
 
   const cont =
-
     document.getElementById(
       "listaProveedores"
     );
@@ -368,98 +411,65 @@ function render() {
 
   cont.innerHTML = "";
 
-  // VACIO
-  if (
-
-    proveedores.length === 0
-
-  ) {
+  if (proveedores.length === 0) {
 
     cont.innerHTML = `
-
       <tr>
-
         <td colspan="6">
-
           No hay registros
-
         </td>
-
       </tr>
     `;
 
     return;
   }
 
-  [...proveedores]
+  proveedores.forEach(p => {
 
-    .reverse()
+    const estado =
+      Number(p.deuda) > 0
 
-    .forEach(p => {
+      ? `
+        <span class="stock-low">
+          ⚠️ Pendiente
+        </span>
+      `
 
-      const estado =
-
-        p.deuda > 0
-
-        ? `
-          <span class="stock-low">
-            ⚠️ Pendiente
-          </span>
-        `
-
-        : `
-          <span class="stock-ok">
-            ✅ Pagado
-          </span>
-        `;
-
-      cont.innerHTML += `
-
-        <tr>
-
-          <td>
-
-            ${p.nombre}
-
-          </td>
-
-          <td>
-
-            $${p.monto.toLocaleString()}
-
-          </td>
-
-          <td>
-
-            $${p.pagado.toLocaleString()}
-
-          </td>
-
-          <td>
-
-            $${p.deuda.toLocaleString()}
-
-          </td>
-
-          <td>
-
-            ${estado}
-
-          </td>
-
-          <td>
-
-            ${new Date(p.fecha)
-
-              .toLocaleDateString(
-                "es-AR"
-              )}
-
-          </td>
-
-        </tr>
+      : `
+        <span class="stock-ok">
+          ✅ Pagado
+        </span>
       `;
-    });
+
+    cont.innerHTML += `
+      <tr>
+
+        <td>${p.nombre}</td>
+
+        <td>
+          $${Number(p.total).toLocaleString()}
+        </td>
+
+        <td>
+          $${Number(p.pagado).toLocaleString()}
+        </td>
+
+        <td>
+          $${Number(p.deuda).toLocaleString()}
+        </td>
+
+        <td>${estado}</td>
+
+        <td>
+          ${new Date(p.fecha)
+            .toLocaleDateString(
+              "es-AR"
+            )}
+        </td>
+
+      </tr>
+    `;
+  });
 }
 
 // =================================
@@ -469,47 +479,35 @@ function render() {
 function actualizarStats() {
 
   const totalProv =
-
     proveedores.length;
 
   const deudaTotal =
-
     proveedores.reduce(
-
       (acc, p) =>
-
-        acc + p.deuda,
-
+        acc + Number(p.deuda || 0),
       0
     );
 
   const totalPagado =
-
     proveedores.reduce(
-
       (acc, p) =>
-
-        acc + p.pagado,
-
+        acc + Number(p.pagado || 0),
       0
     );
 
   document.getElementById(
     "totalProveedores"
   ).innerText =
-
     totalProv;
 
   document.getElementById(
     "deudaTotal"
   ).innerText =
-
     `$${deudaTotal.toLocaleString()}`;
 
   document.getElementById(
     "totalPagado"
   ).innerText =
-
     `$${totalPagado.toLocaleString()}`;
 }
 
@@ -517,8 +515,4 @@ function actualizarStats() {
 // INIT
 // =================================
 
-render();
-
-actualizarStats();
-
-cargarSelect();
+cargarProveedores();
