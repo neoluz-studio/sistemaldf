@@ -1,287 +1,173 @@
 // =================================
-// STORAGE
+// PRODUCTOS SUPABASE - LO DE FAUSTI
 // =================================
 
-let productos =
-
-  JSON.parse(
-
-    localStorage.getItem(
-      "productos"
-    )
-
-  ) || [];
-
-// =================================
-// ESTADO
-// =================================
-
+let productos = [];
 let editandoId = null;
 
 // =================================
-// GUARDAR
+// HELPERS
 // =================================
 
-function guardar() {
+function money(valor) {
+  return `$${Number(valor || 0).toLocaleString("es-AR")}`;
+}
 
-  localStorage.setItem(
+function avisar(mensaje, tipo = "info") {
+  if (typeof showToast === "function") {
+    showToast(mensaje, tipo);
+  } else {
+    alert(mensaje);
+  }
+}
 
-    "productos",
+function formatFecha(data) {
+  if (!data) return "-";
 
-    JSON.stringify(productos)
-  );
+  return new Date(data).toLocaleDateString("es-AR");
+}
+
+function syncLocalProductos() {
+  localStorage.setItem("productos", JSON.stringify(productos));
+}
+
+function limpiarForm() {
+  editandoId = null;
+
+  document.getElementById("nombre").value = "";
+  document.getElementById("precio").value = "";
+  document.getElementById("costo").value = "";
+  document.getElementById("stock").value = "";
+  document.getElementById("unidad").value = "";
+  document.getElementById("tipo").value = "reventa";
+
+  const btn = document.getElementById("btnGuardarProducto");
+
+  if (btn) {
+    btn.innerText = "Guardar Producto";
+  }
 }
 
 // =================================
-// AGREGAR / EDITAR
+// CARGAR PRODUCTOS
 // =================================
 
-function agregarProducto() {
+async function cargarProductosSupabase() {
+  const cont = document.getElementById("listaProductos");
 
-  const nombre =
+  if (cont) {
+    cont.innerHTML = `
+      <tr>
+        <td colspan="7">
+          Cargando productos...
+        </td>
+      </tr>
+    `;
+  }
 
-    document.getElementById(
-      "nombre"
-    ).value.trim();
+  const { data, error } = await supabaseClient
+    .from("productos")
+    .select("*")
+    .eq("activo", true)
+    .order("created_at", { ascending: false });
 
-  const precio =
+  if (error) {
+    console.error(error);
 
-    Number(
+    avisar("Error cargando productos", "error");
 
-      document.getElementById(
-        "precio"
-      ).value
-    );
+    productos =
+      JSON.parse(localStorage.getItem("productos")) || [];
 
-  const costo =
-
-    Number(
-
-      document.getElementById(
-        "costo"
-      ).value
-    );
-
-  const stock =
-
-    Number(
-
-      document.getElementById(
-        "stock"
-      ).value
-    );
-
-  const tipo =
-
-    document.getElementById(
-      "tipo"
-    ).value;
-
-  const unidad =
-
-    document.getElementById(
-      "unidad"
-    ).value.trim();
-
-  // =================================
-  // VALIDAR
-  // =================================
-
-  if (
-
-    !nombre ||
-
-    precio <= 0 ||
-
-    stock < 0
-
-  ) {
-
-    showToast(
-
-      "Completá los campos correctamente",
-
-      "error"
-    );
+    render(productos);
 
     return;
   }
 
-  // =================================
-  // DUPLICADO
-  // =================================
+  productos = data || [];
 
-  const existe =
+  syncLocalProductos();
 
-    productos.find(p =>
+  render(productos);
+}
 
-      p.nombre.toLowerCase()
+// =================================
+// GUARDAR / EDITAR
+// =================================
 
-      ===
+async function agregarProducto() {
+  const nombre = document.getElementById("nombre").value.trim();
 
-      nombre.toLowerCase()
+  const precio = Number(document.getElementById("precio").value);
 
-      &&
+  const costo = Number(document.getElementById("costo").value || 0);
 
-      p.id !== editandoId
-    );
+  const stock = Number(document.getElementById("stock").value || 0);
+
+  const tipo = document.getElementById("tipo").value;
+
+  const unidad = document.getElementById("unidad").value.trim() || "unidad";
+
+  if (!nombre || precio <= 0 || stock < 0) {
+    avisar("Completá los campos correctamente", "error");
+    return;
+  }
+
+  const existe = productos.find(
+    p =>
+      String(p.nombre || "").toLowerCase() === nombre.toLowerCase() &&
+      String(p.id) !== String(editandoId)
+  );
 
   if (existe) {
-
-    showToast(
-
-      "Ese producto ya existe",
-
-      "error"
-    );
-
+    avisar("Ese producto ya existe", "error");
     return;
   }
 
-  // =================================
-  // EDITAR
-  // =================================
+  const producto = {
+    nombre,
+    precio,
+    costo,
+    stock,
+    tipo,
+    unidad,
+    stock_minimo: 5,
+    activo: true
+  };
+
+  let error;
 
   if (editandoId) {
+    const res = await supabaseClient
+      .from("productos")
+      .update(producto)
+      .eq("id", editandoId);
 
-    const producto =
-
-      productos.find(
-        p => p.id === editandoId
-      );
-
-    if (!producto) return;
-
-    producto.nombre = nombre;
-    producto.precio = precio;
-    producto.costo = costo;
-    producto.stock = stock;
-    producto.tipo = tipo;
-    producto.unidad = unidad;
-
-    producto.updatedAt =
-      new Date().toISOString();
-
-    showToast(
-      "Producto actualizado",
-      "success"
-    );
-
-    editandoId = null;
-
+    error = res.error;
   } else {
+    const res = await supabaseClient
+      .from("productos")
+      .insert([producto]);
 
-    // =================================
-    // NUEVO
-    // =================================
-
-    productos.push({
-
-      id: Date.now(),
-
-      nombre,
-
-      precio,
-
-      costo,
-
-      stock,
-
-      tipo,
-
-      unidad,
-
-      createdAt:
-        new Date().toISOString()
-    });
-
-    showToast(
-
-      "Producto agregado correctamente",
-
-      "success"
-    );
+    error = res.error;
   }
 
-  guardar();
+  if (error) {
+    console.error(error);
+    avisar("Error guardando producto", "error");
+    return;
+  }
+
+  avisar(
+    editandoId
+      ? "Producto actualizado"
+      : "Producto agregado correctamente",
+    "success"
+  );
 
   limpiarForm();
 
-  render();
-}
-
-// =================================
-// LIMPIAR
-// =================================
-
-function limpiarForm() {
-
-  editandoId = null;
-
-  document.getElementById(
-    "nombre"
-  ).value = "";
-
-  document.getElementById(
-    "precio"
-  ).value = "";
-
-  document.getElementById(
-    "costo"
-  ).value = "";
-
-  document.getElementById(
-    "stock"
-  ).value = "";
-
-  document.getElementById(
-    "unidad"
-  ).value = "";
-
-  document.getElementById(
-    "tipo"
-  ).value = "reventa";
-}
-
-// =================================
-// ELIMINAR
-// =================================
-
-function eliminarProducto(id) {
-
-  const producto =
-
-    productos.find(
-      p => p.id === id
-    );
-
-  if (!producto) return;
-
-  const confirmar =
-
-    confirm(
-
-      `¿Eliminar ${producto.nombre}?`
-    );
-
-  if (!confirmar) return;
-
-  productos =
-
-    productos.filter(
-      p => p.id !== id
-    );
-
-  guardar();
-
-  render();
-
-  showToast(
-
-    "Producto eliminado",
-
-    "info"
-  );
+  await cargarProductosSupabase();
 }
 
 // =================================
@@ -289,229 +175,149 @@ function eliminarProducto(id) {
 // =================================
 
 function editarProducto(id) {
-
-  const producto =
-
-    productos.find(
-      p => p.id === id
-    );
+  const producto = productos.find(
+    p => String(p.id) === String(id)
+  );
 
   if (!producto) return;
 
-  editandoId = id;
+  editandoId = producto.id;
 
-  document.getElementById(
-    "nombre"
-  ).value = producto.nombre;
+  document.getElementById("nombre").value = producto.nombre || "";
+  document.getElementById("precio").value = producto.precio || 0;
+  document.getElementById("costo").value = producto.costo || 0;
+  document.getElementById("stock").value = producto.stock || 0;
+  document.getElementById("tipo").value = producto.tipo || "reventa";
+  document.getElementById("unidad").value = producto.unidad || "unidad";
 
-  document.getElementById(
-    "precio"
-  ).value = producto.precio;
+  const btn = document.getElementById("btnGuardarProducto");
 
-  document.getElementById(
-    "costo"
-  ).value = producto.costo;
-
-  document.getElementById(
-    "stock"
-  ).value = producto.stock;
-
-  document.getElementById(
-    "tipo"
-  ).value = producto.tipo;
-
-  document.getElementById(
-    "unidad"
-  ).value =
-    producto.unidad || "";
+  if (btn) {
+    btn.innerText = "Actualizar Producto";
+  }
 
   window.scrollTo({
-
     top: 0,
-
     behavior: "smooth"
   });
 
-  showToast(
+  avisar("Modo edición activado", "info");
+}
 
-    "Modo edición activado",
+// =================================
+// ELIMINAR
+// =================================
 
-    "info"
+async function eliminarProducto(id) {
+  const producto = productos.find(
+    p => String(p.id) === String(id)
   );
+
+  if (!producto) return;
+
+  const confirmar = confirm(`¿Eliminar ${producto.nombre}?`);
+
+  if (!confirmar) return;
+
+  const { error } = await supabaseClient
+    .from("productos")
+    .update({ activo: false })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    avisar("Error eliminando producto", "error");
+    return;
+  }
+
+  avisar("Producto eliminado", "info");
+
+  await cargarProductosSupabase();
 }
 
 // =================================
 // RENDER
 // =================================
 
-function render(
+function render(lista = productos) {
+  const cont = document.getElementById("listaProductos");
 
-  lista = productos
-
-) {
-
-  productos =
-
-    JSON.parse(
-
-      localStorage.getItem(
-        "productos"
-      )
-
-    ) || [];
-
-  const cont =
-
-    document.getElementById(
-      "listaProductos"
-    );
+  if (!cont) return;
 
   cont.innerHTML = "";
 
-  // =================================
-  // EMPTY
-  // =================================
-
   if (lista.length === 0) {
-
     cont.innerHTML = `
-
       <tr>
-
         <td colspan="7">
-
           No hay productos cargados
-
         </td>
-
       </tr>
     `;
 
     return;
   }
 
-  // =================================
-  // MÁS NUEVOS ARRIBA
-  // =================================
+  lista.forEach(p => {
+    const precio = Number(p.precio || 0);
+    const costo = Number(p.costo || 0);
+    const stock = Number(p.stock || 0);
+    const ganancia = precio - costo;
 
-  [...lista]
+    const tr = document.createElement("tr");
 
-    .reverse()
+    tr.className = "product-row";
 
-    .forEach(p => {
+    tr.innerHTML = `
+      <td>
+        <div class="product-info">
+          <strong>${p.nombre}</strong>
+          <small>${p.tipo || "-"}</small>
+        </div>
+      </td>
 
-      const tr =
-        document.createElement("tr");
+      <td>${money(precio)}</td>
 
-      const ganancia =
+      <td>${money(costo)}</td>
 
-        Number(p.precio || 0)
+      <td>
+        <span class="
+          stock-pill
+          ${stock <= Number(p.stock_minimo || 5) ? "stock-low" : "stock-ok"}
+        ">
+          ${stock} ${p.unidad || ""}
+        </span>
+      </td>
 
-        -
+      <td>
+        <span class="profit-pill">
+          ${money(ganancia)}
+        </span>
+      </td>
 
-        Number(p.costo || 0);
+      <td>${formatFecha(p.created_at)}</td>
 
-      tr.className =
-        "product-row";
+      <td>
+        <div class="table-actions">
+          <button
+            type="button"
+            onclick="editarProducto('${p.id}')"
+          >
+            ✏️
+          </button>
 
-      tr.innerHTML = `
+          <button
+            type="button"
+            onclick="eliminarProducto('${p.id}')"
+          >
+            🗑️
+          </button>
+        </div>
+      </td>
+    `;
 
-        <td>
-
-          <div class="product-info">
-
-            <strong>
-
-              ${p.nombre}
-
-            </strong>
-
-            <small>
-
-              ${p.tipo}
-
-            </small>
-
-          </div>
-
-        </td>
-
-        <td>
-
-          $${p.precio.toLocaleString()}
-
-        </td>
-
-        <td>
-
-          $${(p.costo || 0)
-            .toLocaleString()}
-
-        </td>
-
-        <td>
-
-          <span class="
-            stock-pill
-            ${p.stock <= 5
-              ? "stock-low"
-              : "stock-ok"}
-          ">
-
-            ${p.stock}
-            ${p.unidad || ""}
-
-          </span>
-
-        </td>
-
-        <td>
-
-          <span class="
-            profit-pill
-          ">
-
-            $${ganancia.toLocaleString()}
-
-          </span>
-
-        </td>
-
-        <td>
-
-          ${formatFecha(
-            p.createdAt
-          )}
-
-        </td>
-
-        <td>
-
-          <div class="table-actions">
-
-            <button
-              onclick="editarProducto(${p.id})"
-            >
-
-              ✏️
-
-            </button>
-
-            <button
-              onclick="eliminarProducto(${p.id})"
-            >
-
-              🗑️
-
-            </button>
-
-          </div>
-
-        </td>
-      `;
-
-      cont.appendChild(tr);
-    });
+    cont.appendChild(tr);
+  });
 }
 
 // =================================
@@ -519,46 +325,24 @@ function render(
 // =================================
 
 function filtrarProductos() {
-
-  const texto =
-
-    document.getElementById(
-      "buscador"
-    )
-
+  const texto = document
+    .getElementById("buscador")
     .value
-
     .toLowerCase();
 
-  const filtrados =
-
-    productos.filter(p =>
-
-      p.nombre
-        .toLowerCase()
-        .includes(texto)
-    );
+  const filtrados = productos.filter(p =>
+    String(p.nombre || "")
+      .toLowerCase()
+      .includes(texto)
+  );
 
   render(filtrados);
-}
-
-// =================================
-// FECHA
-// =================================
-
-function formatFecha(data) {
-
-  if (!data) return "-";
-
-  return new Date(data)
-
-    .toLocaleDateString(
-      "es-AR"
-    );
 }
 
 // =================================
 // INIT
 // =================================
 
-render();
+document.addEventListener("DOMContentLoaded", () => {
+  cargarProductosSupabase();
+});

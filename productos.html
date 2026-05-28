@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>
-    Productos
-  </title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/sidebar.css">
@@ -25,241 +15,129 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body>
 
-<!-- ================================= -->
-<!-- LAYOUT -->
-<!-- ================================= -->
-
 <div class="layout">
 
-  <!-- ================================= -->
-  <!-- SIDEBAR -->
-  <!-- ================================= -->
-
-  <aside
-    class="sidebar"
-    id="sidebar"
-  >
+  <aside class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-
       <div class="brand">
-
         <div class="brand-icon">
-
-          <img
-            src="assets/icons/images/logo.png"
-            alt="FAUSTI"
-          >
-
+          <img src="assets/icons/images/logo.png" alt="FAUSTI">
         </div>
-
-        <div class="brand-text"></div>
-
       </div>
-
     </div>
 
-    <!-- NAV -->
     <nav class="sidebar-nav">
 
-      <a href="index.html" class="nav-link ">
+      <a href="index.html" class="nav-link">
+        <i class="fa-solid fa-house"></i>
+        <b>Inicio</b>
+      </a>
 
-  <i class="fa-solid fa-house"></i>
-
-  <b>Inicio</b>
-
-</a>
-
-      <a href="ventas.html" class="nav-link ">
-
-  <i class="fa-solid fa-cart-shopping"></i>
-
-  <b>Ventas</b>
-
-</a>
+      <a href="ventas.html" class="nav-link">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <b>Ventas</b>
+      </a>
 
       <a href="productos.html" class="nav-link active">
+        <i class="fa-solid fa-box"></i>
+        <b>Productos</b>
+      </a>
 
-  <i class="fa-solid fa-box"></i>
+      <a href="caja.html" class="nav-link">
+        <i class="fa-solid fa-cash-register"></i>
+        <b>Caja</b>
+      </a>
 
-  <b>Productos</b>
-
-</a>
-
-      <a href="caja.html" class="nav-link ">
-
-  <i class="fa-solid fa-cash-register"></i>
-
-  <b>Caja</b>
-
-</a>
       <a href="produccion.html" class="nav-link">
-
-  <i class="fa-solid fa-industry"></i>
-
-  <b>Producción</b>
-
-</a>
+        <i class="fa-solid fa-industry"></i>
+        <b>Producción</b>
+      </a>
 
       <a href="proveedores.html" class="nav-link">
+        <i class="fa-solid fa-truck"></i>
+        <b>Proveedores</b>
+      </a>
 
-  <i class="fa-solid fa-truck"></i>
-
-  <b>Proveedores</b>
-
-</a>
- <a href="historial.html" class="nav-link">
+      <a href="historial.html" class="nav-link">
         <i class="fa-solid fa-clock-rotate-left"></i>
         <b>Historial</b>
       </a>
+
     </nav>
-     
 
-    <!-- USER -->
     <div class="user-box">
-
       <div class="user-info">
-
-        <small class="user-role">
-          Sesión activa
-        </small>
-
+        <small class="user-role">Sesión activa</small>
       </div>
 
-      <button
-        type="button"
-        onclick="logout()"
-        class="switch-btn"
-      >
-
-        🔄 Cerrar Sesión
-
+      <button type="button" onclick="logout()" class="switch-btn">
+        Cerrar Sesión
       </button>
-
     </div>
 
   </aside>
 
-  <!-- OVERLAY -->
-  <div
-    id="sidebarOverlay"
-    class="sidebar-overlay"
-    onclick="toggleSidebar()"
-  ></div>
-
-  <!-- ================================= -->
-  <!-- MAIN -->
-  <!-- ================================= -->
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <main class="main">
 
-    <!-- TOPBAR -->
     <div class="topbar">
 
-      <h2>
-        Productos
-      </h2>
-
-      <button
-        class="menu-toggle"
-        onclick="toggleSidebar()"
-      >
+      <button class="menu-toggle" onclick="toggleSidebar()">
         ☰
       </button>
 
+      <div>
+        <h2>📦 Productos</h2>
+        
+      </div>
+
     </div>
 
-    <!-- CONTENT -->
     <div class="page-content">
-
-      <!-- ================================= -->
-      <!-- FORM -->
-      <!-- ================================= -->
 
       <div class="box fade-in">
 
-        <h3>
-          Agregar producto
-        </h3>
+        <h3>Agregar producto</h3>
 
         <div class="form product-form">
 
-          <input
-            id="nombre"
-            type="text"
-            placeholder="Nombre"
-            autocomplete="off"
-          >
+          <input id="nombre" type="text" placeholder="Nombre" autocomplete="off">
 
-          <input
-            id="precio"
-            type="number"
-            placeholder="Precio"
-            min="0"
-          >
+          <input id="precio" type="number" placeholder="Precio" min="0">
 
-          <input
-            id="costo"
-            type="number"
-            placeholder="Costo"
-            min="0"
-          >
+          <input id="costo" type="number" placeholder="Costo" min="0">
 
-          <input
-            id="stock"
-            type="number"
-            placeholder="Stock"
-            min="0"
-          >
+          <input id="stock" type="number" placeholder="Stock" min="0">
 
-          <input
-            id="unidad"
-            type="text"
-            placeholder="Unidad: kg, unidad, litro"
-            autocomplete="off"
-          >
+          <input id="unidad" type="text" placeholder="Unidad: kg, unidad, litro" autocomplete="off">
 
           <select id="tipo">
-
-            <option value="reventa">
-              Reventa
-            </option>
-
-            <option value="elaborado">
-              Elaboración
-            </option>
-
+            <option value="reventa">Reventa</option>
+            <option value="elaborado">Elaboración</option>
+            <option value="insumo">Insumo</option>
           </select>
 
-          <button
-            type="button"
-            onclick="agregarProducto()"
-          >
-
+          <button type="button" id="btnGuardarProducto" onclick="agregarProducto()">
             Guardar Producto
-
           </button>
 
         </div>
 
       </div>
 
-      <!-- ================================= -->
-      <!-- TABLA -->
-      <!-- ================================= -->
-
       <div class="table-box fade-in">
 
         <div class="table-header">
 
-          <h3>
-            Listado de productos
-          </h3>
+          <h3>Listado de productos</h3>
 
           <input
             id="buscador"
@@ -274,39 +152,15 @@
         <table class="pro-table">
 
           <thead>
-
             <tr>
-
-              <th>
-                Producto
-              </th>
-
-              <th>
-                Precio
-              </th>
-
-              <th>
-                Costo
-              </th>
-
-              <th>
-                Stock
-              </th>
-
-              <th>
-                Ganancia
-              </th>
-
-              <th>
-                Fecha
-              </th>
-
-              <th>
-                Acción
-              </th>
-
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Costo</th>
+              <th>Stock</th>
+              <th>Ganancia</th>
+              <th>Fecha</th>
+              <th>Acción</th>
             </tr>
-
           </thead>
 
           <tbody id="listaProductos"></tbody>
@@ -321,17 +175,8 @@
 
 </div>
 
-<!-- ================================= -->
-<!-- COMMAND PALETTE -->
-<!-- ================================= -->
-
-<div
-  id="commandPalette"
-  class="command-palette hidden"
->
-
+<div id="commandPalette" class="command-palette hidden">
   <div class="command-box">
-
     <input
       type="text"
       id="commandInput"
@@ -339,35 +184,17 @@
       autocomplete="off"
       oninput="buscarGlobal()"
     >
-
     <div id="commandResults"></div>
-
   </div>
-
 </div>
 
-<!-- ================================= -->
-<!-- SCRIPTS -->
-<!-- ================================= -->
-
-<script
-  defer
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
-  onerror="console.error('Error cargando Supabase')"
-></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="js/supabase.js"></script>
-
 <script defer src="js/storage.js"></script>
-
 <script defer src="js/auth.js"></script>
-
 <script defer src="js/toast.js"></script>
-
 <script defer src="js/roles.js"></script>
-
 <script defer src="js/productos.js"></script>
-
 <script defer src="js/app.js"></script>
 
 </body>

@@ -1,30 +1,26 @@
 // =================================
-// DASHBOARD PRO V2 - LO DE FAUSTI
+// DASHBOARD PRO + SUPABASE
+// LO DE FAUSTI
 // =================================
 
 let metodosChartInstance = null;
 let ventasChartInstance = null;
 
+let ventas = [];
+let productos = [];
+let historial = [];
+let caja = [];
+
 // =================================
 // HELPERS
 // =================================
 
-function getDataStorage(key) {
-  return JSON.parse(
-    localStorage.getItem(key)
-  ) || [];
-}
-
 function formatMoney(value) {
-  return `$${Number(
-    value || 0
-  ).toLocaleString("es-AR")}`;
+  return `$${Number(value || 0).toLocaleString("es-AR")}`;
 }
 
 function setText(id, value) {
-
-  const el =
-    document.getElementById(id);
+  const el = document.getElementById(id);
 
   if (el) {
     el.innerText = value;
@@ -33,23 +29,45 @@ function setText(id, value) {
 
 function fechaAR(fecha) {
 
+  if (!fecha) return "-";
+
   return new Date(fecha)
     .toLocaleDateString(
-      "es-AR"
+      "es-AR",
+      {
+        timeZone:
+          "America/Argentina/Buenos_Aires"
+      }
     );
 }
+function fechaHoraAR(fecha) {
 
+  if (!fecha) return "-";
+
+  return new Date(fecha)
+    .toLocaleString(
+      "es-AR",
+      {
+        timeZone:
+          "America/Argentina/Buenos_Aires",
+
+        hour12: true,
+
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+
+        hour: "2-digit",
+        minute: "2-digit"
+      }
+    );
+}
 function esHoy(fecha) {
-
   return (
     fechaAR(fecha)
-
     ===
-
     new Date()
-      .toLocaleDateString(
-        "es-AR"
-      )
+      .toLocaleDateString("es-AR")
   );
 }
 
@@ -62,42 +80,203 @@ function esAyer(fecha) {
   );
 
   return (
-
     fechaAR(fecha)
-
     ===
-
-    ayer.toLocaleDateString(
-      "es-AR"
-    )
+    ayer.toLocaleDateString("es-AR")
   );
 }
 
+function avisar(mensaje, tipo = "info") {
+
+  if (typeof showToast === "function") {
+
+    showToast(mensaje, tipo);
+
+  } else {
+
+    console.log(mensaje);
+  }
+}
+
 // =================================
-// RENDER PRINCIPAL
+// SUPABASE
+// =================================
+
+async function cargarDashboardSupabase() {
+
+  // ================================
+  // PRODUCTOS
+  // ================================
+
+  const {
+
+    data: productosData,
+
+    error: productosError
+
+  } = await supabaseClient
+
+    .from("productos")
+
+    .select("*")
+
+    .eq("activo", true);
+
+  if (productosError) {
+
+    console.error(productosError);
+
+  } else {
+
+    productos = productosData || [];
+
+    localStorage.setItem(
+      "productos",
+      JSON.stringify(productos)
+    );
+  }
+
+  // ================================
+  // VENTAS
+  // ================================
+
+  const {
+
+    data: ventasData,
+
+    error: ventasError
+
+  } = await supabaseClient
+
+    .from("ventas")
+
+    .select("*")
+
+    .order(
+      "fecha",
+      { ascending: false }
+    );
+
+  if (ventasError) {
+
+    console.error(ventasError);
+
+  } else {
+
+    ventas = [];
+
+    for (const venta of ventasData || []) {
+
+      const {
+
+        data: detalleData,
+
+        error: detalleError
+
+      } = await supabaseClient
+
+        .from("venta_detalle")
+
+        .select("*")
+
+        .eq(
+          "venta_id",
+          venta.id
+        );
+
+      if (detalleError) {
+        console.error(detalleError);
+      }
+
+      ventas.push({
+
+        id:
+          venta.id,
+
+        fecha:
+          venta.fecha,
+
+        metodo:
+          venta.metodo,
+
+        subtotal:
+          Number(
+            venta.subtotal || 0
+          ),
+
+        descuento:
+          Number(
+            venta.descuento_total || 0
+          ),
+
+        total:
+          Number(
+            venta.total || 0
+          ),
+
+        usuario:
+          venta.usuario || "Local",
+
+        detalle:
+          detalleData || []
+      });
+    }
+
+    localStorage.setItem(
+      "ventas",
+      JSON.stringify(ventas)
+    );
+  }
+
+  // ================================
+  // CAJA
+  // ================================
+
+  const {
+
+    data: cajaData,
+
+    error: cajaError
+
+  } = await supabaseClient
+
+    .from("caja")
+
+    .select("*");
+
+  if (cajaError) {
+
+    console.error(cajaError);
+
+  } else {
+
+    caja = cajaData || [];
+
+    localStorage.setItem(
+      "caja",
+      JSON.stringify(caja)
+    );
+  }
+
+  // ================================
+  // HISTORIAL
+  // ================================
+
+  historial =
+    JSON.parse(
+      localStorage.getItem("historial")
+    ) || [];
+
+  renderDashboardReal();
+
+  renderInventarioSemanal();
+}
+
+// =================================
+// DASHBOARD
 // =================================
 
 function renderDashboardReal() {
-
-  const ventas =
-    getDataStorage(
-      "ventas"
-    );
-
-  const productos =
-    getDataStorage(
-      "productos"
-    );
-
-  const historial =
-    getDataStorage(
-      "historial"
-    );
-
-  const caja =
-    getDataStorage(
-      "caja"
-    );
 
   let ventasHoy = 0;
 
@@ -115,10 +294,6 @@ function renderDashboardReal() {
   const anioActual =
     new Date().getFullYear();
 
-  // =================================
-  // RECORRER VENTAS
-  // =================================
-
   ventas.forEach(v => {
 
     const fechaVenta =
@@ -128,32 +303,31 @@ function renderDashboardReal() {
       Number(v.total || 0);
 
     // HOY
+
     if (esHoy(v.fecha)) {
 
       ventasHoy += total;
     }
 
     // AYER
+
     if (esAyer(v.fecha)) {
 
       ventasAyer += total;
     }
 
     // MES
+
     if (
 
       fechaVenta.getMonth()
-
       ===
-
       mesActual
 
       &&
 
       fechaVenta.getFullYear()
-
       ===
-
       anioActual
 
     ) {
@@ -162,6 +336,7 @@ function renderDashboardReal() {
     }
 
     // DETALLE
+
     if (
       Array.isArray(v.detalle)
     ) {
@@ -188,7 +363,9 @@ function renderDashboardReal() {
 
         ganancia +=
 
-          (precio - costo)
+          (
+            precio - costo
+          )
 
           *
 
@@ -197,26 +374,20 @@ function renderDashboardReal() {
     }
   });
 
-  // =================================
   // STOCK
-  // =================================
 
   const stockCritico =
 
     productos.filter(
-
       p =>
-
         Number(
           p.stock || 0
         ) <= 5
-
     ).length;
 
   const stockBajo =
 
     productos.filter(
-
       p =>
 
         Number(
@@ -228,12 +399,9 @@ function renderDashboardReal() {
         Number(
           p.stock || 0
         ) <= 10
-
     ).length;
 
-  // =================================
   // SET TEXT
-  // =================================
 
   setText(
     "ventasHoy",
@@ -283,9 +451,7 @@ function renderDashboardReal() {
     productos.length
   );
 
-  // =================================
   // RENDERS
-  // =================================
 
   renderKpiTrends(
     ventasHoy,
@@ -337,84 +503,14 @@ function renderDashboardReal() {
 }
 
 // =================================
-// KPI TRENDS
+// KPI
 // =================================
 
 function renderKpiTrends(
-
   ventasHoy,
   ventasAyer,
   stockCritico
-
 ) {
-
-  const ventasCard =
-
-    document
-      .getElementById(
-        "ventasHoy"
-      )
-      ?.parentElement;
-
-  const stockCard =
-
-    document
-      .getElementById(
-        "cantidadStockCritico"
-      )
-      ?.parentElement;
-
-  // VENTAS
-  if (
-
-    ventasCard
-
-    &&
-
-    !ventasCard.querySelector(
-      ".kpi-trend"
-    )
-
-  ) {
-
-    ventasCard.insertAdjacentHTML(
-
-      "beforeend",
-
-      `
-      <div
-        id="trendVentas"
-        class="kpi-trend neutral"
-      ></div>
-      `
-    );
-  }
-
-  // STOCK
-  if (
-
-    stockCard
-
-    &&
-
-    !stockCard.querySelector(
-      ".kpi-trend"
-    )
-
-  ) {
-
-    stockCard.insertAdjacentHTML(
-
-      "beforeend",
-
-      `
-      <div
-        id="trendStock"
-        class="kpi-trend neutral"
-      ></div>
-      `
-    );
-  }
 
   const trendVentas =
     document.getElementById(
@@ -426,15 +522,12 @@ function renderKpiTrends(
       "trendStock"
     );
 
-  // VENTAS
   if (trendVentas) {
 
     if (
 
       ventasAyer === 0
-
       &&
-
       ventasHoy > 0
 
     ) {
@@ -453,30 +546,32 @@ function renderKpiTrends(
 
       const porcentaje =
 
-        Math.round(
+        ventasAyer > 0
 
-          (
+          ?
+
+          Math.round(
             (
-              ventasHoy
-              -
+              (
+                ventasHoy
+                -
+                ventasAyer
+              )
+
+              /
+
               ventasAyer
             )
 
-            /
-
-            ventasAyer
+            * 100
           )
 
-          *
-
-          100
-        );
+          : 100;
 
       trendVentas.className =
         "kpi-trend up";
 
       trendVentas.innerText =
-
         `↑ ${porcentaje}% vs ayer`;
 
     } else if (
@@ -497,11 +592,10 @@ function renderKpiTrends(
         "kpi-trend neutral";
 
       trendVentas.innerText =
-        "Sin cambios importantes";
+        "Sin cambios";
     }
   }
 
-  // STOCK
   if (trendStock) {
 
     if (stockCritico > 0) {
@@ -528,11 +622,9 @@ function renderKpiTrends(
 // =================================
 
 function renderEstadoNegocio(
-
   ventasHoy,
   stockCritico,
   cantidadVentas
-
 ) {
 
   const cont =
@@ -549,17 +641,12 @@ function renderEstadoNegocio(
     "status-good";
 
   let texto =
-
     "El negocio está funcionando correctamente.";
 
   if (
-
     stockCritico > 0
-
     ||
-
     ventasHoy === 0
-
   ) {
 
     estado =
@@ -569,18 +656,13 @@ function renderEstadoNegocio(
       "status-warning";
 
     texto =
-
-      "Hay situaciones importantes para revisar.";
+      "Hay situaciones para revisar.";
   }
 
   if (
-
     stockCritico >= 3
-
     &&
-
     ventasHoy === 0
-
   ) {
 
     estado =
@@ -590,15 +672,10 @@ function renderEstadoNegocio(
       "status-danger";
 
     texto =
-
-      "Revisar stock y actividad urgente.";
+      "Revisar stock y actividad.";
   }
 
-  if (
-
-    cantidadVentas === 0
-
-  ) {
+  if (cantidadVentas === 0) {
 
     estado =
       "Inicial";
@@ -607,12 +684,10 @@ function renderEstadoNegocio(
       "status-warning";
 
     texto =
-
-      "Todavía no hay ventas registradas.";
+      "Todavía no hay ventas.";
   }
 
   cont.innerHTML = `
-
     <span>
       Estado del negocio
     </span>
@@ -642,13 +717,11 @@ function renderEstadoNegocio(
 // =================================
 
 function renderAlertasInteligentes(
-
   ventas,
   productos,
   caja,
   ventasHoy,
   stockCritico
-
 ) {
 
   const cont =
@@ -661,18 +734,14 @@ function renderAlertasInteligentes(
   const alertas = [];
 
   const productosSinStock =
-
     productos.filter(
-
       p =>
-
         Number(
           p.stock || 0
         ) <= 0
     );
 
   const cajaAbiertaHoy =
-
     caja.some(c =>
 
       c.tipo === "apertura"
@@ -686,7 +755,6 @@ function renderAlertasInteligentes(
       esHoy(c.fecha)
     );
 
-  // SIN VENTAS
   if (ventasHoy === 0) {
 
     alertas.push({
@@ -701,11 +769,10 @@ function renderAlertasInteligentes(
         "No hubo ventas hoy",
 
       texto:
-        "Revisar actividad comercial."
+        "Revisar actividad."
     });
   }
 
-  // STOCK CRITICO
   if (stockCritico > 0) {
 
     alertas.push({
@@ -717,7 +784,6 @@ function renderAlertasInteligentes(
         "fa-box-open",
 
       titulo:
-
         `${stockCritico} productos críticos`,
 
       texto:
@@ -725,12 +791,7 @@ function renderAlertasInteligentes(
     });
   }
 
-  // SIN STOCK
-  if (
-
-    productosSinStock.length > 0
-
-  ) {
+  if (productosSinStock.length > 0) {
 
     alertas.push({
 
@@ -741,7 +802,6 @@ function renderAlertasInteligentes(
         "fa-triangle-exclamation",
 
       titulo:
-
         `${productosSinStock.length} productos agotados`,
 
       texto:
@@ -749,7 +809,6 @@ function renderAlertasInteligentes(
     });
   }
 
-  // CAJA
   if (!cajaAbiertaHoy) {
 
     alertas.push({
@@ -764,16 +823,11 @@ function renderAlertasInteligentes(
         "Caja no abierta",
 
       texto:
-        "Abrí caja para iniciar el día."
+        "Abrí caja para iniciar."
     });
   }
 
-  // TODO OK
-  if (
-
-    alertas.length === 0
-
-  ) {
+  if (alertas.length === 0) {
 
     alertas.push({
 
@@ -787,12 +841,11 @@ function renderAlertasInteligentes(
         "Todo bajo control",
 
       texto:
-        "No hay alertas importantes."
+        "No hay alertas."
     });
   }
 
   cont.innerHTML =
-
     alertas.map(a => `
 
       <div
@@ -816,6 +869,7 @@ function renderAlertasInteligentes(
         </div>
 
       </div>
+
     `).join("");
 }
 
@@ -823,9 +877,7 @@ function renderAlertasInteligentes(
 // TOP PRODUCTOS
 // =================================
 
-function renderTopProductos(
-  ventas
-) {
+function renderTopProductos(ventas) {
 
   const cont =
     document.getElementById(
@@ -838,30 +890,18 @@ function renderTopProductos(
 
   ventas.forEach(v => {
 
-    if (
-      !Array.isArray(
-        v.detalle
-      )
-    ) return;
+    if (!Array.isArray(v.detalle))
+      return;
 
     v.detalle.forEach(item => {
 
       const nombre =
-
-        item.nombre
-        ||
-        item.producto
-        ||
-        "Producto";
+        item.nombre || "Producto";
 
       const cantidad =
-
-        Number(
-          item.cantidad || 0
-        );
+        Number(item.cantidad || 0);
 
       if (!ranking[nombre]) {
-
         ranking[nombre] = 0;
       }
 
@@ -872,35 +912,26 @@ function renderTopProductos(
 
   const top =
 
-    Object.entries(
-      ranking
-    )
+    Object.entries(ranking)
 
-    .sort(
-      (a, b) => b[1] - a[1]
-    )
+      .sort(
+        (a, b) => b[1] - a[1]
+      )
 
-    .slice(0, 5);
+      .slice(0, 5);
 
   if (top.length === 0) {
 
     cont.innerHTML = `
-
       <div class="empty-state">
-
         Todavía no hay productos vendidos
-
       </div>
     `;
 
     return;
   }
 
-  const max =
-    top[0][1];
-
   const medallas = [
-
     "🥇",
     "🥈",
     "🥉",
@@ -908,40 +939,31 @@ function renderTopProductos(
     "🔥"
   ];
 
+  const max = top[0][1];
+
   cont.innerHTML =
 
     top.map(
-
       ([nombre, cantidad], index) => {
 
         const porcentaje =
 
           Math.max(
-
             8,
-
             Math.round(
-
               (
                 cantidad
                 /
                 max
-              )
-
-              *
-
-              100
+              ) * 100
             )
           );
 
         return `
-
           <div class="top-product-item">
 
             <div class="top-medal">
-
               ${medallas[index]}
-
             </div>
 
             <div class="top-product-info">
@@ -961,28 +983,22 @@ function renderTopProductos(
             </div>
 
             <div class="top-product-total">
-
               ${cantidad}
-
             </div>
 
           </div>
         `;
       }
-
     ).join("");
 }
 
 // =================================
-// ACTIVIDAD RECIENTE
+// ACTIVIDAD
 // =================================
 
-function renderActividadReciente(
-  historial
-) {
+function renderActividadReciente(historial) {
 
   const cont =
-
     document.getElementById(
       "actividadReciente"
     );
@@ -992,11 +1008,8 @@ function renderActividadReciente(
   if (historial.length === 0) {
 
     cont.innerHTML = `
-
       <div class="empty-state">
-
         Sin actividad reciente
-
       </div>
     `;
 
@@ -1004,7 +1017,6 @@ function renderActividadReciente(
   }
 
   cont.innerHTML = `
-
     <div class="timeline">
 
       ${historial
@@ -1016,21 +1028,15 @@ function renderActividadReciente(
           <div class="timeline-item">
 
             <h4>
-
               ${h.modulo || "Sistema"}
-
             </h4>
 
             <p>
-
               ${h.descripcion || "-"}
-
             </p>
 
             <small>
-
               ${h.fecha || "-"}
-
             </small>
 
           </div>
@@ -1042,15 +1048,12 @@ function renderActividadReciente(
 }
 
 // =================================
-// STOCK CRITICO
+// STOCKS
 // =================================
 
-function renderStockCritico(
-  productos
-) {
+function renderStockCritico(productos) {
 
   const cont =
-
     document.getElementById(
       "stockCritico"
     );
@@ -1058,11 +1061,8 @@ function renderStockCritico(
   if (!cont) return;
 
   const criticos =
-
     productos.filter(
-
       p =>
-
         Number(
           p.stock || 0
         ) <= 5
@@ -1071,11 +1071,8 @@ function renderStockCritico(
   if (criticos.length === 0) {
 
     cont.innerHTML = `
-
       <div class="empty-state">
-
         Sin stock crítico
-
       </div>
     `;
 
@@ -1083,38 +1080,25 @@ function renderStockCritico(
   }
 
   cont.innerHTML =
-
     criticos.map(p => `
-
       <div class="stock-item critical">
 
         <strong>
-
           ${p.nombre}
-
         </strong>
 
         <span>
-
           Stock:
           ${p.stock}
-
         </span>
 
       </div>
     `).join("");
 }
 
-// =================================
-// STOCK BAJO
-// =================================
-
-function renderStockBajo(
-  productos
-) {
+function renderStockBajo(productos) {
 
   const cont =
-
     document.getElementById(
       "stockBajo"
     );
@@ -1122,9 +1106,7 @@ function renderStockBajo(
   if (!cont) return;
 
   const bajos =
-
     productos.filter(
-
       p =>
 
         Number(
@@ -1141,11 +1123,8 @@ function renderStockBajo(
   if (bajos.length === 0) {
 
     cont.innerHTML = `
-
       <div class="empty-state">
-
         Sin stock bajo
-
       </div>
     `;
 
@@ -1153,22 +1132,16 @@ function renderStockBajo(
   }
 
   cont.innerHTML =
-
     bajos.map(p => `
-
       <div class="stock-item low">
 
         <strong>
-
           ${p.nombre}
-
         </strong>
 
         <span>
-
           Stock:
           ${p.stock}
-
         </span>
 
       </div>
@@ -1176,15 +1149,12 @@ function renderStockBajo(
 }
 
 // =================================
-// ULTIMAS VENTAS
+// ÚLTIMAS VENTAS
 // =================================
 
-function renderUltimasVentas(
-  ventas
-) {
+function renderUltimasVentas(ventas) {
 
   const cont =
-
     document.getElementById(
       "ultimasVentas"
     );
@@ -1194,11 +1164,8 @@ function renderUltimasVentas(
   if (ventas.length === 0) {
 
     cont.innerHTML = `
-
       <div class="empty-state">
-
-        Sin ventas registradas
-
+        Sin ventas
       </div>
     `;
 
@@ -1207,12 +1174,8 @@ function renderUltimasVentas(
 
   cont.innerHTML =
 
-    [...ventas]
-
-      .reverse()
-
+    ventas
       .slice(0, 6)
-
       .map(v => `
 
         <div class="movement-card">
@@ -1220,43 +1183,33 @@ function renderUltimasVentas(
           <div>
 
             <h4>
-
-              ${v.fecha || "-"}
-
+              ${fechaHoraAR(v.fecha)}
             </h4>
 
             <p>
-
               ${v.usuario || "Local"}
-
               ·
-
               ${v.metodo || "-"}
-
             </p>
 
           </div>
 
           <strong>
-
             ${formatMoney(v.total)}
-
           </strong>
 
         </div>
+
       `).join("");
 }
 
 // =================================
-// CHART METODOS
+// CHARTS
 // =================================
 
-function renderMetodosChart(
-  ventas
-) {
+function renderMetodosChart(ventas) {
 
   const canvas =
-
     document.getElementById(
       "metodosChart"
     );
@@ -1264,50 +1217,34 @@ function renderMetodosChart(
   if (
     !canvas
     ||
-    typeof Chart ===
-    "undefined"
+    typeof Chart === "undefined"
   ) return;
 
-  if (
-    metodosChartInstance
-  ) {
-
+  if (metodosChartInstance) {
     metodosChartInstance.destroy();
   }
 
   const data = {
-
     efectivo: 0,
-
     transferencia: 0,
-
     mp: 0,
-
     qr: 0
   };
 
   ventas.forEach(v => {
 
     if (
-
       data[v.metodo]
-
       !==
-
       undefined
-
     ) {
 
       data[v.metodo] +=
-
-        Number(
-          v.total || 0
-        );
+        Number(v.total || 0);
     }
   });
 
   metodosChartInstance =
-
     new Chart(canvas, {
 
       type: "doughnut",
@@ -1315,26 +1252,18 @@ function renderMetodosChart(
       data: {
 
         labels: [
-
           "Efectivo",
-
           "Transferencia",
-
           "MP",
-
           "QR"
         ],
 
         datasets: [{
 
           data: [
-
             data.efectivo,
-
             data.transferencia,
-
             data.mp,
-
             data.qr
           ],
 
@@ -1348,49 +1277,14 @@ function renderMetodosChart(
 
         responsive: true,
 
-        cutout: "68%",
-
-        plugins: {
-
-          legend: {
-
-            position: "bottom",
-
-            labels: {
-
-              usePointStyle: true,
-
-              font: {
-
-                weight: "bold"
-              }
-            }
-          },
-
-          tooltip: {
-
-            callbacks: {
-
-              label: ctx =>
-
-                `${ctx.label}: ${formatMoney(ctx.raw)}`
-            }
-          }
-        }
+        cutout: "68%"
       }
     });
 }
 
-// =================================
-// CHART VENTAS
-// =================================
-
-function renderVentasChart(
-  ventas
-) {
+function renderVentasChart(ventas) {
 
   const canvas =
-
     document.getElementById(
       "ventasChart"
     );
@@ -1398,71 +1292,29 @@ function renderVentasChart(
   if (
     !canvas
     ||
-    typeof Chart ===
-    "undefined"
+    typeof Chart === "undefined"
   ) return;
 
-  if (
-    ventasChartInstance
-  ) {
-
+  if (ventasChartInstance) {
     ventasChartInstance.destroy();
   }
 
-  const ctx =
-    canvas.getContext("2d");
-
-  const gradient =
-
-    ctx.createLinearGradient(
-      0,
-      0,
-      0,
-      280
-    );
-
-  gradient.addColorStop(
-    0,
-    "rgba(37,99,235,.30)"
-  );
-
-  gradient.addColorStop(
-    1,
-    "rgba(37,99,235,0)"
-  );
-
   const ultimas =
-
-    [...ventas]
-
-      .reverse()
-
+    ventas
       .slice(0, 7)
-
       .reverse();
 
   const labels =
-
     ultimas.map(v =>
-
-      v.fecha
-      ?
       fechaAR(v.fecha)
-      :
-      "-"
     );
 
   const valores =
-
     ultimas.map(v =>
-
-      Number(
-        v.total || 0
-      )
+      Number(v.total || 0)
     );
 
   ventasChartInstance =
-
     new Chart(canvas, {
 
       type: "line",
@@ -1481,14 +1333,9 @@ function renderVentasChart(
 
           fill: true,
 
-          backgroundColor:
-            gradient,
-
           borderWidth: 3,
 
-          pointRadius: 5,
-
-          pointHoverRadius: 7
+          pointRadius: 5
         }]
       },
 
@@ -1496,54 +1343,7 @@ function renderVentasChart(
 
         responsive: true,
 
-        maintainAspectRatio: false,
-
-        plugins: {
-
-          legend: {
-
-            display: false
-          },
-
-          tooltip: {
-
-            callbacks: {
-
-              label: ctx =>
-
-                `Ventas: ${formatMoney(ctx.raw)}`
-            }
-          }
-        },
-
-        scales: {
-
-          y: {
-
-            beginAtZero: true,
-
-            ticks: {
-
-              callback: value =>
-
-                formatMoney(value)
-            },
-
-            grid: {
-
-              color:
-                "rgba(15,23,42,.06)"
-            }
-          },
-
-          x: {
-
-            grid: {
-
-              display: false
-            }
-          }
-        }
+        maintainAspectRatio: false
       }
     });
 }
@@ -1555,30 +1355,19 @@ function renderVentasChart(
 function renderInventarioSemanal() {
 
   const cont =
-
     document.getElementById(
       "inventarioSemanal"
     );
 
   if (!cont) return;
 
-  const productos =
-    getDataStorage(
-      "productos"
-    );
-
   if (productos.length === 0) {
 
     cont.innerHTML = `
-
       <tr>
-
         <td colspan="3">
-
           No hay productos
-
         </td>
-
       </tr>
     `;
 
@@ -1586,62 +1375,50 @@ function renderInventarioSemanal() {
   }
 
   productos.sort(
-
     (a, b) =>
-
       Number(a.stock || 0)
-
       -
-
       Number(b.stock || 0)
   );
 
   cont.innerHTML =
-
     productos.map(p => {
 
       const stock =
-
-        Number(
-          p.stock || 0
-        );
+        Number(p.stock || 0);
 
       const estado =
-
         stock <= 5
 
-        ? `
+        ?
+
+        `
           <span class="stock-low">
             CRÍTICO
           </span>
         `
 
-        : `
+        :
+
+        `
           <span class="stock-ok">
             CORRECTO
           </span>
         `;
 
       return `
-
         <tr>
 
           <td>
-
             ${p.nombre}
-
           </td>
 
           <td>
-
             ${p.stock}
-
           </td>
 
           <td>
-
             ${estado}
-
           </td>
 
         </tr>
@@ -1650,71 +1427,15 @@ function renderInventarioSemanal() {
 }
 
 // =================================
-// FILTROS
-// =================================
-
-function filtrarDashboard(
-  tipo
-) {
-
-  document
-
-    .querySelectorAll(
-      ".filter-btn"
-    )
-
-    .forEach(btn =>
-
-      btn.classList.remove(
-        "active"
-      )
-    );
-
-  const botones =
-
-    document.querySelectorAll(
-      ".filter-btn"
-    );
-
-  if (tipo === "hoy") {
-
-    botones[0]
-      ?.classList.add(
-        "active"
-      );
-  }
-
-  if (tipo === "semana") {
-
-    botones[1]
-      ?.classList.add(
-        "active"
-      );
-  }
-
-  if (tipo === "mes") {
-
-    botones[2]
-      ?.classList.add(
-        "active"
-      );
-  }
-
-  renderDashboardReal();
-}
-
-// =================================
 // INIT
 // =================================
 
 document.addEventListener(
-
   "DOMContentLoaded",
+  async () => {
 
-  () => {
+    await cargarDashboardSupabase();
 
-    renderDashboardReal();
-
-    renderInventarioSemanal();
+    
   }
 );

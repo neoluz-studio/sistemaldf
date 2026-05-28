@@ -1,23 +1,14 @@
 // =================================
-// CAJA PRO V2 - LO DE FAUSTI
+// CAJA PRO V2 + SUPABASE - LO DE FAUSTI
 // =================================
 
-let caja = JSON.parse(localStorage.getItem("caja")) || [];
-let aperturas = JSON.parse(localStorage.getItem("aperturasCaja")) || [];
+let caja = [];
+let aperturas = [];
+let ventasCache = [];
 
+// =================================
 // HELPERS
-function obtenerVentas() {
-  return JSON.parse(localStorage.getItem("ventas")) || [];
-}
-
-function obtenerUsuario() {
-  return JSON.parse(localStorage.getItem("usuario"))?.nombre || "Local";
-}
-
-function guardarCaja() {
-  localStorage.setItem("caja", JSON.stringify(caja));
-  localStorage.setItem("aperturasCaja", JSON.stringify(aperturas));
-}
+// =================================
 
 function formatoMoneda(valor) {
   return `$${Number(valor || 0).toLocaleString("es-AR")}`;
@@ -36,6 +27,10 @@ function avisar(mensaje, tipo = "info") {
   }
 }
 
+function obtenerUsuario() {
+  return JSON.parse(localStorage.getItem("usuario"))?.nombre || "Lodefausti";
+}
+
 function formatearMetodo(metodo) {
   const nombres = {
     efectivo: "EFECTIVO",
@@ -47,6 +42,15 @@ function formatearMetodo(metodo) {
   };
 
   return nombres[metodo] || metodo || "-";
+}
+
+function guardarCajaLocal() {
+  localStorage.setItem("caja", JSON.stringify(caja));
+  localStorage.setItem("aperturasCaja", JSON.stringify(aperturas));
+}
+
+function guardarVentasLocal() {
+  localStorage.setItem("ventas", JSON.stringify(ventasCache));
 }
 
 function esApertura(m) {
@@ -63,7 +67,93 @@ function esCierre(m) {
   );
 }
 
+// =================================
+// CARGAR DATOS SUPABASE
+// =================================
+
+async function cargarDatosSupabase() {
+  if (typeof supabaseClient === "undefined") {
+    caja = JSON.parse(localStorage.getItem("caja")) || [];
+    ventasCache = JSON.parse(localStorage.getItem("ventas")) || [];
+    aperturas = JSON.parse(localStorage.getItem("aperturasCaja")) || [];
+    return;
+  }
+
+  const { data: cajaData, error: cajaError } = await supabaseClient
+    .from("caja")
+    .select("*")
+    .order("fecha", { ascending: false });
+
+  if (cajaError) {
+    console.error(cajaError);
+    avisar("Error cargando caja", "error");
+    caja = JSON.parse(localStorage.getItem("caja")) || [];
+  } else {
+    caja = (cajaData || []).map(m => ({
+      id: m.id,
+      ventaId: m.venta_id,
+      tipo: m.tipo,
+      metodo: m.metodo,
+      motivo: m.motivo,
+      subtotal: Number(m.subtotal || 0),
+      descuento: Number(m.descuento || 0),
+      monto: Number(m.monto || 0),
+      usuario: m.usuario || "Lodefausti",
+      fecha: m.fecha
+        ? new Date(m.fecha).toLocaleString("es-AR")
+        : "-"
+    }));
+  }
+
+  const { data: ventasData, error: ventasError } = await supabaseClient
+    .from("ventas")
+    .select("*")
+    .order("fecha", { ascending: false });
+
+  if (ventasError) {
+    console.error(ventasError);
+    avisar("Error cargando ventas", "error");
+    ventasCache = JSON.parse(localStorage.getItem("ventas")) || [];
+  } else {
+    ventasCache = (ventasData || []).map(v => ({
+      id: v.id,
+      supabaseId: v.id,
+      fecha: v.fecha
+        ? new Date(v.fecha).toLocaleString("es-AR")
+        : "-",
+      metodo: v.metodo,
+      subtotal: Number(v.subtotal || 0),
+      descuentoProductos: Number(v.descuento_productos || 0),
+      descuentoCarrito: Number(v.descuento_carrito || 0),
+      descuento: Number(v.descuento_total || 0),
+      total: Number(v.total || 0),
+      costoTotal: Number(v.costo_total || 0),
+      ganancia: Number(v.ganancia || 0),
+      usuario: v.usuario || "Lodefausti",
+      detalle: []
+    }));
+  }
+
+  aperturas = caja.filter(m => esApertura(m) || esCierre(m));
+
+  guardarCajaLocal();
+  guardarVentasLocal();
+}
+
+// =================================
+// OBTENER VENTAS
+// =================================
+
+function obtenerVentas() {
+  return ventasCache.length
+    ? ventasCache
+    : JSON.parse(localStorage.getItem("ventas")) || [];
+}
+
+// =================================
 // CALCULAR CAJA
+// =================================
+
 function calcularCaja() {
   const ventas = obtenerVentas();
 
@@ -84,11 +174,6 @@ function calcularCaja() {
 
   const totalVendido = ventas.reduce(
     (acc, v) => acc + Number(v.total || 0),
-    0
-  );
-
-  const totalDescuentos = ventas.reduce(
-    (acc, v) => acc + Number(v.descuento || 0),
     0
   );
 
@@ -128,7 +213,6 @@ function calcularCaja() {
     promoNacion,
     totalDigital,
     totalVendido,
-    totalDescuentos,
     aperturasMonto,
     ingresosManuales,
     egresos,
@@ -140,7 +224,10 @@ function calcularCaja() {
   };
 }
 
+// =================================
 // MODAL
+// =================================
+
 function abrirModalCaja(tipo) {
   const modal = document.getElementById("modalCaja");
   const titulo = document.getElementById("modalCajaTitulo");
@@ -196,7 +283,39 @@ function cerrarModalCaja() {
   if (motivo) motivo.value = "";
 }
 
-function confirmarModalCaja() {
+// =================================
+// GUARDAR MOVIMIENTO
+// =================================
+
+async function guardarMovimientoCajaSupabase(movimiento) {
+  if (typeof supabaseClient === "undefined") {
+    return null;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("caja")
+    .insert([{
+      tipo: movimiento.tipo,
+      metodo: movimiento.metodo || null,
+      motivo: movimiento.motivo,
+      subtotal: movimiento.subtotal || 0,
+      descuento: movimiento.descuento || 0,
+      monto: movimiento.monto,
+      usuario: movimiento.usuario,
+      fecha: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw error;
+  }
+
+  return data;
+}
+
+async function confirmarModalCaja() {
   const tipo = document.getElementById("modalCajaTipo")?.value;
   const monto = Number(document.getElementById("modalCajaMonto")?.value || 0);
   const motivo = document.getElementById("modalCajaMotivo")?.value.trim();
@@ -215,83 +334,67 @@ function confirmarModalCaja() {
     return;
   }
 
-  const fecha = new Date().toLocaleString();
   const usuario = obtenerUsuario();
 
-  if (tipo === "apertura") {
-    caja.push({
-      id: Date.now(),
-      tipo: "apertura",
-      monto,
-      motivo: motivo || "Apertura de caja",
-      usuario,
-      fecha
-    });
+  const movimiento = {
+    id: Date.now(),
+    tipo,
+    monto,
+    motivo:
+      motivo ||
+      (tipo === "apertura"
+        ? "Apertura de caja"
+        : tipo === "cierre"
+        ? "Cierre de caja"
+        : tipo === "ingreso"
+        ? "Ingreso manual"
+        : "Egreso manual"),
+    usuario,
+    fecha: new Date().toLocaleString("es-AR")
+  };
 
-    aperturas.push({
-      id: Date.now(),
-      tipo: "apertura",
-      monto,
-      usuario,
-      fecha
-    });
+  try {
+    const movSupabase = await guardarMovimientoCajaSupabase(movimiento);
 
-    avisar("Caja abierta correctamente", "success");
+    if (movSupabase) {
+      movimiento.id = movSupabase.id;
+      movimiento.fecha = movSupabase.fecha
+        ? new Date(movSupabase.fecha).toLocaleString("es-AR")
+        : movimiento.fecha;
+    }
+
+    caja.push(movimiento);
+
+    if (tipo === "apertura" || tipo === "cierre") {
+      aperturas.push(movimiento);
+    }
+
+    guardarCajaLocal();
+
+    cerrarModalCaja();
+    actualizarCaja();
+
+    avisar(
+      tipo === "apertura"
+        ? "Caja abierta correctamente"
+        : tipo === "cierre"
+        ? "Caja cerrada"
+        : tipo === "ingreso"
+        ? "Ingreso registrado"
+        : "Egreso registrado",
+      tipo === "egreso" || tipo === "cierre" ? "info" : "success"
+    );
+
+  } catch (error) {
+    console.error(error);
+    avisar("Error guardando movimiento", "error");
   }
-
-  if (tipo === "ingreso") {
-    caja.push({
-      id: Date.now(),
-      tipo: "ingreso",
-      monto,
-      motivo: motivo || "Ingreso manual",
-      usuario,
-      fecha
-    });
-
-    avisar("Ingreso registrado", "success");
-  }
-
-  if (tipo === "egreso") {
-    caja.push({
-      id: Date.now(),
-      tipo: "egreso",
-      monto,
-      motivo: motivo || "Egreso manual",
-      usuario,
-      fecha
-    });
-
-    avisar("Egreso registrado", "info");
-  }
-
-  if (tipo === "cierre") {
-    caja.push({
-      id: Date.now(),
-      tipo: "cierre",
-      monto,
-      motivo: motivo || "Cierre de caja",
-      usuario,
-      fecha
-    });
-
-    aperturas.push({
-      id: Date.now(),
-      tipo: "cierre",
-      monto,
-      usuario,
-      fecha
-    });
-
-    avisar("Caja cerrada", "info");
-  }
-
-  guardarCaja();
-  cerrarModalCaja();
-  actualizarCaja();
 }
 
+// =================================
 // STATS
+// =================================
+
 function renderStatsCaja() {
   const r = calcularCaja();
 
@@ -321,7 +424,10 @@ function renderStatsCaja() {
   }
 }
 
+// =================================
 // MOVIMIENTOS
+// =================================
+
 function renderMovimientos() {
   const cont = document.getElementById("listaCaja");
   if (!cont) return;
@@ -355,7 +461,7 @@ function renderMovimientos() {
 
             <h4>${m.motivo || "-"}</h4>
 
-            <small>${m.fecha || "-"} · ${m.usuario || "Local"}</small>
+            <small>${m.fecha || "-"} · ${m.usuario || "Lodefausti"}</small>
           </div>
 
           <strong class="${ingreso ? "money-in" : "money-out"}">
@@ -367,7 +473,10 @@ function renderMovimientos() {
     .join("");
 }
 
+// =================================
 // HISTORIAL VENTAS
+// =================================
+
 function renderHistorialVentas() {
   const cont = document.getElementById("historialVentas");
   if (!cont) return;
@@ -383,8 +492,7 @@ function renderHistorialVentas() {
     return;
   }
 
-  cont.innerHTML = [...ventas]
-    .reverse()
+  cont.innerHTML = ventas
     .slice(0, 12)
     .map(venta => `
       <tr>
@@ -409,7 +517,7 @@ function renderHistorialVentas() {
           <button
             type="button"
             class="detail-btn"
-            onclick="verDetalleVenta(${venta.id})"
+            onclick="verDetalleVenta('${venta.id}')"
           >
             Ver
           </button>
@@ -419,9 +527,45 @@ function renderHistorialVentas() {
     .join("");
 }
 
+// =================================
 // DETALLE VENTA
-function verDetalleVenta(id) {
-  const venta = obtenerVentas().find(v => Number(v.id) === Number(id));
+// =================================
+
+async function obtenerDetalleVenta(id) {
+  const ventaLocal = ventasCache.find(v => String(v.id) === String(id));
+
+  if (!ventaLocal) return null;
+
+  if (ventaLocal.detalle && ventaLocal.detalle.length > 0) {
+    return ventaLocal;
+  }
+
+  if (typeof supabaseClient === "undefined") return ventaLocal;
+
+  const { data, error } = await supabaseClient
+    .from("venta_detalle")
+    .select("*")
+    .eq("venta_id", id);
+
+  if (error) {
+    console.error(error);
+    return ventaLocal;
+  }
+
+  ventaLocal.detalle = (data || []).map(item => ({
+    nombre: item.nombre,
+    cantidad: Number(item.cantidad || 0),
+    precio: Number(item.precio || 0),
+    total: Number(item.total || 0),
+    subtotal: Number(item.subtotal || 0),
+    descuento: Number(item.descuento || 0)
+  }));
+
+  return ventaLocal;
+}
+
+async function verDetalleVenta(id) {
+  const venta = await obtenerDetalleVenta(id);
 
   if (!venta) {
     avisar("Venta no encontrada", "error");
@@ -492,37 +636,57 @@ function verDetalleVenta(id) {
   };
 }
 
-// LIMPIAR
-function limpiarCaja() {
+// =================================
+// LIMPIAR CAJA
+// =================================
+
+async function limpiarCaja() {
   if (caja.length === 0) {
     avisar("No hay movimientos", "info");
     return;
   }
 
-  const confirmar = confirm("¿Limpiar caja completa?");
+  const confirmar = confirm("¿Limpiar caja completa? También se borrarán movimientos en Supabase.");
 
   if (!confirmar) return;
+
+  if (typeof supabaseClient !== "undefined") {
+    const { error } = await supabaseClient
+      .from("caja")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
+
+    if (error) {
+      console.error(error);
+      avisar("Error limpiando caja en Supabase", "error");
+      return;
+    }
+  }
 
   caja = [];
   aperturas = [];
 
-  guardarCaja();
+  guardarCajaLocal();
   actualizarCaja();
 
   avisar("Caja limpiada", "success");
 }
 
+// =================================
 // ACTUALIZAR
-function actualizarCaja() {
-  caja = JSON.parse(localStorage.getItem("caja")) || [];
-  aperturas = JSON.parse(localStorage.getItem("aperturasCaja")) || [];
+// =================================
 
+function actualizarCaja() {
   renderStatsCaja();
   renderMovimientos();
   renderHistorialVentas();
 }
 
+// =================================
 // INIT
-document.addEventListener("DOMContentLoaded", () => {
+// =================================
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await cargarDatosSupabase();
   actualizarCaja();
 });

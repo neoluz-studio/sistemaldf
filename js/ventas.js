@@ -1,3 +1,7 @@
+// =================================
+// VENTAS PRO + SUPABASE - LO DE FAUSTI
+// =================================
+
 let productos =
   JSON.parse(localStorage.getItem("productos")) || [];
 
@@ -18,14 +22,22 @@ function money(valor) {
   return `$${Number(valor || 0).toLocaleString("es-AR")}`;
 }
 
+function avisar(mensaje, tipo = "info") {
+  if (typeof showToast === "function") {
+    showToast(mensaje, tipo);
+  } else {
+    alert(mensaje);
+  }
+}
+
 function getUsuarioActual() {
   return (
     JSON.parse(localStorage.getItem("usuario"))?.nombre ||
-    "Local"
+    "Lodefausti"
   );
 }
 
-function guardarProductos() {
+function guardarProductosLocal() {
   localStorage.setItem("productos", JSON.stringify(productos));
 }
 
@@ -44,6 +56,34 @@ function limitarNumero(valor, min = 0, max = Infinity) {
   if (numero > max) return max;
 
   return numero;
+}
+
+// =================================
+// CARGAR PRODUCTOS
+// =================================
+
+async function cargarProductosIniciales() {
+  if (typeof supabaseClient !== "undefined") {
+    const { data, error } = await supabaseClient
+      .from("productos")
+      .select("*")
+      .eq("activo", true)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      productos = data;
+      guardarProductosLocal();
+      renderProductos();
+      return;
+    }
+
+    console.error(error);
+  }
+
+  productos =
+    JSON.parse(localStorage.getItem("productos")) || [];
+
+  renderProductos();
 }
 
 // =================================
@@ -130,15 +170,17 @@ function agregarAlCarrito(prod) {
   const stock = Number(prod.stock || 0);
 
   if (stock <= 0) {
-    showToast(`${prod.nombre} sin stock`, "error");
+    avisar(`${prod.nombre} sin stock`, "error");
     return;
   }
 
-  const existe = carrito.find(p => p.id === prod.id);
+  const existe = carrito.find(
+    p => String(p.id) === String(prod.id)
+  );
 
   if (existe) {
     if (existe.cantidad >= stock) {
-      showToast(`Stock máximo de ${prod.nombre}`, "error");
+      avisar(`Stock máximo de ${prod.nombre}`, "error");
       return;
     }
 
@@ -149,7 +191,7 @@ function agregarAlCarrito(prod) {
       nombre: prod.nombre,
       precio: Number(prod.precio || 0),
       costo: Number(prod.costo || 0),
-      stock: stock,
+      stock,
       cantidad: 1,
       descuentoTipo: "porcentaje",
       descuentoValor: 0
@@ -160,15 +202,20 @@ function agregarAlCarrito(prod) {
 }
 
 function aumentarCantidad(id) {
-  const item = carrito.find(p => p.id === id);
-  const producto = productos.find(p => p.id === id);
+  const item = carrito.find(
+    p => String(p.id) === String(id)
+  );
+
+  const producto = productos.find(
+    p => String(p.id) === String(id)
+  );
 
   if (!item || !producto) return;
 
   const stock = Number(producto.stock || 0);
 
   if (item.cantidad >= stock) {
-    showToast("No hay más stock disponible", "error");
+    avisar("No hay más stock disponible", "error");
     return;
   }
 
@@ -177,23 +224,31 @@ function aumentarCantidad(id) {
 }
 
 function disminuirCantidad(id) {
-  const item = carrito.find(p => p.id === id);
+  const item = carrito.find(
+    p => String(p.id) === String(id)
+  );
+
   if (!item) return;
 
   item.cantidad--;
 
   if (item.cantidad <= 0) {
-    carrito = carrito.filter(p => p.id !== id);
+    carrito = carrito.filter(
+      p => String(p.id) !== String(id)
+    );
   }
 
   renderCarrito();
 }
 
 function eliminarDelCarrito(id) {
-  carrito = carrito.filter(p => p.id !== id);
+  carrito = carrito.filter(
+    p => String(p.id) !== String(id)
+  );
+
   renderCarrito();
 
-  showToast("Producto eliminado", "info");
+  avisar("Producto eliminado", "info");
 }
 
 // =================================
@@ -201,7 +256,10 @@ function eliminarDelCarrito(id) {
 // =================================
 
 function aplicarDescuentoProducto(id, tipo) {
-  const item = carrito.find(p => p.id === id);
+  const item = carrito.find(
+    p => String(p.id) === String(id)
+  );
+
   if (!item) return;
 
   const subtotalItem = item.precio * item.cantidad;
@@ -218,7 +276,7 @@ function aplicarDescuentoProducto(id, tipo) {
   let numero = Number(valor || 0);
 
   if (Number.isNaN(numero)) {
-    showToast("Descuento inválido", "error");
+    avisar("Descuento inválido", "error");
     return;
   }
 
@@ -235,7 +293,10 @@ function aplicarDescuentoProducto(id, tipo) {
 }
 
 function quitarDescuentoProducto(id) {
-  const item = carrito.find(p => p.id === id);
+  const item = carrito.find(
+    p => String(p.id) === String(id)
+  );
+
   if (!item) return;
 
   item.descuentoTipo = "porcentaje";
@@ -243,7 +304,7 @@ function quitarDescuentoProducto(id) {
 
   renderCarrito();
 
-  showToast("Descuento quitado", "info");
+  avisar("Descuento quitado", "info");
 }
 
 function actualizarDescuentoCarrito() {
@@ -390,14 +451,14 @@ function renderCarrito() {
 
           <button
             type="button"
-            onclick="aplicarDescuentoProducto(${item.id}, 'porcentaje')"
+            onclick="aplicarDescuentoProducto('${item.id}', 'porcentaje')"
           >
             % OFF
           </button>
 
           <button
             type="button"
-            onclick="aplicarDescuentoProducto(${item.id}, 'monto')"
+            onclick="aplicarDescuentoProducto('${item.id}', 'monto')"
           >
             $ OFF
           </button>
@@ -407,7 +468,7 @@ function renderCarrito() {
               ? `
                 <button
                   type="button"
-                  onclick="quitarDescuentoProducto(${item.id})"
+                  onclick="quitarDescuentoProducto('${item.id}')"
                 >
                   Quitar
                 </button>
@@ -422,22 +483,22 @@ function renderCarrito() {
       <div class="cart-actions">
 
         <button
-  type="button"
-  class="qty-btn"
-  onclick="disminuirCantidad(${item.id})"
->
-  −
-</button>
+          type="button"
+          class="qty-btn"
+          onclick="disminuirCantidad('${item.id}')"
+        >
+          −
+        </button>
 
         <span class="qty">${item.cantidad}</span>
 
         <button
-  type="button"
-  class="qty-btn"
-  onclick="aumentarCantidad(${item.id})"
->
-  +
-</button>
+          type="button"
+          class="qty-btn"
+          onclick="aumentarCantidad('${item.id}')"
+        >
+          +
+        </button>
 
       </div>
 
@@ -460,7 +521,7 @@ function renderCarrito() {
       <button
         type="button"
         class="remove-btn"
-        onclick="eliminarDelCarrito(${item.id})"
+        onclick="eliminarDelCarrito('${item.id}')"
       >
         ✕
       </button>
@@ -496,17 +557,9 @@ function actualizarResumenVenta() {
   const descCarritoEl = document.getElementById("descuentoCarrito");
   const totalEl = document.getElementById("total");
 
-  if (subtotalEl) {
-    subtotalEl.innerText = money(totales.subtotal);
-  }
-
-  if (descProdEl) {
-    descProdEl.innerText = `-${money(totales.descuentoProductos)}`;
-  }
-
-  if (descCarritoEl) {
-    descCarritoEl.innerText = `-${money(totales.descuentoGeneral)}`;
-  }
+  if (subtotalEl) subtotalEl.innerText = money(totales.subtotal);
+  if (descProdEl) descProdEl.innerText = `-${money(totales.descuentoProductos)}`;
+  if (descCarritoEl) descCarritoEl.innerText = `-${money(totales.descuentoGeneral)}`;
 
   if (totalEl) {
     totalEl.innerText =
@@ -515,36 +568,138 @@ function actualizarResumenVenta() {
 }
 
 // =================================
+// SUPABASE
+// =================================
+
+async function guardarVentaSupabase(venta) {
+  if (typeof supabaseClient === "undefined") {
+    throw new Error("Supabase no está conectado");
+  }
+
+  const ventaData = {
+    fecha: new Date().toISOString(),
+    metodo: venta.metodo,
+    subtotal: venta.subtotal,
+    descuento_productos: venta.descuentoProductos,
+    descuento_carrito: venta.descuentoCarrito,
+    descuento_total: venta.descuento,
+    total: venta.total,
+    costo_total: venta.costoTotal,
+    ganancia: venta.ganancia,
+    usuario: venta.usuario
+  };
+
+  const { data: ventaInsert, error: ventaError } =
+    await supabaseClient
+      .from("ventas")
+      .insert([ventaData])
+      .select()
+      .single();
+
+  if (ventaError) {
+    console.error("Error venta:", ventaError);
+    throw ventaError;
+  }
+
+  const detalleData = venta.detalle.map(item => ({
+    venta_id: ventaInsert.id,
+    producto_id: item.id,
+    nombre: item.nombre,
+    precio: item.precio,
+    costo: item.costo,
+    cantidad: item.cantidad,
+    descuento_tipo: item.descuentoTipo,
+    descuento_valor: item.descuentoValor,
+    descuento: item.descuento,
+    subtotal: item.subtotal,
+    total: item.total
+  }));
+
+  const { error: detalleError } =
+    await supabaseClient
+      .from("venta_detalle")
+      .insert(detalleData);
+
+  if (detalleError) {
+    console.error("Error detalle:", detalleError);
+    throw detalleError;
+  }
+
+  const { error: cajaError } =
+    await supabaseClient
+      .from("caja")
+      .insert([{
+        venta_id: ventaInsert.id,
+        tipo: "ingreso",
+        metodo: venta.metodo,
+        motivo: `Venta (${venta.metodo})`,
+        subtotal: venta.subtotal,
+        descuento: venta.descuento,
+        monto: venta.total,
+        usuario: venta.usuario
+      }]);
+
+  if (cajaError) {
+    console.error("Error caja:", cajaError);
+    throw cajaError;
+  }
+
+  for (const item of venta.detalle) {
+    const producto = productos.find(
+      p => String(p.id) === String(item.id)
+    );
+
+    if (!producto) continue;
+
+    const nuevoStock =
+      Number(producto.stock || 0) - Number(item.cantidad || 0);
+
+    const { error: stockError } =
+      await supabaseClient
+        .from("productos")
+        .update({ stock: nuevoStock })
+        .eq("id", item.id);
+
+    if (stockError) {
+      console.error("Error stock:", stockError);
+      throw stockError;
+    }
+  }
+
+  return ventaInsert;
+}
+
+// =================================
 // FINALIZAR VENTA
 // =================================
 
-function finalizarVenta(metodo) {
+async function finalizarVenta(metodo) {
   if (procesandoVenta) return;
 
   procesandoVenta = true;
 
   try {
     if (carrito.length === 0) {
-      showToast("El carrito está vacío", "error");
+      avisar("El carrito está vacío", "error");
       return;
     }
 
     for (const item of carrito) {
-      const producto = productos.find(p => p.id === item.id);
+      const producto = productos.find(
+        p => String(p.id) === String(item.id)
+      );
 
       if (!producto) {
-        showToast(`${item.nombre} ya no existe`, "error");
+        avisar(`${item.nombre} ya no existe`, "error");
         return;
       }
 
       if (item.cantidad > Number(producto.stock || 0)) {
-        showToast(`Stock insuficiente de ${item.nombre}`, "error");
+        avisar(`Stock insuficiente de ${item.nombre}`, "error");
         return;
       }
     }
 
-    const ventas = getStorage("ventas");
-    const caja = getStorage("caja");
     const usuario = getUsuarioActual();
     const totales = calcularTotalesVenta();
 
@@ -567,8 +722,10 @@ function finalizarVenta(metodo) {
       };
     });
 
+    const ventaLocalId = Date.now();
+
     const nuevaVenta = {
-      id: Date.now(),
+      id: ventaLocalId,
       fecha: new Date().toLocaleString(),
       metodo,
       subtotal: totales.subtotal,
@@ -582,12 +739,21 @@ function finalizarVenta(metodo) {
       detalle
     };
 
+    const ventaSupabase =
+      await guardarVentaSupabase(nuevaVenta);
+
+    nuevaVenta.supabaseId = ventaSupabase.id;
+
+    const ventas = getStorage("ventas");
+    const caja = getStorage("caja");
+
     ventas.push(nuevaVenta);
     setStorage("ventas", ventas);
 
     caja.push({
       id: Date.now(),
       ventaId: nuevaVenta.id,
+      supabaseVentaId: ventaSupabase.id,
       tipo: "ingreso",
       subtotal: nuevaVenta.subtotal,
       descuento: nuevaVenta.descuento,
@@ -600,19 +766,10 @@ function finalizarVenta(metodo) {
 
     setStorage("caja", caja);
 
-    if (typeof agregarHistorial === "function") {
-      agregarHistorial({
-        tipo: "venta",
-        modulo: "Ventas",
-        descripcion:
-          `Venta registrada: ${money(nuevaVenta.total)} ` +
-          `(desc: ${money(nuevaVenta.descuento)})`,
-        monto: nuevaVenta.total
-      });
-    }
-
     productos = productos.map(prod => {
-      const vendido = carrito.find(p => p.id === prod.id);
+      const vendido = carrito.find(
+        p => String(p.id) === String(prod.id)
+      );
 
       if (!vendido) return prod;
 
@@ -622,7 +779,7 @@ function finalizarVenta(metodo) {
       };
     });
 
-    guardarProductos();
+    guardarProductosLocal();
 
     carrito = [];
     descuentoCarrito = {
@@ -639,24 +796,23 @@ function finalizarVenta(metodo) {
     renderProductos();
     renderCarrito();
 
-    showToast("✅ Venta registrada correctamente", "success");
+    avisar("✅ Venta registrada correctamente", "success");
 
     imprimirTicket(nuevaVenta);
 
   } catch (error) {
     console.error(error);
-    showToast("Error al registrar la venta", "error");
+    avisar("Error al registrar la venta", "error");
   } finally {
     procesandoVenta = false;
   }
 }
 
 // =================================
-// TICKET
+// TICKET POS58
 // =================================
 
 function imprimirTicket(venta) {
-
   function metodoTicket(metodo) {
     const metodos = {
       efectivo: "EFECTIVO",
@@ -719,16 +875,6 @@ function imprimirTicket(venta) {
       filter: grayscale(1) contrast(1.4);
     }
 
-    .brand {
-      font-size: 13px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-
-    .small {
-      font-size: 10px;
-    }
-
     .line {
       border-top: 1px dashed #000;
       margin: 7px 0;
@@ -752,11 +898,6 @@ function imprimirTicket(venta) {
       text-align: center;
       margin: 8px 0;
     }
-
-    img {
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
   </style>
 </head>
 
@@ -768,14 +909,13 @@ function imprimirTicket(venta) {
       class="logo"
       onerror="this.style.display='none'"
     >
-
-    
+  </div>
 
   <div class="line"></div>
 
   <pre>Fecha: ${venta.fecha || "-"}
 Usuario: Lodefausti
-Venta Nº: ${venta.id || "-"}
+Venta Nº: ${venta.supabaseId || venta.id || "-"}
 Metodo: ${metodoTicket(venta.metodo)}</pre>
 
   <div class="line"></div>
@@ -826,7 +966,7 @@ Metodo: ${metodoTicket(venta.metodo)}</pre>
   const ventana = window.open("", "_blank", "width=300,height=600");
 
   if (!ventana) {
-    showToast("El navegador bloqueó el ticket", "error");
+    avisar("El navegador bloqueó el ticket", "error");
     return;
   }
 
@@ -834,11 +974,12 @@ Metodo: ${metodoTicket(venta.metodo)}</pre>
   ventana.document.write(contenido);
   ventana.document.close();
 }
+
 // =================================
 // INIT
 // =================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderProductos();
+  cargarProductosIniciales();
   renderCarrito();
 });
