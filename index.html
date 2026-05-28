@@ -480,12 +480,8 @@
 </div>
 
 <!-- SCRIPTS -->
-<script
-  defer
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"
-  onerror="console.error('Error cargando Supabase')"
-></script>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script defer src="js/supabase.js"></script>
 <script defer src="js/storage.js"></script>
 <script defer src="js/auth.js"></script>
@@ -501,6 +497,22 @@ window.addEventListener("load", () => {
   if (loader) {
     loader.style.display = "none";
   }
+
+  function actualizarRelojBuenosAires() {
+    const clock = document.getElementById("clock");
+
+    if (!clock) return;
+
+    clock.innerText = new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    }).format(new Date());
+  }
+
+  actualizarRelojBuenosAires();
+  setInterval(actualizarRelojBuenosAires, 1000);
 });
 </script>
 
