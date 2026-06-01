@@ -724,21 +724,27 @@ async function finalizarVenta(metodo) {
 
     const ventaLocalId = Date.now();
 
-    const nuevaVenta = {
-      id: ventaLocalId,
-      fecha: new Date().toLocaleString(),
-      metodo,
-      subtotal: totales.subtotal,
-      descuentoProductos: totales.descuentoProductos,
-      descuentoCarrito: totales.descuentoGeneral,
-      descuento: totales.descuentoTotal,
-      total: totales.total,
-      costoTotal: totales.costoTotal,
-      ganancia: totales.ganancia,
-      usuario,
-      detalle
-    };
+   const ultimoRecibo = Number(localStorage.getItem("ultimoReciboFausti") || 0) + 1;
 
+localStorage.setItem("ultimoReciboFausti", ultimoRecibo);
+
+const numeroRecibo = String(ultimoRecibo).padStart(6, "0");
+
+const nuevaVenta = {
+  id: ventaLocalId,
+  numeroRecibo,
+  fecha: new Date().toLocaleString(),
+  metodo,
+  subtotal: totales.subtotal,
+  descuentoProductos: totales.descuentoProductos,
+  descuentoCarrito: totales.descuentoGeneral,
+  descuento: totales.descuentoTotal,
+  total: totales.total,
+  costoTotal: totales.costoTotal,
+  ganancia: totales.ganancia,
+  usuario,
+  detalle
+};
     const ventaSupabase =
       await guardarVentaSupabase(nuevaVenta);
 
@@ -826,154 +832,219 @@ function imprimirTicket(venta) {
     return metodos[metodo] || metodo || "-";
   }
 
-  function lineaProducto(item) {
-    const cantidad = item.cantidad || 0;
-    const nombre = String(item.nombre || "Producto").slice(0, 18);
-    const total = Number(item.total || item.subtotal || 0);
+  function fechaTicket(fecha) {
+    const f = fecha ? new Date(fecha) : new Date();
 
-    return `${cantidad}x ${nombre.padEnd(18, " ")} ${money(total)}`;
+    if (isNaN(f.getTime())) return fecha || "-";
+
+    return f.toLocaleString("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
   }
 
-  const detalle = (venta.detalle || [])
-    .map(item => lineaProducto(item))
-    .join("\n");
+  function lineaProducto(item) {
+    const cantidad = Number(item.cantidad || 0);
+    const nombre = String(item.nombre || "Producto");
+    const precioUnitario = Number(item.precio || item.precioVenta || item.unitario || 0);
+    const total = Number(item.total || item.subtotal || precioUnitario * cantidad || 0);
+
+    return `
+${nombre}
+${cantidad} x ${money(precioUnitario)}        ${money(total)}
+`;
+  }
+
+  const productos = venta.detalle || [];
+  const detalle = productos.map(item => lineaProducto(item)).join("");
+
+  const cantidadArticulos = productos.reduce((acc, item) => {
+    return acc + Number(item.cantidad || 0);
+  }, 0);
+
+  const numeroRecibo = venta.numeroRecibo || String(venta.id || Date.now()).slice(-6);
+  const metodo = metodoTicket(venta.metodo);
+  const total = Number(venta.total || 0);
+  const recibido = Number(venta.recibido || venta.total || 0);
 
   const contenido = `
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Ticket</title>
+<meta charset="UTF-8">
+<title>Ticket</title>
 
-  <style>
-    @page {
-      size: 58mm auto;
-      margin: 0;
+<style>
+  @page {
+    size: 58mm auto;
+    margin: 0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Consolas, "Courier New", monospace;
+    width: 58mm;
+    margin: 0;
+    padding: 5px;
+    background: #ffffff;
+    color: #000;
+    
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.15;
     }
 
+  .center {
+    text-align: center;
+  }
+
+  .logo {
+    width: 170px;
+    max-height: 100px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 5px auto;
+    filter: grayscale(1) contrast(1.9);
+  }
+
+  .line {
+    border-top: 1px dashed #000;
+    margin: 7px 0;
+  }
+
+  pre {
+    font-family: Consolas, "Courier New", monospace;
+    white-space: pre-wrap;
+    margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 3px 0;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin: 8px 0;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  @media print {
     body {
-      font-family: "Courier New", monospace;
       width: 58mm;
-      margin: 0;
-      padding: 6px;
-      background: #fff;
-      color: #000;
-      font-size: 10.5px;
-      line-height: 1.25;
+      padding: 5px;
     }
-
-    .center {
-      text-align: center;
-    }
-
-    .logo {
-      width: 120px;
-      max-height: 70px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 4px auto;
-      filter: grayscale(1) contrast(1.4);
-    }
-
-    .line {
-      border-top: 1px dashed #000;
-      margin: 7px 0;
-    }
-
-    pre {
-      font-family: "Courier New", monospace;
-      white-space: pre-wrap;
-      margin: 0;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .total {
-      font-size: 17px;
-      font-weight: bold;
-      text-align: center;
-      margin: 8px 0;
-    }
-  </style>
+  }
+</style>
 </head>
 
 <body>
 
-  <div class="center">
-    <img
-      src="assets/icons/images/logo1.png"
-      class="logo"
-      onerror="this.style.display='none'"
-    >
-  </div>
+<div class="center">
+  <img
+    src="assets/icons/images/logo1.png"
+    class="logo"
+    onerror="this.style.display='none'"
+  >
+</div>
 
-  <div class="line"></div>
+<div class="line"></div>
 
-  <pre>Fecha: ${venta.fecha || "-"}
-Usuario: Lodefausti
-Venta Nº: ${venta.supabaseId || venta.id || "-"}
-Metodo: ${metodoTicket(venta.metodo)}</pre>
+<pre>
+Madre Cabrini 78 - Local 2
+Villa Mercedes, San Luis
 
-  <div class="line"></div>
+N° Recibo: ${numeroRecibo}
+${fechaTicket(venta.fecha)}
+Usuario: Lo de Fausti</pre>
 
-  <pre>${detalle}</pre>
+<div class="line"></div>
 
-  <div class="line"></div>
+<pre>${detalle}</pre>
 
-  <div class="row">
-    <span>Subtotal:</span>
-    <strong>${money(venta.subtotal || venta.total || 0)}</strong>
-  </div>
+<div class="line"></div>
 
-  <div class="row">
-    <span>Descuento:</span>
-    <strong>-${money(venta.descuento || 0)}</strong>
-  </div>
+<pre>Cantidad de artículos: ${cantidadArticulos}</pre>
 
-  <div class="line"></div>
+<div class="line"></div>
 
-  <div class="total">
-    TOTAL<br>
-    ${money(venta.total || 0)}
-  </div>
+<div class="total-row">
+  <span>TOTAL:</span>
+  <span>${money(total)}</span>
+</div>
 
-  <div class="line"></div>
+<div class="line"></div>
 
-  <div class="center">
-    Gracias por su compra<br>
-    @lodefausti.congelados
-  </div>
+<div class="row">
+  <span>${metodo}:</span>
+  <strong>${money(total)}</strong>
+</div>
 
-  <script>
-    window.onload = function () {
+<div class="row">
+  <span>Recibido:</span>
+  <strong>${money(recibido)}</strong>
+</div>
+
+<div class="line"></div>
+
+<div class="footer">
+  ¡Gracias por elegirnos!
+</div>
+<div class="footer">
+  @lodefausti.congelados
+</div>
+<div class="footer">
+  2657-718676
+</div>
+
+<script>
+  window.onload = function () {
+    setTimeout(function () {
+      window.print();
+
       setTimeout(function () {
-        window.print();
-        setTimeout(function () {
-          window.close();
-        }, 600);
-      }, 300);
-    };
-  </script>
+        window.close();
+      }, 600);
+    }, 300);
+  };
+</script>
 
 </body>
 </html>
 `;
 
-  const ventana = window.open("", "_blank", "width=300,height=600");
-
-  if (!ventana) {
-    avisar("El navegador bloqueó el ticket", "error");
-    return;
-  }
+  const ventana = window.open("", "_blank", "width=400,height=800");
 
   ventana.document.open();
   ventana.document.write(contenido);
   ventana.document.close();
 }
+
 
 // =================================
 // INIT
