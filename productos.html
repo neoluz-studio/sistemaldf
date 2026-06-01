@@ -121,13 +121,20 @@
 
           <input id="stock" type="number" placeholder="Stock" min="0">
 
-          <input id="unidad" type="text" placeholder="Unidad: kg, unidad, litro" autocomplete="off">
+
 
           <select id="tipo">
             <option value="reventa">Reventa</option>
             <option value="elaborado">Elaboración</option>
             <option value="insumo">Insumo</option>
           </select>
+          <select id="unidad">
+  <option value="unidad">Unidad</option>
+  <option value="kg">Kg</option>
+  <option value="docena">Docena</option>
+  <option value="quincena">Quincena</option>
+  <option value="paquete_500gr">Paquete 500gr</option>
+</select>
 
           <button type="button" id="btnGuardarProducto" onclick="agregarProducto()">
             Guardar Producto

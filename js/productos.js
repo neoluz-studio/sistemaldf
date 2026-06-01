@@ -106,7 +106,7 @@ async function agregarProducto() {
 
   const tipo = document.getElementById("tipo").value;
 
-  const unidad = document.getElementById("unidad").value.trim() || "unidad";
+  const unidad = document.getElementById("unidad").value || "unidad";
 
   if (!nombre || precio <= 0 || stock < 0) {
     avisar("Completá los campos correctamente", "error");
