@@ -542,3 +542,90 @@
     flex-direction: column;
   }
 }
+.ingredientes-form {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.produccion-main-btn {
+  width: 100%;
+  min-height: 46px;
+  border: none;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.recipe-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.recipe-card-actions button:nth-child(3) {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 900px) {
+  .ingredientes-form {
+    grid-template-columns: 1fr;
+  }
+
+  .recipe-card-actions {
+    grid-template-columns: 1fr;
+  }
+}
+.crear-receta-form {
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+}
+
+.selector-receta-form {
+  grid-template-columns: 1fr auto auto auto auto;
+}
+
+.ingredientes-form {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.receta-seleccionada-box {
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e0f2fe, #ffffff);
+  border: 1px solid rgba(14,165,233,.25);
+  color: #0f172a;
+  font-weight: 900;
+}
+
+.receta-seleccionada-box span {
+  display: block;
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.produccion-main-btn {
+  width: 100%;
+  margin-top: 18px;
+  min-height: 48px;
+  border: none;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.danger-action {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+@media (max-width: 1100px) {
+  .crear-receta-form,
+  .selector-receta-form,
+  .ingredientes-form {
+    grid-template-columns: 1fr;
+  }
+}

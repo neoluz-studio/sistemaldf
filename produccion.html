@@ -90,27 +90,20 @@
   <main class="main">
 
     <div class="topbar">
-
-     <button
-  type="button"
-  class="menu-toggle"
-  onclick="window.toggleSidebar()"
->
-  ☰
-</button>
-
-      
-
+      <button type="button" class="menu-toggle" onclick="window.toggleSidebar()">
+        ☰
+      </button>
     </div>
 
     <div class="page-content produccion-page">
 
       <section class="produccion-hero fade-in">
         <div>
-          <span>Gestión de elaboración</span>
-          <h1>Control de producción</h1>
+          <span>Calculadora manual de recetas</span>
+          <h1>Costos de producción</h1>
           <p>
-            Creá recetas, cargá ingredientes, calculá costos y producí stock final descontando insumos automáticamente.
+            Creá recetas, cargá ingredientes manualmente y calculá cuánto cuesta producir cada comida.
+            Esta sección no modifica stock, caja ni ventas.
           </p>
         </div>
       </section>
@@ -124,21 +117,21 @@
         </div>
 
         <div class="stat-card">
-          <h3>Producciones</h3>
-          <h2 id="totalProducciones">0</h2>
-          <p>Registros realizados</p>
+          <h3>Ingredientes</h3>
+          <h2 id="totalIngredientes">0</h2>
+          <p>Total cargados</p>
         </div>
 
         <div class="stat-card">
-          <h3>Costo total</h3>
-          <h2 id="costoProduccion">$0</h2>
-          <p>Acumulado histórico</p>
+          <h3>Costo más alto</h3>
+          <h2 id="costoMayor">$0</h2>
+          <p>Entre recetas</p>
         </div>
 
         <div class="stat-card">
-          <h3>Producción semanal</h3>
-          <h2 id="produccionSemanal">0</h2>
-          <p>Últimos 7 días</p>
+          <h3>Receta activa</h3>
+          <h2 id="recetaActiva">-</h2>
+          <p>Seleccionada</p>
         </div>
 
       </div>
@@ -148,24 +141,28 @@
         <div class="table-header">
           <div>
             <h3>Crear receta</h3>
-            <p>Definí el producto elaborado y la cantidad base</p>
+            <p>Ejemplo: Pizza especial, 1 unidad, pizza</p>
           </div>
         </div>
 
-        <div class="form product-form produccion-form">
+        <div class="form product-form produccion-form crear-receta-form">
 
-          <input
-            type="text"
-            id="nombreReceta"
-            placeholder="Nombre receta o producto final"
-          >
+          <input type="text" id="nombreReceta" placeholder="Nombre receta">
 
-          <input
-            type="number"
-            id="cantidadProduccion"
-            placeholder="Cantidad base producida"
-            min="1"
-          >
+          <input type="number" id="cantidadProduccion" placeholder="Cantidad producida" min="1" step="0.01">
+
+          <select id="unidadFinal">
+  <option value="unidad">Unidad</option>
+  <option value="docena">Docena</option>
+  <option value="kg">Kilogramo</option>
+  <option value="g">Gramo</option>
+  <option value="litro">Litro</option>
+  <option value="ml">Mililitro</option>
+  <option value="bandeja">Bandeja</option>
+  <option value="paquete">Paquete</option>
+</select>
+
+          <input type="number" id="precioVentaInicial" placeholder="Precio de venta $" min="0" step="0.01">
 
           <button type="button" onclick="crearReceta()">
             Crear receta
@@ -180,11 +177,33 @@
         <div class="table-header">
           <div>
             <h3>Recetas guardadas</h3>
-            <p>Seleccioná, revisá o producí según stock disponible</p>
+            <p>Buscá una receta, abrila y seguí editando sin perder ingredientes</p>
           </div>
         </div>
 
-        <div id="recetasGrid" class="recetas-grid"></div>
+        <div class="form product-form produccion-form selector-receta-form">
+
+          <select id="selectorReceta">
+            <option value="">Seleccionar receta</option>
+          </select>
+
+          <button type="button" onclick="abrirRecetaSeleccionada()">
+            Abrir
+          </button>
+
+          <button type="button" onclick="editarRecetaSeleccionada()">
+            Editar
+          </button>
+
+          <button type="button" onclick="duplicarRecetaSeleccionada()">
+            Duplicar
+          </button>
+
+          <button type="button" class="danger-action" onclick="eliminarRecetaSeleccionada()">
+            Eliminar
+          </button>
+
+        </div>
 
       </div>
 
@@ -194,25 +213,49 @@
 
           <div class="table-header">
             <div>
-              <h3>Ingredientes receta</h3>
-              <p>Agregá insumos o productos que se consumen</p>
+              <h3>Ingredientes de la receta</h3>
+              <p>Cargá precio de compra, cantidad comprada y cantidad usada</p>
             </div>
           </div>
 
-          <div class="form product-form produccion-form">
+          <div class="receta-seleccionada-box" id="recetaSeleccionadaBox">
+            Seleccioná o creá una receta para cargar ingredientes.
+          </div>
 
-            <select id="productoIngrediente"></select>
+          <div class="form product-form produccion-form ingredientes-form">
 
-            <input
-              type="number"
-              id="cantidadIngrediente"
-              placeholder="Cantidad ingrediente"
-              min="0"
-              step="0.01"
-            >
+            <input type="text" id="nombreIngrediente" placeholder="Ingrediente">
+
+            <input type="number" id="precioCompra" placeholder="Precio compra $" min="0" step="0.01">
+
+            <input type="number" id="cantidadCompra" placeholder="Cantidad comprada" min="0" step="0.01">
+
+            <select id="unidadCompra">
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="unidad">unidad</option>
+              <option value="docena">docena</option>
+              <option value="ml">ml</option>
+              <option value="litro">litro</option>
+              <option value="paquete">paquete</option>
+              <option value="manual">manual</option>
+            </select>
+
+            <input type="number" id="cantidadUsada" placeholder="Cantidad usada" min="0" step="0.01">
+
+            <select id="unidadUsada">
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="unidad">unidad</option>
+              <option value="docena">docena</option>
+              <option value="ml">ml</option>
+              <option value="litro">litro</option>
+              <option value="paquete">paquete</option>
+              <option value="manual">manual</option>
+            </select>
 
             <button type="button" onclick="agregarIngrediente()">
-              Agregar ingrediente
+              Agregar
             </button>
 
           </div>
@@ -221,21 +264,27 @@
 
             <thead>
               <tr>
-                <th>Producto</th>
-                <th>Cantidad base</th>
-                <th>Unidad</th>
-                <th>Costo</th>
-                <th>Acción</th>
+                <th>Ingrediente</th>
+                <th>Precio compra</th>
+                <th>Comprado</th>
+                <th>Usado</th>
+                <th>Costo usado</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
               </tr>
             </thead>
 
             <tbody id="listaIngredientes">
               <tr>
-                <td colspan="5">No hay ingredientes</td>
+                <td colspan="7">No hay ingredientes cargados</td>
               </tr>
             </tbody>
 
           </table>
+
+          <button type="button" class="produccion-main-btn" onclick="guardarRecetaActual()">
+            Ingredientes cargados / Guardar receta
+          </button>
 
         </div>
 
@@ -243,8 +292,8 @@
 
           <div class="table-header">
             <div>
-              <h3>Resumen receta</h3>
-              <p>Costo, capacidad y alertas</p>
+              <h3>Resumen de costos</h3>
+              <p>Costo total, unidad, ganancia y precios sugeridos</p>
             </div>
           </div>
 
@@ -254,80 +303,20 @@
 
       </div>
 
-      <div class="box fade-in produccion-box">
-
-        <div class="table-header">
-          <div>
-            <h3>Producir</h3>
-            <p>Seleccioná una receta y generá stock terminado</p>
-          </div>
-        </div>
-
-        <div class="form product-form produccion-form">
-
-          <select id="recetaProduccion"></select>
-
-          <input
-            type="number"
-            id="cantidadFinal"
-            placeholder="Cantidad a producir"
-            min="1"
-          >
-
-          <button type="button" onclick="producir()">
-            Producir
-          </button>
-
-        </div>
-
-      </div>
-
-      <div class="table-box fade-in">
-
-        <div class="table-header">
-          <div>
-            <h3>Historial producción</h3>
-            <p>Producciones realizadas con costo total y unitario</p>
-          </div>
-        </div>
-
-        <table class="pro-table">
-
-          <thead>
-            <tr>
-              <th>Lote</th>
-              <th>Receta</th>
-              <th>Cantidad</th>
-              <th>Costo Total</th>
-              <th>Costo Unitario</th>
-              <th>Fecha</th>
-              <th>Detalle</th>
-            </tr>
-          </thead>
-
-          <tbody id="historialProduccion">
-            <tr>
-              <td colspan="7">No hay producción</td>
-            </tr>
-          </tbody>
-
-        </table>
-
-      </div>
-
     </div>
 
   </main>
 
 </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="js/storage.js"></script>
 <script defer src="js/auth.js"></script>
 <script defer src="js/toast.js"></script>
 <script defer src="js/roles.js"></script>
 <script defer src="js/produccion.js"></script>
 <script defer src="js/app.js"></script>
+
 <script>
 window.toggleSidebar = function () {
   const sidebar = document.getElementById("sidebar");
@@ -342,5 +331,6 @@ window.toggleSidebar = function () {
   }
 };
 </script>
+
 </body>
 </html>
