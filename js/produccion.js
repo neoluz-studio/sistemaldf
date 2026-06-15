@@ -23,8 +23,71 @@ function avisar(mensaje, tipo = "info") {
   }
 }
 
+function parseMoney(valor) {
+  return Number(
+    String(valor || "")
+      .replace(/\./g, "")
+      .replace(/,/g, ".")
+      .replace(/[^\d.]/g, "")
+  ) || 0;
+}
+
+function formatMoneyInput(input) {
+  if (!input) return;
+
+  const limpio = String(input.value || "").replace(/\D/g, "");
+
+  if (!limpio) {
+    input.value = "";
+    return;
+  }
+
+  input.value = Number(limpio).toLocaleString("es-AR");
+}
+
+function activarFormatoDineroProduccion() {
+  ["precioCompra", "precioVentaInicial"].forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.setAttribute("inputmode", "numeric");
+
+    input.addEventListener("input", () => {
+      formatMoneyInput(input);
+    });
+  });
+}
+
+function parseCantidad(valor) {
+  const texto = String(valor || "")
+    .trim()
+    .replace(",", ".");
+
+  if (!texto) return 0;
+
+  if (texto.includes(" ")) {
+    const partes = texto.split(" ");
+    const entero = Number(partes[0]) || 0;
+    const fraccion = partes[1];
+
+    if (fraccion && fraccion.includes("/")) {
+      const [num, den] = fraccion.split("/").map(Number);
+      return entero + (den ? num / den : 0);
+    }
+
+    return entero;
+  }
+
+  if (texto.includes("/")) {
+    const [num, den] = texto.split("/").map(Number);
+    return den ? num / den : 0;
+  }
+
+  return Number(texto) || 0;
+}
+
 function normalizarUnidad(valor, unidad) {
-  const n = Number(valor || 0);
+  const n = parseCantidad(valor);
 
   if (unidad === "kg") return n * 1000;
   if (unidad === "litro") return n * 1000;
@@ -51,7 +114,7 @@ function calcularReceta(receta) {
     total += calcularCostoIngrediente(i);
   });
 
-  const cantidad = Number(receta.cantidadFinal || 1);
+  const cantidad = parseCantidad(receta.cantidadFinal || 1);
   const costoUnidad = cantidad > 0 ? total / cantidad : 0;
 
   return { total, costoUnidad };
@@ -142,9 +205,9 @@ async function cargarRecetasSupabase() {
 
 async function crearReceta() {
   const nombre = document.getElementById("nombreReceta").value.trim();
-  const cantidadFinal = Number(document.getElementById("cantidadProduccion").value);
+  const cantidadFinal = parseCantidad(document.getElementById("cantidadProduccion").value);
   const unidadFinal = document.getElementById("unidadFinal").value.trim() || "unidad";
-  const precioVenta = Number(document.getElementById("precioVentaInicial").value || 0);
+  const precioVenta = parseMoney(document.getElementById("precioVentaInicial").value);
 
   if (!nombre || cantidadFinal <= 0) {
     avisar("Completá nombre y cantidad producida", "error");
@@ -314,11 +377,11 @@ async function editarDatosReceta() {
   const nombre = prompt("Nombre de receta:", recetaActual.nombre);
   if (!nombre) return;
 
-  const cantidad = Number(prompt("Cantidad producida:", recetaActual.cantidadFinal));
+  const cantidad = parseCantidad(prompt("Cantidad producida:", recetaActual.cantidadFinal));
   if (cantidad <= 0) return;
 
   const unidad = prompt("Unidad final:", recetaActual.unidadFinal) || "unidad";
-  const precioVenta = Number(prompt("Precio de venta actual:", recetaActual.precioVenta || 0));
+  const precioVenta = parseMoney(prompt("Precio de venta actual:", Number(recetaActual.precioVenta || 0).toLocaleString("es-AR")));
 
   const { error } =
     await supabaseClient
@@ -354,10 +417,10 @@ async function agregarIngrediente() {
   }
 
   const nombre = document.getElementById("nombreIngrediente").value.trim();
-  const precioCompra = Number(document.getElementById("precioCompra").value);
-  const cantidadCompra = Number(document.getElementById("cantidadCompra").value);
+  const precioCompra = parseMoney(document.getElementById("precioCompra").value);
+  const cantidadCompra = parseCantidad(document.getElementById("cantidadCompra").value);
   const unidadCompra = document.getElementById("unidadCompra").value;
-  const cantidadUsada = Number(document.getElementById("cantidadUsada").value);
+  const cantidadUsada = parseCantidad(document.getElementById("cantidadUsada").value);
   const unidadUsada = document.getElementById("unidadUsada").value;
 
   if (!nombre || precioCompra <= 0 || cantidadCompra <= 0 || cantidadUsada <= 0) {
@@ -401,10 +464,10 @@ async function editarIngrediente(id) {
   const nombre = prompt("Ingrediente:", ing.nombre);
   if (!nombre) return;
 
-  const precioCompra = Number(prompt("Precio total de compra:", ing.precioCompra));
-  const cantidadCompra = Number(prompt("Cantidad comprada:", ing.cantidadCompra));
+  const precioCompra = parseMoney(prompt("Precio total de compra:", Number(ing.precioCompra || 0).toLocaleString("es-AR")));
+  const cantidadCompra = parseCantidad(prompt("Cantidad comprada:", ing.cantidadCompra));
   const unidadCompra = prompt("Unidad compra:", ing.unidadCompra) || ing.unidadCompra;
-  const cantidadUsada = Number(prompt("Cantidad usada:", ing.cantidadUsada));
+  const cantidadUsada = parseCantidad(prompt("Cantidad usada:", ing.cantidadUsada));
   const unidadUsada = prompt("Unidad usada:", ing.unidadUsada) || ing.unidadUsada;
 
   if (precioCompra <= 0 || cantidadCompra <= 0 || cantidadUsada <= 0) return;
@@ -641,6 +704,7 @@ function renderTodo() {
 // =================================
 
 document.addEventListener("DOMContentLoaded", async () => {
+  activarFormatoDineroProduccion();
   await cargarRecetasSupabase();
   renderTodo();
 });

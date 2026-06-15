@@ -23,12 +23,72 @@ function avisar(mensaje, tipo = "info") {
 
 function formatFecha(data) {
   if (!data) return "-";
-
   return new Date(data).toLocaleDateString("es-AR");
 }
 
 function syncLocalProductos() {
   localStorage.setItem("productos", JSON.stringify(productos));
+}
+
+function parseMoney(valor) {
+  return Number(
+    String(valor || "")
+      .replace(/\./g, "")
+      .replace(/,/g, ".")
+      .replace(/[^\d.]/g, "")
+  ) || 0;
+}
+
+function formatMoneyInput(input) {
+  if (!input) return;
+
+  const limpio = String(input.value || "").replace(/\D/g, "");
+
+  if (!limpio) {
+    input.value = "";
+    return;
+  }
+
+  input.value = Number(limpio).toLocaleString("es-AR");
+}
+
+function parseCantidad(valor) {
+  const texto = String(valor || "").trim().replace(",", ".");
+
+  if (!texto) return 0;
+
+  if (texto.includes(" ")) {
+    const partes = texto.split(" ");
+    const entero = Number(partes[0]) || 0;
+    const fraccion = partes[1];
+
+    if (fraccion && fraccion.includes("/")) {
+      const [num, den] = fraccion.split("/").map(Number);
+      return entero + (den ? num / den : 0);
+    }
+
+    return entero;
+  }
+
+  if (texto.includes("/")) {
+    const [num, den] = texto.split("/").map(Number);
+    return den ? num / den : 0;
+  }
+
+  return Number(texto) || 0;
+}
+
+function activarFormatoInputs() {
+  ["precio", "costo"].forEach(id => {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    input.setAttribute("inputmode", "numeric");
+
+    input.addEventListener("input", () => {
+      formatMoneyInput(input);
+    });
+  });
 }
 
 function limpiarForm() {
@@ -38,7 +98,7 @@ function limpiarForm() {
   document.getElementById("precio").value = "";
   document.getElementById("costo").value = "";
   document.getElementById("stock").value = "";
-  document.getElementById("unidad").value = "";
+  document.getElementById("unidad").value = "unidad";
   document.getElementById("tipo").value = "reventa";
 
   const btn = document.getElementById("btnGuardarProducto");
@@ -58,9 +118,7 @@ async function cargarProductosSupabase() {
   if (cont) {
     cont.innerHTML = `
       <tr>
-        <td colspan="7">
-          Cargando productos...
-        </td>
+        <td colspan="7">Cargando productos...</td>
       </tr>
     `;
   }
@@ -73,21 +131,16 @@ async function cargarProductosSupabase() {
 
   if (error) {
     console.error(error);
-
     avisar("Error cargando productos", "error");
 
-    productos =
-      JSON.parse(localStorage.getItem("productos")) || [];
-
+    productos = JSON.parse(localStorage.getItem("productos")) || [];
     render(productos);
 
     return;
   }
 
   productos = data || [];
-
   syncLocalProductos();
-
   render(productos);
 }
 
@@ -98,14 +151,11 @@ async function cargarProductosSupabase() {
 async function agregarProducto() {
   const nombre = document.getElementById("nombre").value.trim();
 
-  const precio = Number(document.getElementById("precio").value);
-
-  const costo = Number(document.getElementById("costo").value || 0);
-
-  const stock = Number(document.getElementById("stock").value || 0);
+  const precio = parseMoney(document.getElementById("precio").value);
+  const costo = parseMoney(document.getElementById("costo").value);
+  const stock = parseCantidad(document.getElementById("stock").value);
 
   const tipo = document.getElementById("tipo").value;
-
   const unidad = document.getElementById("unidad").value || "unidad";
 
   if (!nombre || precio <= 0 || stock < 0) {
@@ -184,8 +234,8 @@ function editarProducto(id) {
   editandoId = producto.id;
 
   document.getElementById("nombre").value = producto.nombre || "";
-  document.getElementById("precio").value = producto.precio || 0;
-  document.getElementById("costo").value = producto.costo || 0;
+  document.getElementById("precio").value = Number(producto.precio || 0).toLocaleString("es-AR");
+  document.getElementById("costo").value = Number(producto.costo || 0).toLocaleString("es-AR");
   document.getElementById("stock").value = producto.stock || 0;
   document.getElementById("tipo").value = producto.tipo || "reventa";
   document.getElementById("unidad").value = producto.unidad || "unidad";
@@ -249,9 +299,7 @@ function render(lista = productos) {
   if (lista.length === 0) {
     cont.innerHTML = `
       <tr>
-        <td colspan="7">
-          No hay productos cargados
-        </td>
+        <td colspan="7">No hay productos cargados</td>
       </tr>
     `;
 
@@ -344,5 +392,6 @@ function filtrarProductos() {
 // =================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  activarFormatoInputs();
   cargarProductosSupabase();
 });

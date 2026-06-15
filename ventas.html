@@ -1,17 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ventas</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/sidebar.css">
@@ -22,257 +15,235 @@
   <link rel="stylesheet" href="css/darkmode.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/responsive.css">
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
-<body>
+<body class="ventas-fullscreen">
 
 <div class="layout">
 
-  <aside class="sidebar" id="sidebar">
-
+  <aside class="sidebar ventas-sidebar" id="sidebar">
     <div class="brand-icon">
-      <img
-        src="assets/icons/images/logo.png"
-        alt="FAUSTI"
-      >
+      <img src="assets/icons/images/logo.png" alt="FAUSTI">
     </div>
 
     <nav class="sidebar-nav">
-
-      <a href="index.html" class="nav-link">
-        <i class="fa-solid fa-house"></i>
-        <b>Inicio</b>
-      </a>
-
-      <a href="ventas.html" class="nav-link active">
-        <i class="fa-solid fa-cart-shopping"></i>
-        <b>Ventas</b>
-      </a>
-
-      <a href="productos.html" class="nav-link">
-        <i class="fa-solid fa-box"></i>
-        <b>Productos</b>
-      </a>
-
-      <a href="caja.html" class="nav-link">
-        <i class="fa-solid fa-cash-register"></i>
-        <b>Caja</b>
-      </a>
-
-      <a href="produccion.html" class="nav-link">
-        <i class="fa-solid fa-industry"></i>
-        <b>Producción</b>
-      </a>
-
-      <a href="proveedores.html" class="nav-link">
-        <i class="fa-solid fa-truck"></i>
-        <b>Proveedores</b>
-      </a>
-
-      <a href="historial.html" class="nav-link">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        <b>Historial</b>
-      </a>
-
+      <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i><b>Inicio</b></a>
+      <a href="ventas.html" class="nav-link active"><i class="fa-solid fa-cart-shopping"></i><b>Ventas</b></a>
+      <a href="productos.html" class="nav-link"><i class="fa-solid fa-box"></i><b>Productos</b></a>
+      <a href="caja.html" class="nav-link"><i class="fa-solid fa-cash-register"></i><b>Caja</b></a>
+      <a href="produccion.html" class="nav-link"><i class="fa-solid fa-industry"></i><b>Producción</b></a>
+      <a href="proveedores.html" class="nav-link"><i class="fa-solid fa-truck"></i><b>Proveedores</b></a>
+      <a href="historial.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left"></i><b>Historial</b></a>
     </nav>
 
     <div class="user-box">
-
       <div class="user-info">
-        <small class="user-role">
-          Sesión activa
-        </small>
+        <small class="user-role">Sesión activa</small>
       </div>
 
-      <button
-        type="button"
-        onclick="logout()"
-        class="switch-btn"
-      >
+      <button type="button" onclick="logout()" class="switch-btn">
         Cerrar Sesión
       </button>
-
     </div>
-
   </aside>
 
-  <div
-    id="sidebarOverlay"
-    class="sidebar-overlay"
-    onclick="toggleSidebar()"
-  ></div>
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
   <main class="main">
 
     <div class="topbar">
-
-      <button
-  type="button"
-  class="menu-toggle"
-  onclick="window.toggleSidebar()"
->
-  ☰
-</button>
-
-      
-
+      <button type="button" class="menu-toggle" onclick="window.toggleSidebar()">☰</button>
     </div>
 
-    <div class="page-content">
+    <div class="page-content ventas-pos-page">
 
-      <div class="ventas-pro-grid">
+      <div class="pos-shell">
 
-        <!-- PRODUCTOS -->
-        <div class="box productos-panel">
+        <!-- TABLA PRINCIPAL -->
+        <section class="pos-main pos-sale-area">
 
-          <div class="ventas-header">
+          <div class="pos-search-bar">
             <div>
-              <h3>Productos</h3>
-              <p>Seleccioná productos para agregar al carrito</p>
+              <h2>Ventas</h2>
+              <p>Buscá productos y agregalos a la orden</p>
+            </div>
+
+            <div class="pos-search-wrapper">
+              <div class="pos-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                  type="text"
+                  id="buscador"
+                  placeholder="Buscar producto por nombre..."
+                  oninput="mostrarResultadosBusqueda()"
+                  onfocus="mostrarResultadosBusqueda()"
+                  autocomplete="off"
+                  class="search-input"
+                  autofocus
+                >
+              </div>
+
+              <div id="resultadosBusqueda" class="search-dropdown hidden"></div>
             </div>
           </div>
 
-          <input
-            type="text"
-            id="buscador"
-            placeholder="Buscar producto..."
-            oninput="filtrarProductos()"
-            class="search-input"
-          />
+          <div class="aronium-sale-table">
 
-          <div
-            id="productosGrid"
-            class="productos-grid"
-          ></div>
+            <div class="aronium-table-head">
+              <span>Nombre del producto</span>
+              <span>Cantidad</span>
+              <span>Precio</span>
+              <span>Total</span>
+            </div>
 
-        </div>
+            <div id="carritoLista" class="aronium-table-body"></div>
 
-        <!-- CARRITO -->
-        <div class="box carrito-box">
+            <div class="aronium-sale-footer">
+              <div></div>
 
-          <div class="ventas-header">
+              <div class="aronium-totals">
+                <div>
+                  <span>Subtotal</span>
+                  <strong id="subtotalVenta">$0</strong>
+                </div>
+
+                <div>
+                  <span>Desc. productos</span>
+                  <strong id="descuentoProductos">-$0</strong>
+                </div>
+
+                <div>
+                  <span>Desc. carrito</span>
+                  <strong id="descuentoCarrito">-$0</strong>
+                </div>
+
+                <div class="aronium-total-final">
+                  <span>TOTAL</span>
+                  <strong>$<b id="total">0</b></strong>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="productosGrid" style="display:none;"></div>
+
+        </section>
+
+        <!-- PANEL DERECHO -->
+        <aside class="pos-pay-panel pos-checkout-panel">
+
+          <div class="pos-ticket-head">
             <div>
-              <h3>Carrito</h3>
+              <h3>Acciones</h3>
               <p>Venta actual</p>
             </div>
+
+            <button type="button" class="pos-new-sale" onclick="limpiarCarrito()">
+              <i class="fa-solid fa-broom"></i>
+            </button>
           </div>
 
-          <div
-            id="carritoLista"
-            class="carrito-lista"
-          ></div>
+          <div class="selected-product-box">
+            <span>Producto seleccionado</span>
+            <strong id="productoSeleccionadoNombre">Ningún producto seleccionado</strong>
+            <small id="productoSeleccionadoInfo">Tocá una fila de la venta para editarla</small>
+          </div>
 
-          <!-- DESCUENTO GENERAL -->
-          <div class="discount-box">
+          <div class="side-actions-grid">
 
+            <button type="button" onclick="descuentoProductoSeleccionado('porcentaje')">
+              <i class="fa-solid fa-percent"></i>
+              OFF producto
+            </button>
+
+            <button type="button" onclick="descuentoProductoSeleccionado('monto')">
+              <i class="fa-solid fa-dollar-sign"></i>
+              OFF producto
+            </button>
+
+            <button type="button" onclick="quitarDescuentoSeleccionado()">
+              <i class="fa-solid fa-eraser"></i>
+              Quitar desc.
+            </button>
+
+            <button type="button" onclick="eliminarProductoSeleccionado()" class="danger-side-btn">
+              <i class="fa-solid fa-trash"></i>
+              Eliminar producto
+            </button>
+
+            <button type="button" onclick="limpiarCarrito()" class="danger-side-btn full">
+              <i class="fa-solid fa-broom"></i>
+              Limpiar venta actual
+            </button>
+
+            <button type="button" onclick="anularUltimaVenta()" class="warning-side-btn full">
+  <i class="fa-solid fa-ban"></i>
+  Anular última venta
+</button>
+
+          </div>
+
+          <div class="discount-box pos-discount-box">
             <div class="discount-title">
               <strong>Descuento general</strong>
-              <small>Aplicado al total del carrito</small>
+              <small>Aplicado al total de la venta</small>
             </div>
 
             <div class="discount-controls">
-
-              <select
-                id="tipoDescuentoCarrito"
-                onchange="actualizarDescuentoCarrito()"
-              >
+              <select id="tipoDescuentoCarrito" onchange="actualizarDescuentoCarrito()">
                 <option value="porcentaje">Porcentaje %</option>
                 <option value="monto">Monto $</option>
               </select>
 
               <input
-  type="number"
-  id="valorDescuentoCarrito"
-  placeholder="0"
-  min="0"
-  oninput="actualizarDescuentoCarrito()"
-  onkeydown="if(event.key === 'Enter'){ event.preventDefault(); actualizarDescuentoCarrito(); this.blur(); }"
->
+                type="text"
+                id="valorDescuentoCarrito"
+                placeholder="0"
+                min="0"
+                oninput="actualizarDescuentoCarrito()"
+                onkeydown="if(event.key === 'Enter'){ event.preventDefault(); actualizarDescuentoCarrito(); this.blur(); }"
+              >
             </div>
-
           </div>
 
-          <!-- RESUMEN TOTAL -->
-          <div class="venta-summary">
+          <div class="payment-actions pos-payment-actions">
 
-            <div>
-              <span>Subtotal</span>
-              <strong id="subtotalVenta">$0</strong>
-            </div>
-
-            <div>
-              <span>Desc. productos</span>
-              <strong id="descuentoProductos">-$0</strong>
-            </div>
-
-            <div>
-              <span>Desc. carrito</span>
-              <strong id="descuentoCarrito">-$0</strong>
-            </div>
-
-          </div>
-
-          <!-- TOTAL -->
-          <div class="total-box">
-            <span>Total</span>
-            <h2>
-              $<span id="total">0</span>
-            </h2>
-          </div>
-
-          <!-- PAGOS -->
-          <div class="payment-actions">
-
-            <button
-              type="button"
-              onclick="finalizarVenta('efectivo')"
-            >
-              💵 Efectivo
+            <button type="button" onclick="finalizarVenta('efectivo')" class="pay-cash">
+              <i class="fa-solid fa-money-bill-wave"></i>
+              Efectivo
             </button>
 
-            <button
-              type="button"
-              onclick="finalizarVenta('transferencia')"
-            >
-              🏦 Transferencia
+            <button type="button" onclick="finalizarVenta('transferencia')">
+              <i class="fa-solid fa-building-columns"></i>
+              Transferencia
             </button>
 
-            <button
-              type="button"
-              onclick="finalizarVenta('mp')"
-            >
-              📲 Mercado Pago
+            <button type="button" onclick="finalizarVenta('mp')">
+              <i class="fa-solid fa-mobile-screen"></i>
+              Mercado Pago
             </button>
 
-            <button
-              type="button"
-              onclick="finalizarVenta('qr')"
-            >
-              🔳 QR
+            <button type="button" onclick="finalizarVenta('qr')">
+              <i class="fa-solid fa-qrcode"></i>
+              QR
             </button>
 
-            <button
-              type="button"
-              onclick="finalizarVenta('qr_banco')"
-            >
-              🏦 QR Banco
+            <button type="button" onclick="finalizarVenta('qr_banco')">
+              <i class="fa-solid fa-landmark"></i>
+              QR Banco
             </button>
 
-            <button
-              type="button"
-              onclick="finalizarVenta('promo_bn')"
-            >
-              🇦🇷 Promo Nación
+            <button type="button" onclick="finalizarVenta('promo_bn')">
+              <i class="fa-solid fa-tag"></i>
+              Promo Nación
             </button>
 
           </div>
 
-        </div>
+        </aside>
 
       </div>
 
@@ -282,13 +253,9 @@
 
 </div>
 
-<div
-  id="commandPalette"
-  class="command-palette hidden"
-></div>
+<div id="commandPalette" class="command-palette hidden"></div>
 
-<!-- SCRIPTS -->
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="js/supabase.js"></script>
 <script defer src="js/storage.js"></script>
 <script defer src="js/auth.js"></script>
@@ -296,6 +263,7 @@
 <script defer src="js/roles.js"></script>
 <script defer src="js/ventas.js"></script>
 <script defer src="js/app.js"></script>
+
 <script>
 window.toggleSidebar = function () {
   const sidebar = document.getElementById("sidebar");
@@ -310,5 +278,6 @@ window.toggleSidebar = function () {
   }
 };
 </script>
+
 </body>
 </html>

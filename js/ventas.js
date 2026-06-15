@@ -2,6 +2,8 @@
 // VENTAS PRO + SUPABASE - LO DE FAUSTI
 // =================================
 
+let productoSeleccionadoId = null;
+
 let productos =
   JSON.parse(localStorage.getItem("productos")) || [];
 
@@ -56,6 +58,53 @@ function limitarNumero(valor, min = 0, max = Infinity) {
   if (numero > max) return max;
 
   return numero;
+}
+
+// =================================
+// VENTA PENDIENTE
+// =================================
+
+function guardarVentaPendiente() {
+  localStorage.setItem(
+    "ventaPendienteFausti",
+    JSON.stringify({
+      carrito,
+      descuentoCarrito,
+      productoSeleccionadoId
+    })
+  );
+}
+
+function cargarVentaPendiente() {
+  const data = JSON.parse(
+    localStorage.getItem("ventaPendienteFausti") || "null"
+  );
+
+  if (!data) return;
+
+  carrito = data.carrito || [];
+
+  descuentoCarrito =
+    data.descuentoCarrito || {
+      tipo: "porcentaje",
+      valor: 0
+    };
+
+  productoSeleccionadoId =
+    data.productoSeleccionadoId || null;
+
+  const tipoDesc =
+    document.getElementById("tipoDescuentoCarrito");
+
+  const valorDesc =
+    document.getElementById("valorDescuentoCarrito");
+
+  if (tipoDesc) tipoDesc.value = descuentoCarrito.tipo || "porcentaje";
+  if (valorDesc) valorDesc.value = descuentoCarrito.valor || "";
+}
+
+function borrarVentaPendiente() {
+  localStorage.removeItem("ventaPendienteFausti");
 }
 
 // =================================
@@ -118,18 +167,9 @@ function renderProductos(lista = productos) {
 
     div.innerHTML = `
       <strong>${p.nombre}</strong>
-
       <small>${money(precio)}</small>
-
-      <small>
-        Stock: ${stock}
-      </small>
-
-      ${
-        stock <= 0
-          ? `<small class="stock-empty">SIN STOCK</small>`
-          : ""
-      }
+      <small>Stock: ${stock}</small>
+      ${stock <= 0 ? `<small class="stock-empty">SIN STOCK</small>` : ""}
     `;
 
     div.onclick = () => {
@@ -146,19 +186,97 @@ function renderProductos(lista = productos) {
 // =================================
 
 function filtrarProductos() {
+  mostrarResultadosBusqueda();
+}
+
+function mostrarResultadosBusqueda() {
   const input = document.getElementById("buscador");
-  if (!input) return;
+  const dropdown = document.getElementById("resultadosBusqueda");
+
+  if (!input || !dropdown) return;
 
   const texto = input.value.toLowerCase().trim();
 
-  const filtrados = productos.filter(p =>
-    String(p.nombre || "")
-      .toLowerCase()
-      .includes(texto)
+  if (!texto) {
+    dropdown.classList.add("hidden");
+    dropdown.innerHTML = "";
+    return;
+  }
+
+  const filtrados = productos
+    .filter(p =>
+      String(p.nombre || "")
+        .toLowerCase()
+        .includes(texto)
+    )
+    .slice(0, 8);
+
+  if (filtrados.length === 0) {
+    dropdown.innerHTML = `
+      <div class="search-result-empty">
+        No se encontraron productos
+      </div>
+    `;
+    dropdown.classList.remove("hidden");
+    return;
+  }
+
+  dropdown.innerHTML = filtrados.map(p => {
+    const stock = Number(p.stock || 0);
+    const precio = Number(p.precio || 0);
+
+    return `
+      <button
+        type="button"
+        class="search-result-item ${stock <= 0 ? "disabled" : ""}"
+        onclick="seleccionarProductoBusqueda('${p.id}')"
+      >
+        <div>
+          <strong>${p.nombre}</strong>
+          <small>Stock: ${stock}</small>
+        </div>
+
+        <span>${money(precio)}</span>
+      </button>
+    `;
+  }).join("");
+
+  dropdown.classList.remove("hidden");
+}
+
+function seleccionarProductoBusqueda(id) {
+  const producto = productos.find(
+    p => String(p.id) === String(id)
   );
 
-  renderProductos(filtrados);
+  if (!producto) return;
+
+  agregarAlCarrito(producto);
+
+  const input = document.getElementById("buscador");
+  const dropdown = document.getElementById("resultadosBusqueda");
+
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+
+  if (dropdown) {
+    dropdown.innerHTML = "";
+    dropdown.classList.add("hidden");
+  }
 }
+
+document.addEventListener("click", function (e) {
+  const wrapper = document.querySelector(".pos-search-wrapper");
+  const dropdown = document.getElementById("resultadosBusqueda");
+
+  if (!wrapper || !dropdown) return;
+
+  if (!wrapper.contains(e.target)) {
+    dropdown.classList.add("hidden");
+  }
+});
 
 // =================================
 // CARRITO
@@ -198,6 +316,8 @@ function agregarAlCarrito(prod) {
     });
   }
 
+  productoSeleccionadoId = prod.id;
+
   renderCarrito();
 }
 
@@ -220,6 +340,8 @@ function aumentarCantidad(id) {
   }
 
   item.cantidad++;
+  productoSeleccionadoId = id;
+
   renderCarrito();
 }
 
@@ -236,6 +358,12 @@ function disminuirCantidad(id) {
     carrito = carrito.filter(
       p => String(p.id) !== String(id)
     );
+
+    if (String(productoSeleccionadoId) === String(id)) {
+      productoSeleccionadoId = null;
+    }
+  } else {
+    productoSeleccionadoId = id;
   }
 
   renderCarrito();
@@ -245,6 +373,10 @@ function eliminarDelCarrito(id) {
   carrito = carrito.filter(
     p => String(p.id) !== String(id)
   );
+
+  if (String(productoSeleccionadoId) === String(id)) {
+    productoSeleccionadoId = null;
+  }
 
   renderCarrito();
 
@@ -288,6 +420,7 @@ function aplicarDescuentoProducto(id, tipo) {
 
   item.descuentoTipo = tipo;
   item.descuentoValor = numero;
+  productoSeleccionadoId = id;
 
   renderCarrito();
 }
@@ -301,6 +434,7 @@ function quitarDescuentoProducto(id) {
 
   item.descuentoTipo = "porcentaje";
   item.descuentoValor = 0;
+  productoSeleccionadoId = id;
 
   renderCarrito();
 
@@ -410,13 +544,18 @@ function renderCarrito() {
   cont.innerHTML = "";
 
   if (carrito.length === 0) {
+    productoSeleccionadoId = null;
+
     cont.innerHTML = `
-      <div class="empty-state">
-        No hay productos en el carrito
+      <div class="aronium-empty">
+        <h3>No hay artículos</h3>
+        <p>Buscá productos arriba y agregalos a la orden</p>
       </div>
     `;
 
     resetResumenVenta();
+    actualizarPanelProductoSeleccionado();
+    guardarVentaPendiente();
     return;
   }
 
@@ -425,112 +564,141 @@ function renderCarrito() {
     const descuentoItem = calcularDescuentoProducto(item);
     const totalItem = subtotalItem - descuentoItem;
 
-    const div = document.createElement("div");
-    div.className = "cart-item";
+    const row = document.createElement("div");
 
-    div.innerHTML = `
-      <div class="cart-info">
-
-        <h4>${item.nombre}</h4>
-
-        <small>
-          ${money(item.precio)} c/u
-        </small>
-
-        ${
-          descuentoItem > 0
-            ? `
-              <div class="item-discount-badge">
-                Descuento: -${money(descuentoItem)}
-              </div>
-            `
-            : ""
-        }
-
-        <div class="item-discount">
-
-          <button
-            type="button"
-            onclick="aplicarDescuentoProducto('${item.id}', 'porcentaje')"
-          >
-            % OFF
-          </button>
-
-          <button
-            type="button"
-            onclick="aplicarDescuentoProducto('${item.id}', 'monto')"
-          >
-            $ OFF
-          </button>
-
-          ${
-            descuentoItem > 0
-              ? `
-                <button
-                  type="button"
-                  onclick="quitarDescuentoProducto('${item.id}')"
-                >
-                  Quitar
-                </button>
-              `
-              : ""
-          }
-
-        </div>
-
-      </div>
-
-      <div class="cart-actions">
-
-        <button
-          type="button"
-          class="qty-btn"
-          onclick="disminuirCantidad('${item.id}')"
-        >
-          −
-        </button>
-
-        <span class="qty">${item.cantidad}</span>
-
-        <button
-          type="button"
-          class="qty-btn"
-          onclick="aumentarCantidad('${item.id}')"
-        >
-          +
-        </button>
-
-      </div>
-
-      <div class="cart-subtotal">
-
-        ${
-          descuentoItem > 0
-            ? `
-              <div class="old-price">
-                ${money(subtotalItem)}
-              </div>
-            `
-            : ""
-        }
-
-        ${money(totalItem)}
-
-      </div>
-
-      <button
-        type="button"
-        class="remove-btn"
-        onclick="eliminarDelCarrito('${item.id}')"
-      >
-        ✕
-      </button>
+    row.className = `
+      aronium-row
+      ${String(productoSeleccionadoId) === String(item.id) ? "selected" : ""}
     `;
 
-    cont.appendChild(div);
+    row.onclick = () => seleccionarProductoCarrito(item.id);
+
+    row.innerHTML = `
+      <div class="aronium-product-name">
+        <div>
+          <strong>${item.nombre}</strong>
+          <small>Stock: ${Number(item.stock || 0)}</small>
+          ${
+            descuentoItem > 0
+              ? `<em>Descuento: -${money(descuentoItem)}</em>`
+              : ""
+          }
+        </div>
+      </div>
+
+      <div class="aronium-qty">
+        <button type="button" onclick="event.stopPropagation(); disminuirCantidad('${item.id}')">−</button>
+        <strong>${item.cantidad}</strong>
+        <button type="button" onclick="event.stopPropagation(); aumentarCantidad('${item.id}')">+</button>
+      </div>
+
+      <div class="aronium-price">
+        ${money(item.precio)}
+      </div>
+
+      <div class="aronium-total">
+        ${money(totalItem)}
+      </div>
+    `;
+
+    cont.appendChild(row);
   });
 
   actualizarResumenVenta();
+  actualizarPanelProductoSeleccionado();
+  guardarVentaPendiente();
+}
+
+function seleccionarProductoCarrito(id) {
+  productoSeleccionadoId = id;
+  renderCarrito();
+}
+
+function getProductoSeleccionadoCarrito() {
+  return carrito.find(
+    item => String(item.id) === String(productoSeleccionadoId)
+  );
+}
+
+function actualizarPanelProductoSeleccionado() {
+  const nombreEl = document.getElementById("productoSeleccionadoNombre");
+  const infoEl = document.getElementById("productoSeleccionadoInfo");
+
+  const item = getProductoSeleccionadoCarrito();
+
+  if (!nombreEl || !infoEl) return;
+
+  if (!item) {
+    nombreEl.innerText = "Ningún producto seleccionado";
+    infoEl.innerText = "Tocá una fila de la venta para editarla";
+    return;
+  }
+
+  nombreEl.innerText = item.nombre;
+  infoEl.innerText = `${item.cantidad} unidad/es · ${money(item.precio)} c/u`;
+}
+
+function descuentoProductoSeleccionado(tipo) {
+  const item = getProductoSeleccionadoCarrito();
+
+  if (!item) {
+    avisar("Seleccioná un producto del carrito", "error");
+    return;
+  }
+
+  aplicarDescuentoProducto(item.id, tipo);
+}
+
+function quitarDescuentoSeleccionado() {
+  const item = getProductoSeleccionadoCarrito();
+
+  if (!item) {
+    avisar("Seleccioná un producto del carrito", "error");
+    return;
+  }
+
+  quitarDescuentoProducto(item.id);
+}
+
+function eliminarProductoSeleccionado() {
+  const item = getProductoSeleccionadoCarrito();
+
+  if (!item) {
+    avisar("Seleccioná un producto del carrito", "error");
+    return;
+  }
+
+  eliminarDelCarrito(item.id);
+  productoSeleccionadoId = null;
+  actualizarPanelProductoSeleccionado();
+}
+
+function limpiarCarrito() {
+  if (carrito.length === 0) {
+    avisar("El carrito ya está vacío", "info");
+    return;
+  }
+
+  if (!confirm("¿Vaciar la venta actual?")) return;
+
+  carrito = [];
+  productoSeleccionadoId = null;
+
+  descuentoCarrito = {
+    tipo: "porcentaje",
+    valor: 0
+  };
+
+  const tipoDesc = document.getElementById("tipoDescuentoCarrito");
+  const valorDesc = document.getElementById("valorDescuentoCarrito");
+
+  if (tipoDesc) tipoDesc.value = "porcentaje";
+  if (valorDesc) valorDesc.value = "";
+
+  renderCarrito();
+  borrarVentaPendiente();
+
+  avisar("Venta limpiada", "info");
 }
 
 // =================================
@@ -724,27 +892,30 @@ async function finalizarVenta(metodo) {
 
     const ventaLocalId = Date.now();
 
-   const ultimoRecibo = Number(localStorage.getItem("ultimoReciboFausti") || 0) + 1;
+    const ultimoRecibo =
+      Number(localStorage.getItem("ultimoReciboFausti") || 0) + 1;
 
-localStorage.setItem("ultimoReciboFausti", ultimoRecibo);
+    localStorage.setItem("ultimoReciboFausti", ultimoRecibo);
 
-const numeroRecibo = String(ultimoRecibo).padStart(6, "0");
+    const numeroRecibo =
+      String(ultimoRecibo).padStart(6, "0");
 
-const nuevaVenta = {
-  id: ventaLocalId,
-  numeroRecibo,
-  fecha: new Date().toLocaleString(),
-  metodo,
-  subtotal: totales.subtotal,
-  descuentoProductos: totales.descuentoProductos,
-  descuentoCarrito: totales.descuentoGeneral,
-  descuento: totales.descuentoTotal,
-  total: totales.total,
-  costoTotal: totales.costoTotal,
-  ganancia: totales.ganancia,
-  usuario,
-  detalle
-};
+    const nuevaVenta = {
+      id: ventaLocalId,
+      numeroRecibo,
+      fecha: new Date().toLocaleString(),
+      metodo,
+      subtotal: totales.subtotal,
+      descuentoProductos: totales.descuentoProductos,
+      descuentoCarrito: totales.descuentoGeneral,
+      descuento: totales.descuentoTotal,
+      total: totales.total,
+      costoTotal: totales.costoTotal,
+      ganancia: totales.ganancia,
+      usuario,
+      detalle
+    };
+
     const ventaSupabase =
       await guardarVentaSupabase(nuevaVenta);
 
@@ -788,6 +959,8 @@ const nuevaVenta = {
     guardarProductosLocal();
 
     carrito = [];
+    productoSeleccionadoId = null;
+
     descuentoCarrito = {
       tipo: "porcentaje",
       valor: 0
@@ -801,6 +974,7 @@ const nuevaVenta = {
 
     renderProductos();
     renderCarrito();
+    borrarVentaPendiente();
 
     avisar("✅ Venta registrada correctamente", "success");
 
@@ -847,29 +1021,43 @@ function imprimirTicket(venta) {
     });
   }
 
+  function cortarTexto(texto, max = 28) {
+    const t = String(texto || "");
+    return t.length > max ? t.slice(0, max) : t;
+  }
+
   function lineaProducto(item) {
     const cantidad = Number(item.cantidad || 0);
-    const nombre = String(item.nombre || "Producto");
+    const nombre = cortarTexto(item.nombre || "Producto", 28);
     const precioUnitario = Number(item.precio || item.precioVenta || item.unitario || 0);
-    const total = Number(item.total || item.subtotal || precioUnitario * cantidad || 0);
+    const totalItem = Number(item.total || item.subtotal || precioUnitario * cantidad || 0);
+    const descuentoItem = Number(item.descuento || 0);
 
     return `
 ${nombre}
-${cantidad} x ${money(precioUnitario)}        ${money(total)}
-`;
+${cantidad} x ${money(precioUnitario)} = ${money(totalItem)}
+${descuentoItem > 0 ? `Desc. item: -${money(descuentoItem)}\n` : ""}`;
   }
 
-  const productos = venta.detalle || [];
-  const detalle = productos.map(item => lineaProducto(item)).join("");
+  const productosTicket = venta.detalle || [];
+  const detalle = productosTicket.map(item => lineaProducto(item)).join("");
 
-  const cantidadArticulos = productos.reduce((acc, item) => {
+  const cantidadArticulos = productosTicket.reduce((acc, item) => {
     return acc + Number(item.cantidad || 0);
   }, 0);
 
-  const numeroRecibo = venta.numeroRecibo || String(venta.id || Date.now()).slice(-6);
+  const numeroRecibo =
+    venta.numeroRecibo || String(venta.id || Date.now()).slice(-6);
+
   const metodo = metodoTicket(venta.metodo);
+
+  const subtotal = Number(venta.subtotal || 0);
+  const descProductos = Number(venta.descuentoProductos || 0);
+  const descCarrito = Number(venta.descuentoCarrito || 0);
+  const descuentoTotal = Number(venta.descuento || descProductos + descCarrito || 0);
   const total = Number(venta.total || 0);
   const recibido = Number(venta.recibido || venta.total || 0);
+  const vuelto = Math.max(0, recibido - total);
 
   const contenido = `
 <!DOCTYPE html>
@@ -888,76 +1076,95 @@ ${cantidad} x ${money(precioUnitario)}        ${money(total)}
     box-sizing: border-box;
   }
 
+  html,
   body {
-    font-family: Consolas, "Courier New", monospace;
-    width: 58mm;
     margin: 0;
-    padding: 5px;
+    padding: 0;
     background: #ffffff;
     color: #000;
-    
-    font-size: 13px;
+  }
+
+  body {
+    font-family: Consolas, "Courier New", monospace;
+    width: 56mm;
+    max-width: 56mm;
+    padding: 2mm 1mm;
+    font-size: 12px;
     font-weight: 700;
     line-height: 1.15;
-    }
+    overflow: hidden;
+  }
 
   .center {
     text-align: center;
   }
 
   .logo {
-    width: 170px;
-    max-height: 100px;
+    width: 140px;
+    max-height: 75px;
     object-fit: contain;
     display: block;
-    margin: 0 auto 5px auto;
+    margin: 0 auto 4px auto;
     filter: grayscale(1) contrast(1.9);
   }
 
   .line {
     border-top: 1px dashed #000;
-    margin: 7px 0;
+    margin: 6px 0;
   }
 
   pre {
     font-family: Consolas, "Courier New", monospace;
     white-space: pre-wrap;
     margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.15;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.18;
   }
 
   .row {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
     margin: 3px 0;
+  }
+
+  .row span,
+  .row strong {
+    white-space: nowrap;
   }
 
   .total-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 22px;
+    gap: 6px;
+    font-size: 18px;
     font-weight: 900;
-    line-height: 1.1;
+    line-height: 1.05;
     margin: 8px 0;
+  }
+
+  .total-row span {
+    white-space: nowrap;
   }
 
   .footer {
     text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 7px;
   }
 
   @media print {
+    html,
     body {
-      width: 58mm;
-      padding: 5px;
+      width: 56mm;
+      max-width: 56mm;
+      padding: 2mm 1mm;
+      overflow: hidden;
     }
   }
 </style>
@@ -975,8 +1182,7 @@ ${cantidad} x ${money(precioUnitario)}        ${money(total)}
 
 <div class="line"></div>
 
-<pre>
-Madre Cabrini 78 - Local 2
+<pre>Madre Cabrini 78 - Local 2
 Villa Mercedes, San Luis
 
 N° Recibo: ${numeroRecibo}
@@ -990,6 +1196,46 @@ Usuario: Lo de Fausti</pre>
 <div class="line"></div>
 
 <pre>Cantidad de artículos: ${cantidadArticulos}</pre>
+
+<div class="line"></div>
+
+<div class="row">
+  <span>Subtotal:</span>
+  <strong>${money(subtotal || total + descuentoTotal)}</strong>
+</div>
+
+${
+  descProductos > 0
+    ? `
+<div class="row">
+  <span>Desc. productos:</span>
+  <strong>-${money(descProductos)}</strong>
+</div>
+`
+    : ""
+}
+
+${
+  descCarrito > 0
+    ? `
+<div class="row">
+  <span>Desc. carrito:</span>
+  <strong>-${money(descCarrito)}</strong>
+</div>
+`
+    : ""
+}
+
+${
+  descuentoTotal > 0
+    ? `
+<div class="row">
+  <span>Descuento total:</span>
+  <strong>-${money(descuentoTotal)}</strong>
+</div>
+`
+    : ""
+}
 
 <div class="line"></div>
 
@@ -1010,17 +1256,22 @@ Usuario: Lo de Fausti</pre>
   <strong>${money(recibido)}</strong>
 </div>
 
+${
+  vuelto > 0
+    ? `
+<div class="row">
+  <span>Vuelto:</span>
+  <strong>${money(vuelto)}</strong>
+</div>
+`
+    : ""
+}
+
 <div class="line"></div>
 
-<div class="footer">
-  ¡Gracias por elegirnos!
-</div>
-<div class="footer">
-  @lodefausti.congelados
-</div>
-<div class="footer">
-  2657-718676
-</div>
+<div class="footer">¡Gracias por elegirnos!</div>
+<div class="footer">@lodefausti.congelados</div>
+<div class="footer">2657-718676</div>
 
 <script>
   window.onload = function () {
@@ -1038,19 +1289,177 @@ Usuario: Lo de Fausti</pre>
 </html>
 `;
 
-  const ventana = window.open("", "_blank", "width=400,height=800");
+  const ventana = window.open("", "_blank", "width=360,height=800");
 
   ventana.document.open();
   ventana.document.write(contenido);
   ventana.document.close();
 }
 
+// =================================
+// ANULAR ÚLTIMA VENTA
+// =================================
+
+function ventaEstaAnuladaLocal(venta) {
+  return (
+    venta?.estado === "anulada" ||
+    venta?.anulada === true
+  );
+}
+
+async function anularUltimaVenta() {
+  const ventasLocal = getStorage("ventas");
+
+  if (!ventasLocal || ventasLocal.length === 0) {
+    avisar("No hay ventas para anular", "error");
+    return;
+  }
+
+  const ultimaVenta = [...ventasLocal]
+    .reverse()
+    .find(v => !ventaEstaAnuladaLocal(v));
+
+  if (!ultimaVenta) {
+    avisar("No hay ventas activas para anular", "info");
+    return;
+  }
+
+  const confirmar = confirm(
+    `¿Anular la última venta?\n\nVenta #${ultimaVenta.numeroRecibo || ultimaVenta.id}\nTotal: ${money(ultimaVenta.total)}\n\nSe devolverá el stock.`
+  );
+
+  if (!confirmar) return;
+
+  const motivo =
+    prompt("Motivo de anulación:", "Anulación desde Ventas") ||
+    "Anulación desde Ventas";
+
+  const usuario = getUsuarioActual();
+
+  try {
+    if (typeof supabaseClient !== "undefined") {
+      for (const item of ultimaVenta.detalle || []) {
+        const productoId =
+          item.producto_id ||
+          item.productoId ||
+          item.id;
+
+        let productoData = null;
+
+        if (productoId) {
+          const { data, error } =
+            await supabaseClient
+              .from("productos")
+              .select("id, stock")
+              .eq("id", productoId)
+              .single();
+
+          if (!error && data) productoData = data;
+        }
+
+        if (!productoData && item.nombre) {
+          const { data, error } =
+            await supabaseClient
+              .from("productos")
+              .select("id, stock")
+              .eq("nombre", item.nombre)
+              .single();
+
+          if (!error && data) productoData = data;
+        }
+
+        if (!productoData) {
+          console.warn("No se encontró producto:", item.nombre);
+          continue;
+        }
+
+        const nuevoStock =
+          Number(productoData.stock || 0) +
+          Number(item.cantidad || 0);
+
+        const { error: stockError } =
+          await supabaseClient
+            .from("productos")
+            .update({ stock: nuevoStock })
+            .eq("id", productoData.id);
+
+        if (stockError) {
+          console.error(stockError);
+          avisar(`Error devolviendo stock de ${item.nombre}`, "error");
+          return;
+        }
+      }
+
+      if (ultimaVenta.supabaseId) {
+        const { error: ventaError } =
+          await supabaseClient
+            .from("ventas")
+            .update({
+              estado: "anulada",
+              anulada: true,
+              anulada_por: usuario,
+              anulada_fecha: new Date().toISOString(),
+              motivo_anulacion: motivo
+            })
+            .eq("id", ultimaVenta.supabaseId);
+
+        if (ventaError) {
+          console.error(ventaError);
+          avisar("Error anulando venta en Supabase", "error");
+          return;
+        }
+      }
+    }
+
+    const ventasActualizadas = ventasLocal.map(v => {
+      const mismaVenta =
+        String(v.id) === String(ultimaVenta.id) ||
+        String(v.supabaseId) === String(ultimaVenta.supabaseId);
+
+      if (!mismaVenta) return v;
+
+      return {
+        ...v,
+        estado: "anulada",
+        anulada: true,
+        anuladaPor: usuario,
+        anuladaFecha: new Date().toLocaleString("es-AR"),
+        motivoAnulacion: motivo
+      };
+    });
+
+    setStorage("ventas", ventasActualizadas);
+
+    const historial = getStorage("historial");
+
+    historial.push({
+      id: Date.now(),
+      tipo: "anulacion",
+      modulo: "Ventas",
+      descripcion: `Venta #${ultimaVenta.numeroRecibo || ultimaVenta.id} anulada desde Ventas por ${usuario}. Motivo: ${motivo}`,
+      monto: ultimaVenta.total,
+      fecha: new Date().toLocaleString("es-AR"),
+      usuario
+    });
+
+    setStorage("historial", historial);
+
+    await cargarProductosIniciales();
+
+    avisar("Última venta anulada y stock devuelto", "success");
+
+  } catch (error) {
+    console.error(error);
+    avisar("Error inesperado al anular la última venta", "error");
+  }
+}
 
 // =================================
 // INIT
 // =================================
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarProductosIniciales();
+document.addEventListener("DOMContentLoaded", async () => {
+  await cargarProductosIniciales();
+  cargarVentaPendiente();
   renderCarrito();
 });
