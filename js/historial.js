@@ -27,22 +27,16 @@ function formatearMetodo(metodo) {
   switch (String(metodo || "").toLowerCase()) {
     case "mp":
       return "Mercado Pago";
-
     case "transferencia":
       return "Transferencia";
-
     case "efectivo":
       return "Efectivo";
-
     case "qr":
       return "QR";
-
     case "qr_banco":
       return "QR Banco";
-
     case "promo_bn":
       return "Promo Nación";
-
     default:
       return metodo || "-";
   }
@@ -50,30 +44,23 @@ function formatearMetodo(metodo) {
 
 function claseMetodo(metodo) {
   switch (String(metodo || "").toLowerCase()) {
-
     case "efectivo":
       return "badge-efectivo";
-
     case "transferencia":
       return "badge-transferencia";
-
     case "mp":
       return "badge-mp";
-
     case "qr":
     case "qr_banco":
       return "badge-qr";
-
     case "promo_bn":
       return "badge-promo";
-
     default:
       return "badge-default";
   }
 }
 
 function obtenerFechaISO(fecha) {
-
   if (!fecha) return "";
 
   const date = new Date(fecha);
@@ -85,6 +72,17 @@ function obtenerFechaISO(fecha) {
   return date.toISOString().slice(0, 10);
 }
 
+function ventaEstaAnulada(venta) {
+  return venta?.estado === "anulada" || venta?.anulada === true;
+}
+
+function usuarioActual() {
+  return (
+    JSON.parse(localStorage.getItem("usuario"))?.nombre ||
+    "Admin"
+  );
+}
+
 // =================================
 // CARGAR VENTAS SUPABASE
 // =================================
@@ -94,43 +92,25 @@ async function cargarVentasSupabase() {
   if (typeof supabaseClient === "undefined") {
 
     ventas =
-      JSON.parse(
-        localStorage.getItem("ventas")
-      ) || [];
+      JSON.parse(localStorage.getItem("ventas")) || [];
 
     return;
   }
 
-  const {
-
-    data: ventasData,
-
-    error: ventasError
-
-  } = await supabaseClient
-
-    .from("ventas")
-
-    .select("*")
-
-    .order(
-      "fecha",
-      { ascending: false }
-    );
+  const { data: ventasData, error: ventasError } =
+    await supabaseClient
+      .from("ventas")
+      .select("*")
+      .order("fecha", { ascending: false });
 
   if (ventasError) {
 
     console.error(ventasError);
 
-    avisar(
-      "Error cargando historial",
-      "error"
-    );
+    avisar("Error cargando historial", "error");
 
     ventas =
-      JSON.parse(
-        localStorage.getItem("ventas")
-      ) || [];
+      JSON.parse(localStorage.getItem("ventas")) || [];
 
     return;
   }
@@ -139,127 +119,79 @@ async function cargarVentasSupabase() {
 
   for (const venta of ventasData || []) {
 
-    const {
-
-      data: detalleData,
-
-      error: detalleError
-
-    } = await supabaseClient
-
-      .from("venta_detalle")
-
-      .select("*")
-
-      .eq(
-        "venta_id",
-        venta.id
-      );
+    const { data: detalleData, error: detalleError } =
+      await supabaseClient
+        .from("venta_detalle")
+        .select("*")
+        .eq("venta_id", venta.id);
 
     if (detalleError) {
       console.error(detalleError);
     }
 
     ventas.push({
+      id: venta.id,
 
-      id:
-        venta.id,
+      fecha: venta.fecha
+        ? new Date(venta.fecha).toLocaleString("es-AR")
+        : "-",
 
-      fecha:
-        venta.fecha
-          ? new Date(
-              venta.fecha
-            ).toLocaleString("es-AR")
-          : "-",
+      fechaISO: venta.fecha
+        ? new Date(venta.fecha).toISOString().slice(0, 10)
+        : "",
 
-      fechaISO:
-        venta.fecha
-          ? new Date(
-              venta.fecha
-            )
-              .toISOString()
-              .slice(0, 10)
-          : "",
+      metodo: venta.metodo,
 
-      metodo:
-        venta.metodo,
+      subtotal: Number(venta.subtotal || 0),
 
-      subtotal:
-        Number(
-          venta.subtotal || 0
-        ),
+      descuentoProductos: Number(venta.descuento_productos || 0),
 
-      descuentoProductos:
-        Number(
-          venta.descuento_productos || 0
-        ),
+      descuentoCarrito: Number(venta.descuento_carrito || 0),
 
-      descuentoCarrito:
-        Number(
-          venta.descuento_carrito || 0
-        ),
+      descuento: Number(venta.descuento_total || 0),
 
-      descuento:
-        Number(
-          venta.descuento_total || 0
-        ),
+      total: Number(venta.total || 0),
 
-      total:
-        Number(
-          venta.total || 0
-        ),
+      costoTotal: Number(venta.costo_total || 0),
 
-      costoTotal:
-        Number(
-          venta.costo_total || 0
-        ),
+      ganancia: Number(venta.ganancia || 0),
 
-      ganancia:
-        Number(
-          venta.ganancia || 0
-        ),
+      usuario: venta.usuario || "Lodefausti",
 
-      usuario:
-        venta.usuario || "Lodefausti",
+      estado: venta.estado || "activa",
 
-      detalle:
-        (detalleData || []).map(item => ({
+      anulada: venta.anulada || false,
 
-          nombre:
-            item.nombre,
+      anuladaPor: venta.anulada_por || "",
 
-          cantidad:
-            Number(
-              item.cantidad || 0
-            ),
+      anuladaFecha: venta.anulada_fecha
+        ? new Date(venta.anulada_fecha).toLocaleString("es-AR")
+        : "",
 
-          precio:
-            Number(
-              item.precio || 0
-            ),
+      motivoAnulacion: venta.motivo_anulacion || "",
 
-          subtotal:
-            Number(
-              item.subtotal || 0
-            ),
+      detalle: (detalleData || []).map(item => ({
+        productoId:
+          item.producto_id ||
+          item.productoId ||
+          null,
 
-          descuento:
-            Number(
-              item.descuento || 0
-            ),
+        nombre: item.nombre,
 
-          total:
-            Number(
-              item.total || 0
-            )
-        }))
+        cantidad: Number(item.cantidad || 0),
+
+        precio: Number(item.precio || 0),
+
+        subtotal: Number(item.subtotal || 0),
+
+        descuento: Number(item.descuento || 0),
+
+        total: Number(item.total || 0)
+      }))
     });
   }
 
-  localStorage.setItem(
-    "ventas",
-    JSON.stringify(ventas)
-  );
+  localStorage.setItem("ventas", JSON.stringify(ventas));
 }
 
 // =================================
@@ -268,71 +200,43 @@ async function cargarVentasSupabase() {
 
 function renderStats(lista = ventas) {
 
-  const total = lista.reduce(
-    (acc, v) =>
-      acc + Number(v.total || 0),
+  const ventasActivas =
+    lista.filter(v => !ventaEstaAnulada(v));
+
+  const total = ventasActivas.reduce(
+    (acc, v) => acc + Number(v.total || 0),
     0
   );
 
-  const descuentos = lista.reduce(
-    (acc, v) =>
-      acc + Number(v.descuento || 0),
+  const descuentos = ventasActivas.reduce(
+    (acc, v) => acc + Number(v.descuento || 0),
     0
   );
 
-  const efectivo = lista
-    .filter(
-      v => v.metodo === "efectivo"
-    )
+  const efectivo = ventasActivas
+    .filter(v => String(v.metodo).toLowerCase() === "efectivo")
     .reduce(
-      (acc, v) =>
-        acc + Number(v.total || 0),
+      (acc, v) => acc + Number(v.total || 0),
       0
     );
 
-  const digital =
-    total - efectivo;
+  const digital = total - efectivo;
 
   const ticketPromedio =
-    lista.length > 0
-      ? total / lista.length
+    ventasActivas.length > 0
+      ? total / ventasActivas.length
       : 0;
 
-  setTextoHistorial(
-    "totalVentas",
-    formatoMoneda(total)
-  );
-
-  setTextoHistorial(
-    "totalEfectivo",
-    formatoMoneda(efectivo)
-  );
-
-  setTextoHistorial(
-    "totalDigital",
-    formatoMoneda(digital)
-  );
-
-  setTextoHistorial(
-    "cantidadVentas",
-    lista.length
-  );
-
-  setTextoHistorial(
-    "totalDescuentos",
-    formatoMoneda(descuentos)
-  );
-
-  setTextoHistorial(
-    "ticketPromedio",
-    formatoMoneda(ticketPromedio)
-  );
+  setTextoHistorial("totalVentas", formatoMoneda(total));
+  setTextoHistorial("totalEfectivo", formatoMoneda(efectivo));
+  setTextoHistorial("totalDigital", formatoMoneda(digital));
+  setTextoHistorial("cantidadVentas", ventasActivas.length);
+  setTextoHistorial("totalDescuentos", formatoMoneda(descuentos));
+  setTextoHistorial("ticketPromedio", formatoMoneda(ticketPromedio));
 }
 
 function setTextoHistorial(id, valor) {
-
-  const el =
-    document.getElementById(id);
+  const el = document.getElementById(id);
 
   if (el) {
     el.innerText = valor;
@@ -345,10 +249,7 @@ function setTextoHistorial(id, valor) {
 
 function renderVentas(lista = ventas) {
 
-  const cont =
-    document.getElementById(
-      "listaVentas"
-    );
+  const cont = document.getElementById("listaVentas");
 
   if (!cont) return;
 
@@ -358,7 +259,7 @@ function renderVentas(lista = ventas) {
 
     cont.innerHTML = `
       <tr>
-        <td colspan="7" class="empty-table">
+        <td colspan="9" class="empty-table">
           No hay ventas registradas
         </td>
       </tr>
@@ -372,28 +273,31 @@ function renderVentas(lista = ventas) {
   lista.forEach(v => {
 
     const subtotal =
-      Number(
-        v.subtotal ||
-        v.total ||
-        0
-      );
+      Number(v.subtotal || v.total || 0);
 
     const descuento =
-      Number(
-        v.descuento || 0
-      );
+      Number(v.descuento || 0);
 
     const total =
-      Number(
-        v.total || 0
-      );
+      Number(v.total || 0);
 
-    const tr =
-      document.createElement("tr");
+    const anulada =
+      ventaEstaAnulada(v);
+
+    const tr = document.createElement("tr");
+
+    if (anulada) {
+      tr.classList.add("venta-anulada-row");
+    }
 
     tr.innerHTML = `
       <td>
         <strong>${v.fecha || "-"}</strong>
+        ${
+          anulada && v.anuladaFecha
+            ? `<small class="discount-cell"><br>Anulada: ${v.anuladaFecha}</small>`
+            : ""
+        }
       </td>
 
       <td>
@@ -423,7 +327,14 @@ function renderVentas(lista = ventas) {
       </td>
 
       <td>
+        ${
+          anulada
+            ? `<span class="method-badge badge-default">ANULADA</span>`
+            : `<span class="method-badge badge-efectivo">ACTIVA</span>`
+        }
+      </td>
 
+      <td>
         <button
           type="button"
           class="detail-btn"
@@ -431,7 +342,22 @@ function renderVentas(lista = ventas) {
         >
           Ver detalle
         </button>
+      </td>
 
+      <td>
+        ${
+          anulada
+            ? `<span class="discount-cell">Sin acción</span>`
+            : `
+              <button
+                type="button"
+                class="detail-btn danger-btn"
+                onclick="anularVenta('${v.id}')"
+              >
+                Anular
+              </button>
+            `
+        }
       </td>
     `;
 
@@ -448,29 +374,22 @@ function renderVentas(lista = ventas) {
 function filtrarVentas() {
 
   const desde =
-    document.getElementById(
-      "fechaDesde"
-    )?.value;
+    document.getElementById("fechaDesde")?.value;
 
   const hasta =
-    document.getElementById(
-      "fechaHasta"
-    )?.value;
+    document.getElementById("fechaHasta")?.value;
 
   const filtradas =
     ventas.filter(v => {
 
       const fechaVenta =
-        v.fechaISO ||
-        obtenerFechaISO(v.fecha);
+        v.fechaISO || obtenerFechaISO(v.fecha);
 
       if (!fechaVenta) return true;
 
-      if (desde && fechaVenta < desde)
-        return false;
+      if (desde && fechaVenta < desde) return false;
 
-      if (hasta && fechaVenta > hasta)
-        return false;
+      if (hasta && fechaVenta > hasta) return false;
 
       return true;
     });
@@ -485,29 +404,26 @@ function filtrarVentas() {
 function verDetalle(id) {
 
   const venta =
-    ventas.find(
-      v => String(v.id) === String(id)
-    );
+    ventas.find(v => String(v.id) === String(id));
 
   if (!venta) return;
 
+  const anulada =
+    ventaEstaAnulada(venta);
+
   const detalleHTML =
     (venta.detalle || []).map(item => `
-
       <div class="detail-product">
 
         <div>
-
           <strong>${item.nombre}</strong>
 
           <small>
             ${item.cantidad} x ${formatoMoneda(item.precio)}
           </small>
-
         </div>
 
         <div class="detail-product-values">
-
           <span>
             Subtotal:
             ${formatoMoneda(item.subtotal)}
@@ -522,11 +438,9 @@ function verDetalle(id) {
             Total:
             ${formatoMoneda(item.total)}
           </strong>
-
         </div>
 
       </div>
-
     `).join("");
 
   const overlay =
@@ -536,21 +450,13 @@ function verDetalle(id) {
     "modal-overlay";
 
   overlay.innerHTML = `
-
     <div class="modal historial-modal">
 
       <div class="modal-header-pro">
 
         <div>
-
-          <h3>
-            Detalle de venta
-          </h3>
-
-          <p>
-            Ticket #${venta.id}
-          </p>
-
+          <h3>Detalle de venta</h3>
+          <p>Ticket #${venta.id}</p>
         </div>
 
         <div class="modal-actions-top">
@@ -562,6 +468,20 @@ function verDetalle(id) {
             Reimprimir
           </button>
 
+          ${
+            anulada
+              ? ""
+              : `
+                <button
+                  type="button"
+                  class="danger-btn"
+                  onclick="anularVenta('${venta.id}')"
+                >
+                  Anular
+                </button>
+              `
+          }
+
           <button
             type="button"
             class="modal-close"
@@ -572,6 +492,34 @@ function verDetalle(id) {
         </div>
 
       </div>
+
+      ${
+        anulada
+          ? `
+            <div class="sale-total-box">
+              <div>
+                <span>Estado</span>
+                <strong>VENTA ANULADA</strong>
+              </div>
+
+              <div>
+                <span>Anulada por</span>
+                <strong>${venta.anuladaPor || "-"}</strong>
+              </div>
+
+              <div>
+                <span>Fecha anulación</span>
+                <strong>${venta.anuladaFecha || "-"}</strong>
+              </div>
+
+              <div>
+                <span>Motivo</span>
+                <strong>${venta.motivoAnulacion || "-"}</strong>
+              </div>
+            </div>
+          `
+          : ""
+      }
 
       <div class="sale-detail-grid">
 
@@ -593,7 +541,7 @@ function verDetalle(id) {
       </div>
 
       <div class="detail-list">
-        ${detalleHTML}
+        ${detalleHTML || "<p>No hay detalle cargado.</p>"}
       </div>
 
       <div class="sale-total-box">
@@ -629,17 +577,148 @@ function verDetalle(id) {
 
   document.body.appendChild(overlay);
 
-  overlay.querySelector(
-    ".modal-close"
-  ).onclick = () => {
-    overlay.remove();
-  };
+  overlay.querySelector(".modal-close").onclick =
+    () => overlay.remove();
 
   overlay.onclick = e => {
     if (e.target === overlay) {
       overlay.remove();
     }
   };
+}
+
+// =================================
+// ANULAR VENTA
+// =================================
+
+async function anularVenta(id) {
+
+  const venta =
+    ventas.find(v => String(v.id) === String(id));
+
+  if (!venta) {
+    avisar("Venta no encontrada", "error");
+    return;
+  }
+
+  if (ventaEstaAnulada(venta)) {
+    avisar("Esta venta ya fue anulada", "info");
+    return;
+  }
+
+  const confirmar = confirm(
+    `¿Anular la venta #${venta.id}?\n\nSe devolverá el stock y la venta no contará en los totales.`
+  );
+
+  if (!confirmar) return;
+
+  const motivo =
+    prompt("Motivo de anulación:", "Anulación de venta") ||
+    "Anulación de venta";
+
+  const usuario = usuarioActual();
+
+  try {
+
+    if (typeof supabaseClient !== "undefined") {
+
+      for (const item of venta.detalle || []) {
+
+        let productoData = null;
+
+        if (item.productoId) {
+          const { data, error } =
+            await supabaseClient
+              .from("productos")
+              .select("id, stock")
+              .eq("id", item.productoId)
+              .single();
+
+          if (!error) {
+            productoData = data;
+          }
+        }
+
+        if (!productoData) {
+          const { data, error } =
+            await supabaseClient
+              .from("productos")
+              .select("id, stock")
+              .eq("nombre", item.nombre)
+              .single();
+
+          if (error) {
+            console.warn("No se encontró producto:", item.nombre);
+            continue;
+          }
+
+          productoData = data;
+        }
+
+        const nuevoStock =
+          Number(productoData.stock || 0) +
+          Number(item.cantidad || 0);
+
+        const { error: stockError } =
+          await supabaseClient
+            .from("productos")
+            .update({ stock: nuevoStock })
+            .eq("id", productoData.id);
+
+        if (stockError) {
+          console.error(stockError);
+          avisar(`Error devolviendo stock de ${item.nombre}`, "error");
+          return;
+        }
+      }
+
+      const { error: ventaError } =
+        await supabaseClient
+          .from("ventas")
+          .update({
+            estado: "anulada",
+            anulada: true,
+            anulada_por: usuario,
+            anulada_fecha: new Date().toISOString(),
+            motivo_anulacion: motivo
+          })
+          .eq("id", venta.id);
+
+      if (ventaError) {
+        console.error(ventaError);
+        avisar("Error anulando venta", "error");
+        return;
+      }
+    }
+
+    venta.estado = "anulada";
+    venta.anulada = true;
+    venta.anuladaPor = usuario;
+    venta.anuladaFecha =
+      new Date().toLocaleString("es-AR");
+    venta.motivoAnulacion = motivo;
+
+    localStorage.setItem("ventas", JSON.stringify(ventas));
+
+    agregarHistorial({
+      tipo: "anulacion",
+      modulo: "Ventas",
+      descripcion: `Venta #${venta.id} anulada por ${usuario}. Motivo: ${motivo}`,
+      monto: venta.total
+    });
+
+    await cargarVentasSupabase();
+
+    renderVentas();
+    renderHistorial();
+
+    avisar("Venta anulada correctamente", "success");
+
+  } catch (error) {
+
+    console.error(error);
+    avisar("Error inesperado al anular venta", "error");
+  }
 }
 
 // =================================
@@ -654,25 +733,13 @@ function agregarHistorial({
 }) {
 
   historial.unshift({
-
-    id:
-      Date.now(),
-
+    id: Date.now(),
     tipo,
-
     modulo,
-
     descripcion,
-
     monto,
-
-    fecha:
-      new Date().toLocaleString(),
-
-    usuario:
-      JSON.parse(
-        localStorage.getItem("usuario")
-      )?.nombre || "Admin"
+    fecha: new Date().toLocaleString("es-AR"),
+    usuario: usuarioActual()
   });
 
   localStorage.setItem(
@@ -684,9 +751,7 @@ function agregarHistorial({
 function renderHistorial() {
 
   const cont =
-    document.getElementById(
-      "listaHistorial"
-    );
+    document.getElementById("listaHistorial");
 
   if (!cont) return;
 
@@ -707,7 +772,6 @@ function renderHistorial() {
     historial
       .slice(0, 25)
       .map(h => `
-
         <div class="timeline-item-pro">
 
           <div class="timeline-dot"></div>
@@ -715,13 +779,9 @@ function renderHistorial() {
           <div class="timeline-content">
 
             <div>
-
               <h4>${h.modulo || "Sistema"}</h4>
-
               <p>${h.descripcion || "-"}</p>
-
               <small>${h.fecha || "-"}</small>
-
             </div>
 
             <span class="badge-success">
@@ -731,7 +791,6 @@ function renderHistorial() {
           </div>
 
         </div>
-
       `).join("");
 }
 
@@ -743,18 +802,13 @@ function limpiarHistorial() {
 
   if (historial.length === 0) {
 
-    avisar(
-      "No hay historial",
-      "info"
-    );
+    avisar("No hay historial", "info");
 
     return;
   }
 
   const confirmar =
-    confirm(
-      "¿Eliminar historial completo?"
-    );
+    confirm("¿Eliminar historial completo?");
 
   if (!confirmar) return;
 
@@ -767,10 +821,7 @@ function limpiarHistorial() {
 
   renderHistorial();
 
-  avisar(
-    "Historial eliminado",
-    "success"
-  );
+  avisar("Historial eliminado", "success");
 }
 
 // =================================
@@ -780,16 +831,11 @@ function limpiarHistorial() {
 function reimprimirTicket(id) {
 
   const venta =
-    ventas.find(
-      v => String(v.id) === String(id)
-    );
+    ventas.find(v => String(v.id) === String(id));
 
   if (!venta) {
 
-    avisar(
-      "Venta no encontrada",
-      "error"
-    );
+    avisar("Venta no encontrada", "error");
 
     return;
   }
@@ -806,24 +852,12 @@ function imprimirTicketHistorial(venta) {
   function metodoTicket(metodo) {
 
     const metodos = {
-
-      efectivo:
-        "EFECTIVO",
-
-      transferencia:
-        "TRANSFERENCIA",
-
-      mp:
-        "MERCADO PAGO",
-
-      qr:
-        "QR",
-
-      qr_banco:
-        "QR BANCO",
-
-      promo_bn:
-        "PROMO NACIÓN"
+      efectivo: "EFECTIVO",
+      transferencia: "TRANSFERENCIA",
+      mp: "MERCADO PAGO",
+      qr: "QR",
+      qr_banco: "QR BANCO",
+      promo_bn: "PROMO NACIÓN"
     };
 
     return (
@@ -839,17 +873,11 @@ function imprimirTicketHistorial(venta) {
       item.cantidad || 0;
 
     const nombre =
-      String(
-        item.nombre || "Producto"
-      )
+      String(item.nombre || "Producto")
         .slice(0, 18);
 
     const total =
-      Number(
-        item.total ||
-        item.subtotal ||
-        0
-      );
+      Number(item.total || item.subtotal || 0);
 
     return `
 ${cantidad}x ${nombre.padEnd(18, " ")} ${formatoMoneda(total)}
@@ -858,9 +886,7 @@ ${cantidad}x ${nombre.padEnd(18, " ")} ${formatoMoneda(total)}
 
   const detalle =
     (venta.detalle || [])
-      .map(item =>
-        lineaProducto(item)
-      )
+      .map(item => lineaProducto(item))
       .join("\n");
 
   const contenido = `
@@ -870,115 +896,65 @@ ${cantidad}x ${nombre.padEnd(18, " ")} ${formatoMoneda(total)}
 
 <meta charset="UTF-8">
 
-<title>
-Ticket
-</title>
+<title>Ticket</title>
 
 <style>
 
 @page {
-
-  size:
-    58mm auto;
-
-  margin:
-    0;
+  size: 58mm auto;
+  margin: 0;
 }
 
 body {
-
-  font-family:
-    "Courier New",
-    monospace;
-
-  width:
-    58mm;
-
-  margin:
-    0;
-
-  padding:
-    6px;
-
-  background:
-    #fff;
-
-  color:
-    #000;
-
-  font-size:
-    10.5px;
+  font-family: "Courier New", monospace;
+  width: 58mm;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  color: #000;
+  font-size: 10.5px;
 }
 
 .center {
-
-  text-align:
-    center;
+  text-align: center;
 }
 
 .logo {
-
-  width:
-    120px;
-
-  display:
-    block;
-
-  margin:
-    0 auto 4px auto;
-
-  object-fit:
-    contain;
-
-  filter:
-    grayscale(1)
-    contrast(1.4);
+  width: 120px;
+  display: block;
+  margin: 0 auto 4px auto;
+  object-fit: contain;
+  filter: grayscale(1) contrast(1.4);
 }
 
 .line {
-
-  border-top:
-    1px dashed #000;
-
-  margin:
-    7px 0;
+  border-top: 1px dashed #000;
+  margin: 7px 0;
 }
 
 pre {
-
-  white-space:
-    pre-wrap;
-
-  margin:
-    0;
-
-  font-family:
-    "Courier New",
-    monospace;
+  white-space: pre-wrap;
+  margin: 0;
+  font-family: "Courier New", monospace;
 }
 
 .row {
-
-  display:
-    flex;
-
-  justify-content:
-    space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .total {
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+  margin: 8px 0;
+}
 
-  font-size:
-    17px;
-
-  font-weight:
-    bold;
-
-  text-align:
-    center;
-
-  margin:
-    8px 0;
+.anulada {
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  margin: 8px 0;
 }
 
 </style>
@@ -999,6 +975,12 @@ pre {
 
 <div class="line"></div>
 
+${
+  ventaEstaAnulada(venta)
+    ? `<div class="anulada">VENTA ANULADA</div><div class="line"></div>`
+    : ""
+}
+
 <pre>
 Fecha: ${venta.fecha}
 Usuario: ${venta.usuario}
@@ -1015,68 +997,43 @@ ${detalle}
 <div class="line"></div>
 
 <div class="row">
-
 <span>Subtotal:</span>
-
-<strong>
-${formatoMoneda(venta.subtotal)}
-</strong>
-
+<strong>${formatoMoneda(venta.subtotal)}</strong>
 </div>
 
 <div class="row">
-
 <span>Descuento:</span>
-
-<strong>
--${formatoMoneda(venta.descuento)}
-</strong>
-
+<strong>-${formatoMoneda(venta.descuento)}</strong>
 </div>
 
 <div class="line"></div>
 
 <div class="total">
-
 TOTAL<br>
-
 ${formatoMoneda(venta.total)}
-
 </div>
 
 <div class="line"></div>
 
 <div class="center">
-
 Gracias por su compra
-
 <br>
-
 @lodefausti.congelados
-
 </div>
 
 <script>
-
 window.onload = function () {
-
   setTimeout(function () {
-
     window.print();
 
     setTimeout(function () {
-
       window.close();
-
     }, 600);
-
   }, 300);
 };
-
 </script>
 
 </body>
-
 </html>
 `;
 
@@ -1098,11 +1055,7 @@ window.onload = function () {
   }
 
   ventana.document.open();
-
-  ventana.document.write(
-    contenido
-  );
-
+  ventana.document.write(contenido);
   ventana.document.close();
 }
 

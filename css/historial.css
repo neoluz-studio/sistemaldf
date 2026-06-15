@@ -384,3 +384,21 @@
     align-items: flex-start;
   }
 }
+.danger-btn {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}
+
+.danger-btn:hover {
+  background: #dc2626 !important;
+  color: #fff !important;
+}
+
+.venta-anulada-row {
+  opacity: 0.65;
+}
+
+.venta-anulada-row .total-cell {
+  text-decoration: line-through;
+}
