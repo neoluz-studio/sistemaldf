@@ -12,7 +12,9 @@ let recetaActual = null;
 // =================================
 
 function money(valor) {
-  return `$${Number(valor || 0).toLocaleString("es-AR")}`;
+  return `$${Number(valor || 0).toLocaleString("es-AR", {
+    maximumFractionDigits: 2
+  })}`;
 }
 
 function avisar(mensaje, tipo = "info") {
@@ -86,27 +88,106 @@ function parseCantidad(valor) {
   return Number(texto) || 0;
 }
 
+// =================================
+// UNIDADES
+// Base:
+// peso: gramos
+// volumen: ml
+// unidades: unidad
+// =================================
+
 function normalizarUnidad(valor, unidad) {
   const n = parseCantidad(valor);
 
-  if (unidad === "kg") return n * 1000;
-  if (unidad === "litro") return n * 1000;
-  if (unidad === "docena") return n * 12;
+  switch (unidad) {
+    case "kg":
+      return n * 1000;
 
-  return n;
+    case "g":
+      return n;
+
+    case "litro":
+      return n * 1000;
+
+    case "ml":
+      return n;
+
+    case "docena":
+      return n * 12;
+
+    case "unidad":
+      return n;
+
+    case "paquete":
+      return n;
+
+    case "bandeja":
+      return n;
+
+    case "manual":
+      return n;
+
+    default:
+      return n;
+  }
+}
+
+function tipoUnidad(unidad) {
+  if (["kg", "g"].includes(unidad)) return "peso";
+  if (["litro", "ml"].includes(unidad)) return "volumen";
+  if (["unidad", "docena"].includes(unidad)) return "unidad";
+
+  return "manual";
+}
+
+function unidadesCompatibles(unidadCompra, unidadUsada) {
+  if (unidadCompra === unidadUsada) return true;
+
+  const tipoCompra = tipoUnidad(unidadCompra);
+  const tipoUsada = tipoUnidad(unidadUsada);
+
+  return tipoCompra === tipoUsada && tipoCompra !== "manual";
 }
 
 function calcularCostoIngrediente(i) {
-  const compra = normalizarUnidad(i.cantidadCompra, i.unidadCompra);
-  const usado = normalizarUnidad(i.cantidadUsada, i.unidadUsada);
+  if (!i) return 0;
 
-  if (compra <= 0 || usado <= 0) return 0;
+  const precioCompra = Number(i.precioCompra || 0);
+  const cantidadCompra = Number(i.cantidadCompra || 0);
+  const cantidadUsada = Number(i.cantidadUsada || 0);
 
-  return (Number(i.precioCompra || 0) / compra) * usado;
+  if (precioCompra <= 0 || cantidadCompra <= 0 || cantidadUsada <= 0) {
+    return 0;
+  }
+
+  if (!unidadesCompatibles(i.unidadCompra, i.unidadUsada)) {
+    return 0;
+  }
+
+  const compraNormalizada = normalizarUnidad(cantidadCompra, i.unidadCompra);
+  const usadoNormalizado = normalizarUnidad(cantidadUsada, i.unidadUsada);
+
+  if (compraNormalizada <= 0 || usadoNormalizado <= 0) {
+    return 0;
+  }
+
+  const costoPorMedida = precioCompra / compraNormalizada;
+  const costoUsado = costoPorMedida * usadoNormalizado;
+
+  return costoUsado;
 }
 
 function calcularReceta(receta) {
-  if (!receta) return { total: 0, costoUnidad: 0 };
+  if (!receta) {
+    return {
+      total: 0,
+      costoUnidad: 0,
+      ingresoTotal: 0,
+      gananciaUnidad: 0,
+      gananciaTotal: 0,
+      margenUnidad: 0
+    };
+  }
 
   let total = 0;
 
@@ -114,10 +195,25 @@ function calcularReceta(receta) {
     total += calcularCostoIngrediente(i);
   });
 
-  const cantidad = parseCantidad(receta.cantidadFinal || 1);
-  const costoUnidad = cantidad > 0 ? total / cantidad : 0;
+  const cantidadProducida = parseCantidad(receta.cantidadFinal || 1);
+  const precioVentaUnidad = Number(receta.precioVenta || 0);
 
-  return { total, costoUnidad };
+  const costoUnidad = cantidadProducida > 0 ? total / cantidadProducida : 0;
+  const ingresoTotal = precioVentaUnidad * cantidadProducida;
+  const gananciaUnidad = precioVentaUnidad - costoUnidad;
+  const gananciaTotal = ingresoTotal - total;
+  const margenUnidad = precioVentaUnidad > 0
+    ? (gananciaUnidad / precioVentaUnidad) * 100
+    : 0;
+
+  return {
+    total,
+    costoUnidad,
+    ingresoTotal,
+    gananciaUnidad,
+    gananciaTotal,
+    margenUnidad
+  };
 }
 
 function limpiarFormIngrediente() {
@@ -125,13 +221,24 @@ function limpiarFormIngrediente() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
+
+  const unidadCompra = document.getElementById("unidadCompra");
+  const unidadUsada = document.getElementById("unidadUsada");
+
+  if (unidadCompra) unidadCompra.value = "unidad";
+  if (unidadUsada) unidadUsada.value = "unidad";
 }
 
 function limpiarFormReceta() {
-  document.getElementById("nombreReceta").value = "";
-  document.getElementById("cantidadProduccion").value = "";
-  document.getElementById("unidadFinal").value = "unidad";
-  document.getElementById("precioVentaInicial").value = "";
+  const nombre = document.getElementById("nombreReceta");
+  const cantidad = document.getElementById("cantidadProduccion");
+  const unidad = document.getElementById("unidadFinal");
+  const precio = document.getElementById("precioVentaInicial");
+
+  if (nombre) nombre.value = "";
+  if (cantidad) cantidad.value = "";
+  if (unidad) unidad.value = "unidad";
+  if (precio) precio.value = "";
 }
 
 // =================================
@@ -182,9 +289,9 @@ async function cargarRecetasSupabase() {
         nombre: i.nombre,
         precioCompra: Number(i.precio_compra || 0),
         cantidadCompra: Number(i.cantidad_compra || 0),
-        unidadCompra: i.unidad_compra || "g",
+        unidadCompra: i.unidad_compra || "unidad",
         cantidadUsada: Number(i.cantidad_usada || 0),
-        unidadUsada: i.unidad_usada || "g"
+        unidadUsada: i.unidad_usada || "unidad"
       }))
     });
   }
@@ -381,7 +488,13 @@ async function editarDatosReceta() {
   if (cantidad <= 0) return;
 
   const unidad = prompt("Unidad final:", recetaActual.unidadFinal) || "unidad";
-  const precioVenta = parseMoney(prompt("Precio de venta actual:", Number(recetaActual.precioVenta || 0).toLocaleString("es-AR")));
+
+  const precioVenta = parseMoney(
+    prompt(
+      "Precio de venta POR UNIDAD:",
+      Number(recetaActual.precioVenta || 0).toLocaleString("es-AR")
+    )
+  );
 
   const { error } =
     await supabaseClient
@@ -428,6 +541,11 @@ async function agregarIngrediente() {
     return;
   }
 
+  if (!unidadesCompatibles(unidadCompra, unidadUsada)) {
+    avisar("Las unidades no son compatibles. Ej: kg con g, litro con ml, docena con unidad.", "error");
+    return;
+  }
+
   const { error } =
     await supabaseClient
       .from("receta_ingredientes")
@@ -464,13 +582,27 @@ async function editarIngrediente(id) {
   const nombre = prompt("Ingrediente:", ing.nombre);
   if (!nombre) return;
 
-  const precioCompra = parseMoney(prompt("Precio total de compra:", Number(ing.precioCompra || 0).toLocaleString("es-AR")));
+  const precioCompra = parseMoney(
+    prompt(
+      "Precio total de compra:",
+      Number(ing.precioCompra || 0).toLocaleString("es-AR")
+    )
+  );
+
   const cantidadCompra = parseCantidad(prompt("Cantidad comprada:", ing.cantidadCompra));
   const unidadCompra = prompt("Unidad compra:", ing.unidadCompra) || ing.unidadCompra;
   const cantidadUsada = parseCantidad(prompt("Cantidad usada:", ing.cantidadUsada));
   const unidadUsada = prompt("Unidad usada:", ing.unidadUsada) || ing.unidadUsada;
 
-  if (precioCompra <= 0 || cantidadCompra <= 0 || cantidadUsada <= 0) return;
+  if (precioCompra <= 0 || cantidadCompra <= 0 || cantidadUsada <= 0) {
+    avisar("Datos inválidos", "error");
+    return;
+  }
+
+  if (!unidadesCompatibles(unidadCompra, unidadUsada)) {
+    avisar("Las unidades no son compatibles", "error");
+    return;
+  }
 
   const { error } =
     await supabaseClient
@@ -569,25 +701,32 @@ function renderIngredientes() {
   }
 
   tbody.innerHTML =
-    recetaActual.ingredientes.map(i => `
-      <tr>
-        <td>${i.nombre}</td>
-        <td>${money(i.precioCompra)}</td>
-        <td>${i.cantidadCompra} ${i.unidadCompra}</td>
-        <td>${i.cantidadUsada} ${i.unidadUsada}</td>
-        <td><strong>${money(calcularCostoIngrediente(i))}</strong></td>
-        <td>
-          <button class="detail-btn" onclick="editarIngrediente('${i.id}')">
-            Editar
-          </button>
-        </td>
-        <td>
-          <button class="mini-danger-btn" onclick="eliminarIngrediente('${i.id}')">
-            Eliminar
-          </button>
-        </td>
-      </tr>
-    `).join("");
+    recetaActual.ingredientes.map(i => {
+      const compatible = unidadesCompatibles(i.unidadCompra, i.unidadUsada);
+      const costo = calcularCostoIngrediente(i);
+
+      return `
+        <tr>
+          <td>${i.nombre}</td>
+          <td>${money(i.precioCompra)}</td>
+          <td>${i.cantidadCompra} ${i.unidadCompra}</td>
+          <td>${i.cantidadUsada} ${i.unidadUsada}</td>
+          <td>
+            <strong>${compatible ? money(costo) : "Error unidad"}</strong>
+          </td>
+          <td>
+            <button class="detail-btn" onclick="editarIngrediente('${i.id}')">
+              Editar
+            </button>
+          </td>
+          <td>
+            <button class="mini-danger-btn" onclick="eliminarIngrediente('${i.id}')">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
 }
 
 function renderResumen() {
@@ -600,9 +739,7 @@ function renderResumen() {
   }
 
   const calc = calcularReceta(recetaActual);
-  const precioVenta = Number(recetaActual.precioVenta || 0);
-  const ganancia = precioVenta - calc.total;
-  const margen = precioVenta > 0 ? (ganancia / precioVenta) * 100 : 0;
+  const precioVentaUnidad = Number(recetaActual.precioVenta || 0);
 
   cont.innerHTML = `
     <div class="recipe-summary-card">
@@ -616,7 +753,7 @@ function renderResumen() {
     </div>
 
     <div class="recipe-summary-card">
-      <span>Costo total</span>
+      <span>Costo total de producción</span>
       <strong>${money(calc.total)}</strong>
     </div>
 
@@ -626,26 +763,36 @@ function renderResumen() {
     </div>
 
     <div class="recipe-summary-card">
-      <span>Precio venta actual</span>
-      <strong>${money(precioVenta)}</strong>
+      <span>Precio venta por unidad</span>
+      <strong>${money(precioVentaUnidad)}</strong>
     </div>
 
     <div class="recipe-summary-card">
-      <span>Ganancia real</span>
-      <strong>${money(ganancia)}</strong>
+      <span>Ingreso total estimado</span>
+      <strong>${money(calc.ingresoTotal)}</strong>
     </div>
 
     <div class="recipe-summary-card">
-      <span>Margen real</span>
-      <strong>${margen.toFixed(2)}%</strong>
+      <span>Ganancia por unidad</span>
+      <strong>${money(calc.gananciaUnidad)}</strong>
     </div>
 
     <div class="recipe-summary-card">
-      <span>Precios sugeridos</span>
-      <p>30%: <b>${money(calc.total * 1.3)}</b></p>
-      <p>50%: <b>${money(calc.total * 1.5)}</b></p>
-      <p>70%: <b>${money(calc.total * 1.7)}</b></p>
-      <p>100%: <b>${money(calc.total * 2)}</b></p>
+      <span>Ganancia total estimada</span>
+      <strong>${money(calc.gananciaTotal)}</strong>
+    </div>
+
+    <div class="recipe-summary-card">
+      <span>Margen real por unidad</span>
+      <strong>${calc.margenUnidad.toFixed(2)}%</strong>
+    </div>
+
+    <div class="recipe-summary-card">
+      <span>Precios sugeridos por unidad</span>
+      <p>30%: <b>${money(calc.costoUnidad * 1.3)}</b></p>
+      <p>50%: <b>${money(calc.costoUnidad * 1.5)}</b></p>
+      <p>70%: <b>${money(calc.costoUnidad * 1.7)}</b></p>
+      <p>100%: <b>${money(calc.costoUnidad * 2)}</b></p>
     </div>
 
     <button class="produccion-main-btn" onclick="editarDatosReceta()">
@@ -671,6 +818,7 @@ function renderRecetaSeleccionadaBox() {
       ${recetaActual.cantidadFinal} ${recetaActual.unidadFinal}
       · ${recetaActual.ingredientes.length} ingredientes
       · Total: ${money(calc.total)}
+      · Unidad: ${money(calc.costoUnidad)}
     </span>
   `;
 }
