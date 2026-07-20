@@ -1067,46 +1067,47 @@ ${descuentoItem > 0 ? `Desc. item: -${money(descuentoItem)}\n` : ""}`;
 <title>Ticket</title>
 
 <style>
-  @page {
-    size: 58mm auto;
-    margin: 0;
-  }
+@page {
+  size: 58mm auto;
+  margin: 0;
+}
 
-  * {
-    box-sizing: border-box;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  html,
-  body {
-    margin: 0;
-    padding: 0;
-    background: #ffffff;
-    color: #000;
-  }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #000;
+}
 
-  body {
-    font-family: Consolas, "Courier New", monospace;
-    width: 56mm;
-    max-width: 56mm;
-    padding: 2mm 1mm;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.15;
-    overflow: hidden;
-  }
+body {
+  font-family: Consolas, "Courier New", monospace;
+  width: 54mm;
+  max-width: 54mm;
+  margin: 0 auto;
+  padding: 2mm;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow: hidden;
+}
 
   .center {
     text-align: center;
   }
 
   .logo {
-    width: 140px;
-    max-height: 75px;
-    object-fit: contain;
-    display: block;
-    margin: 0 auto 4px auto;
-    filter: grayscale(1) contrast(1.9);
-  }
+  width: 115px;
+  max-width: 100%;
+  max-height: 65px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 4px;
+}
 
   .line {
     border-top: 1px dashed #000;
@@ -1159,14 +1160,19 @@ ${descuentoItem > 0 ? `Desc. item: -${money(descuentoItem)}\n` : ""}`;
   }
 
   @media print {
-    html,
-    body {
-      width: 56mm;
-      max-width: 56mm;
-      padding: 2mm 1mm;
-      overflow: hidden;
-    }
+  html,
+  body {
+    width: 54mm;
+    max-width: 54mm;
+    margin: 0 auto;
+    padding: 0;
+    overflow: hidden;
   }
+
+  body {
+    padding: 2mm;
+  }
+}
 </style>
 </head>
 
