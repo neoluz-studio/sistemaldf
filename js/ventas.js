@@ -1086,10 +1086,10 @@ body {
 
 body {
   font-family: Consolas, "Courier New", monospace;
-  width: 54mm;
-  max-width: 54mm;
+  width: 52mm;
+  max-width: 52mm;
   margin: 0 auto;
-  padding: 2mm 3mm 2mm 2mm; /* arriba derecha abajo izquierda */
+  padding: 2mm; 
   font-size: 11px;
   font-weight: 700;
   line-height: 1.15;
@@ -1164,8 +1164,8 @@ body {
   @media print {
   html,
   body {
-    width: 54mm;
-    max-width: 54mm;
+    width: 52mm;
+    max-width: 52mm;
     margin: 0 auto;
     padding: 0;
     overflow: hidden;
