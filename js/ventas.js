@@ -994,17 +994,15 @@ async function finalizarVenta(metodo) {
 
 function imprimirTicket(venta) {
   function metodoTicket(metodo) {
-    const metodos = {
-      efectivo: "EFECTIVO",
-      transferencia: "TRANSFERENCIA",
-      mp: "MERCADO PAGO",
-      qr: "QR",
-      qr_banco: "QR BANCO",
-      promo_bn: "PROMO NACIÓN"
-    };
+  const metodos = {
+    efectivo: "EFECTIVO",
+    transferencia: "TRANSFERENCIA",
+    debito: "DÉBITO",
+    promo_bn: "PROMO NACIÓN"
+  };
 
-    return metodos[metodo] || metodo || "-";
-  }
+  return metodos[metodo] || metodo || "-";
+}
 
   function fechaTicket(fecha) {
     const f = fecha ? new Date(fecha) : new Date();
