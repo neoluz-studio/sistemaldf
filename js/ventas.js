@@ -1089,7 +1089,7 @@ body {
   width: 54mm;
   max-width: 54mm;
   margin: 0 auto;
-  padding: 2mm;
+  padding: 2mm 3mm 2mm 2mm; /* arriba derecha abajo izquierda */
   font-size: 11px;
   font-weight: 700;
   line-height: 1.15;
@@ -1124,13 +1124,15 @@ body {
   }
 
   .row {
-    display: flex;
-    justify-content: space-between;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    margin: 3px 0;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 3px 0;
+}
+
 
   .row span,
   .row strong {
@@ -1138,15 +1140,15 @@ body {
   }
 
   .total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1.05;
-    margin: 8px 0;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin: 8px 0;
+}
 
   .total-row span {
     white-space: nowrap;
