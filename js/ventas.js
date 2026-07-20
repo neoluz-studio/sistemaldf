@@ -1066,6 +1066,7 @@ ${descuentoItem > 0 ? `Desc. item: -${money(descuentoItem)}\n` : ""}`;
 <meta charset="UTF-8">
 <title>Ticket</title>
 
+
 <style>
 @page {
   size: 58mm auto;
@@ -1086,21 +1087,28 @@ body {
 
 body {
   font-family: Consolas, "Courier New", monospace;
-  width: 52mm;
-  max-width: 52mm;
-  margin: 0 auto;
-  padding: 2mm; 
+  width: 58mm;
+  margin: 0;
+  padding: 0;
   font-size: 11px;
   font-weight: 700;
   line-height: 1.15;
+}
+
+/* Área segura real de impresión */
+.ticket {
+  width: 48mm;
+  max-width: 48mm;
+  margin: 0;
+  padding: 2mm 1mm;
   overflow: hidden;
 }
 
-  .center {
-    text-align: center;
-  }
+.center {
+  text-align: center;
+}
 
-  .logo {
+.logo {
   width: 115px;
   max-width: 100%;
   max-height: 65px;
@@ -1109,76 +1117,91 @@ body {
   margin: 0 auto 4px;
 }
 
-  .line {
-    border-top: 1px dashed #000;
-    margin: 6px 0;
-  }
+.line {
+  border-top: 1px dashed #000;
+  margin: 6px 0;
+}
 
-  pre {
-    font-family: Consolas, "Courier New", monospace;
-    white-space: pre-wrap;
-    margin: 0;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.18;
-  }
-
-  .row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 6px;
+pre {
+  font-family: Consolas, "Courier New", monospace;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin: 0;
   font-size: 12px;
   font-weight: 700;
-  margin: 3px 0;
+  line-height: 1.18;
 }
 
+/* Filas de subtotal, método y recibido */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21mm;
+  align-items: center;
+  column-gap: 4px;
+  width: 100%;
+  margin: 3px 0;
+  font-size: 12px;
+  font-weight: 700;
+}
 
-  .row span,
-  .row strong {
-    white-space: nowrap;
-  }
+.row span:first-child {
+  min-width: 0;
+}
 
-  .total-row {
-  display: flex;
-  justify-content: space-between;
+.row strong {
+  width: 100%;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 1mm;
+}
+
+/* Total principal */
+.total-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 23mm;
   align-items: baseline;
-  gap: 6px;
-  font-size: 18px;
+  column-gap: 3px;
+  width: 100%;
+  margin: 8px 0;
+  font-size: 17px;
   font-weight: 900;
   line-height: 1.05;
-  margin: 8px 0;
 }
 
-  .total-row span {
-    white-space: nowrap;
-  }
+.total-row span:last-child {
+  width: 100%;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 1mm;
+}
 
-  .footer {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 7px;
-  }
+.footer {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 7px;
+}
 
-  @media print {
+@media print {
   html,
   body {
-    width: 52mm;
-    max-width: 52mm;
-    margin: 0 auto;
+    width: 58mm;
+    margin: 0;
     padding: 0;
-    overflow: hidden;
   }
 
-  body {
-    padding: 2mm;
+  .ticket {
+    width: 48mm;
+    max-width: 48mm;
+    margin: 0;
+    padding: 2mm 1mm;
   }
 }
 </style>
 </head>
 
 <body>
+<div class="ticket">
 
 <div class="center">
   <img
@@ -1281,6 +1304,7 @@ ${
 <div class="footer">@lodefausti.congelados</div>
 <div class="footer">2657-718676</div>
 
+</div>
 <script>
   window.onload = function () {
     setTimeout(function () {
