@@ -1110,3 +1110,295 @@ body.dark .search-result-item:hover {
   .pos-payment-actions { grid-template-columns: minmax(0, 1fr); }
   .discount-controls { grid-template-columns: minmax(0, 1fr) 80px; }
 }
+
+
+/* UBICACIÓN DE LA CAJA */
+body.ventas-fullscreen .ventas-pos-page {
+  margin-top: -85px !important;
+  padding-top: 8px !important;
+}
+
+/* PANEL DE ACCIONES MÁS COMPACTO */
+body.ventas-fullscreen .pos-pay-panel,
+body.ventas-fullscreen .pos-checkout-panel {
+  padding: 12px !important;
+  gap: 0 !important;
+  overflow-y: auto !important;
+}
+
+/* MENOS ESPACIO ENTRE SECCIONES */
+body.ventas-fullscreen .selected-product-box {
+  padding: 10px !important;
+  margin-bottom: 8px !important;
+}
+
+body.ventas-fullscreen .side-actions-grid {
+  gap: 7px !important;
+  margin-bottom: 8px !important;
+}
+
+body.ventas-fullscreen .side-actions-grid button {
+  min-height: 42px !important;
+}
+
+/* DESCUENTO GENERAL */
+body.ventas-fullscreen .discount-box,
+body.ventas-fullscreen .pos-discount-box {
+  margin-top: 8px !important;
+  padding: 10px !important;
+}
+
+/* BOTONES DE COBRO */
+body.ventas-fullscreen .payment-actions,
+body.ventas-fullscreen .pos-payment-actions {
+  margin-top: 8px !important;
+  gap: 7px !important;
+}
+
+body.ventas-fullscreen .payment-actions button,
+body.ventas-fullscreen .pos-payment-actions button {
+  min-height: 48px !important;
+  padding: 6px !important;
+}
+
+/* =====================================
+   VENTAS - ELIMINAR SCROLL EXTERIOR
+   SIN CAMBIAR LA POSICIÓN ACTUAL
+===================================== */
+
+@media (min-width: 1101px) {
+
+  body.ventas-fullscreen {
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
+  body.ventas-fullscreen .main {
+    height: 100dvh !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body.ventas-fullscreen .ventas-pos-page {
+    height: calc(100dvh - 40px) !important;
+    box-sizing: border-box;
+    overflow: hidden !important;
+  }
+
+  body.ventas-fullscreen .pos-shell,
+  body.ventas-fullscreen .pos-shell-aronium {
+    height: 100% !important;
+    min-height: 0 !important;
+    align-items: stretch;
+  }
+
+  body.ventas-fullscreen .pos-main,
+  body.ventas-fullscreen .pos-sale-area {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  body.ventas-fullscreen .pos-pay-panel,
+  body.ventas-fullscreen .pos-checkout-panel {
+    height: 100% !important;
+    min-height: 0 !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body.ventas-fullscreen .aronium-sale-table {
+    flex: 1;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+}
+
+/* =====================================
+   ACOMODAR BOTÓN DEL MENÚ EN VENTAS
+===================================== */
+
+body.ventas-fullscreen .menu-toggle {
+  position: fixed !important;
+  top: 8px !important;
+  left: 12px !important;
+
+  width: 46px !important;
+  height: 46px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  z-index: 9997 !important;
+  border-radius: 14px !important;
+  background: #111827 !important;
+  color: #ffffff !important;
+
+  margin: 0 !important;
+}
+/* ============================================================
+   LO DE FAUSTI | CAJA MODERNA · SOLO ESTÉTICA
+   Pegar al FINAL de tu css/ventas.css ACTUAL.
+   No cambia posiciones, alturas ni distribución de paneles.
+   ============================================================ */
+
+body.ventas-fullscreen .ventas-pos-page {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.ventas-fullscreen .pos-pay-panel,
+body.ventas-fullscreen .pos-checkout-panel,
+body.ventas-fullscreen .pos-main,
+body.ventas-fullscreen .pos-sale-area {
+  border-color: #e3eaf2;
+  box-shadow: 0 8px 24px rgba(25, 42, 65, .055);
+}
+
+/* Jerarquía tipográfica: menos negrita, más legibilidad */
+body.ventas-fullscreen .pos-ticket-head h3,
+body.ventas-fullscreen .pos-search-bar h2 {
+  font-weight: 750;
+  letter-spacing: -.035em;
+  color: #14243a;
+}
+body.ventas-fullscreen .pos-ticket-head p,
+body.ventas-fullscreen .pos-search-bar p,
+body.ventas-fullscreen .selected-product-box small,
+body.ventas-fullscreen .discount-title small {
+  font-weight: 450;
+  color: #738399;
+}
+body.ventas-fullscreen .selected-product-box span,
+body.ventas-fullscreen .discount-title strong {
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .005em;
+  color: #50647d;
+}
+body.ventas-fullscreen .selected-product-box strong {
+  font-weight: 700;
+  letter-spacing: -.018em;
+  color: #1c2f48;
+}
+
+/* Recuadros más delicados */
+body.ventas-fullscreen .selected-product-box,
+body.ventas-fullscreen .discount-box,
+body.ventas-fullscreen .pos-discount-box,
+body.ventas-fullscreen .venta-summary,
+body.ventas-fullscreen .pos-summary {
+  background: #f8fafc;
+  border: 1px solid #e5edf5;
+  box-shadow: none;
+}
+
+/* Acciones secundarias discretas y consistentes */
+body.ventas-fullscreen .side-actions-grid button,
+body.ventas-fullscreen .payment-actions button,
+body.ventas-fullscreen .pos-payment-actions button {
+  font-family: inherit;
+  font-weight: 650;
+  font-size: 13px;
+  letter-spacing: -.012em;
+  background: #edf3f8;
+  color: #20334a;
+  box-shadow: none;
+  text-shadow: none;
+  border: 1px solid transparent;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+body.ventas-fullscreen .side-actions-grid button:hover,
+body.ventas-fullscreen .payment-actions button:hover,
+body.ventas-fullscreen .pos-payment-actions button:hover {
+  background: #e3edf6;
+  border-color: #d6e3ef;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(34, 58, 86, .07);
+}
+body.ventas-fullscreen .side-actions-grid button:focus-visible,
+body.ventas-fullscreen .payment-actions button:focus-visible,
+body.ventas-fullscreen .pos-payment-actions button:focus-visible {
+  outline: 2px solid #3998ce;
+  outline-offset: 2px;
+}
+
+/* Acciones destructivas: tono rojo suave, sin brillo */
+body.ventas-fullscreen .side-actions-grid .danger-side-btn,
+body.ventas-fullscreen .side-actions-grid button.danger-side-btn {
+  background: #fff0f0 !important;
+  color: #c63038 !important;
+  border-color: #ffe1e1 !important;
+}
+
+/* Pagos: el efectivo sigue siendo la acción principal */
+body.ventas-fullscreen .payment-actions .pay-cash,
+body.ventas-fullscreen .pos-payment-actions .pay-cash {
+  background: #24965b;
+  color: #fff;
+  border-color: #24965b;
+  box-shadow: none;
+}
+body.ventas-fullscreen .payment-actions .pay-cash:hover,
+body.ventas-fullscreen .pos-payment-actions .pay-cash:hover {
+  background: #207e4d;
+  border-color: #207e4d;
+}
+
+/* Campos */
+body.ventas-fullscreen .discount-controls input,
+body.ventas-fullscreen .discount-controls select {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 13px;
+  color: #233852;
+  border-color: #dbe6f0;
+  box-shadow: none;
+}
+body.ventas-fullscreen .discount-controls input:focus-visible,
+body.ventas-fullscreen .discount-controls select:focus-visible {
+  outline: 2px solid #68b4dc;
+  outline-offset: 1px;
+}
+body.ventas-fullscreen .pos-search-box {
+  border-color: #e6edf5;
+  box-shadow: none;
+}
+body.ventas-fullscreen .pos-search-box:focus-within {
+  border-color: #49b3e2;
+  box-shadow: 0 0 0 3px rgba(73, 179, 226, .10);
+}
+body.ventas-fullscreen .pos-search-box .search-input {
+  font-family: inherit;
+  font-weight: 450;
+}
+
+/* Tabla: evitar efecto de letras pesadas */
+body.ventas-fullscreen .aronium-table-head,
+body.ventas-fullscreen .aronium-product-name strong {
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+/* Modo oscuro: preservar contraste */
+body.dark.ventas-fullscreen .selected-product-box,
+body.dark.ventas-fullscreen .discount-box,
+body.dark.ventas-fullscreen .pos-discount-box,
+body.dark.ventas-fullscreen .venta-summary,
+body.dark.ventas-fullscreen .pos-summary {
+  background: #172335;
+  border-color: #304157;
+}
+body.dark.ventas-fullscreen .selected-product-box strong,
+body.dark.ventas-fullscreen .pos-ticket-head h3,
+body.dark.ventas-fullscreen .pos-search-bar h2 {
+  color: #f1f6fd;
+}
+body.dark.ventas-fullscreen .side-actions-grid button:not(.danger-side-btn),
+body.dark.ventas-fullscreen .payment-actions button:not(.pay-cash),
+body.dark.ventas-fullscreen .pos-payment-actions button:not(.pay-cash) {
+  background: #26374c;
+  color: #edf4fc;
+}
