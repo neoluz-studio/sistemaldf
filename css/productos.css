@@ -1,0 +1,152 @@
+/* =====================================================
+   LO DE FAUSTI — PRODUCTOS
+   Estilos exclusivos; cargar después de ui-modern.css
+   ===================================================== */
+
+/* Evita que el contenido ancho estire la pantalla */
+body:has(#listaProductos) .page-content,
+body:has(#listaProductos) .main {
+  min-width: 0;
+}
+
+/* Formulario: espaciado y tipografía consistentes */
+body:has(#listaProductos) .box:has(.product-form) {
+  border-radius: 22px;
+  border: 1px solid #e5ecf4;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(25, 42, 65, .055);
+}
+body:has(#listaProductos) .box:has(.product-form) > h3 {
+  color: #1b304a;
+  font-size: 19px;
+  font-weight: 720;
+  letter-spacing: -.025em;
+  margin-bottom: 16px;
+}
+body:has(#listaProductos) .product-form {
+  gap: 12px;
+  align-items: stretch;
+}
+body:has(#listaProductos) .product-form input,
+body:has(#listaProductos) .product-form select {
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #dfe7f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #24364e;
+  font-size: 14px;
+  font-weight: 500;
+}
+body:has(#listaProductos) .product-form input:focus,
+body:has(#listaProductos) .product-form select:focus {
+  outline: 2px solid #8cc8ea;
+  outline-offset: 1px;
+}
+body:has(#listaProductos) #btnGuardarProducto {
+  border-radius: 12px;
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: normal;
+}
+
+/* LISTADO: panel de altura limitada con scroll propio.
+   El formulario y el título de la sección quedan fuera de la lista. */
+body:has(#listaProductos) .table-box:has(#listaProductos) {
+  max-height: min(62vh, 560px);
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c2cfde transparent;
+  border-radius: 22px;
+  border: 1px solid #e5ecf4;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(25, 42, 65, .055);
+}
+/* Título y buscador no desaparecen mientras se recorre el listado */
+body:has(#listaProductos) .table-box:has(#listaProductos) > .table-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  padding-block: 8px 12px;
+  flex-wrap: wrap;
+}
+body:has(#listaProductos) .table-box:has(#listaProductos) > .table-header h3 {
+  color: #1b304a;
+  font-size: 19px;
+  font-weight: 720;
+  letter-spacing: -.025em;
+}
+body:has(#listaProductos) #buscador {
+  min-height: 42px;
+  min-width: 180px;
+  max-width: 100%;
+  border-radius: 12px;
+  border: 1px solid #dfe7f0;
+  color: #24364e;
+  font-size: 14px;
+}
+/* El scroll es del panel entero, no del tbody: las columnas no se desalinean */
+body:has(#listaProductos) .table-box:has(#listaProductos) .pro-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+body:has(#listaProductos) .table-box:has(#listaProductos) .pro-table th {
+  position: sticky;
+  top: 70px;
+  z-index: 3;
+  background: #f1f5f9;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+body:has(#listaProductos) .table-box:has(#listaProductos) .pro-table td {
+  font-size: 13px;
+  color: #24364e;
+  vertical-align: middle;
+}
+body:has(#listaProductos) .table-box:has(#listaProductos)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+body:has(#listaProductos) .table-box:has(#listaProductos)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c2cfde;
+}
+
+@media (max-width: 768px) {
+  body:has(#listaProductos) .table-box:has(#listaProductos) {
+    max-height: 440px;
+  }
+  body:has(#listaProductos) .table-box:has(#listaProductos) > .table-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  body:has(#listaProductos) #buscador {
+    width: 100%;
+  }
+  body:has(#listaProductos) .table-box:has(#listaProductos) .pro-table th {
+    top: 100px;
+  }
+}
+/* Conservar contraste en modo oscuro */
+body.dark:has(#listaProductos) .box:has(.product-form),
+body.dark:has(#listaProductos) .table-box:has(#listaProductos),
+body.dark:has(#listaProductos) .table-box:has(#listaProductos) > .table-header {
+  background: #1f2937;
+  border-color: #344256;
+}
+body.dark:has(#listaProductos) .table-box:has(#listaProductos) .pro-table th {
+  background: #273449;
+  color: #dde8f4;
+}
+body.dark:has(#listaProductos) .table-box:has(#listaProductos) .pro-table td,
+body.dark:has(#listaProductos) .box:has(.product-form) > h3,
+body.dark:has(#listaProductos) .table-box:has(#listaProductos) > .table-header h3 {
+  color: #edf4fc;
+}
