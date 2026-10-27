@@ -657,3 +657,183 @@ button:active,
       scale(1);
   }
 }
+
+/* ================================================================
+   LO DE FAUSTI — MOTION & OVERLAYS MODERNOS
+   Inspiración: superficies suaves y cápsulas de notificación.
+   Cambia el aspecto, no la lógica, posiciones de páginas ni scroll.
+   ================================================================ */
+
+:root {
+  --ldf-motion-fast: 160ms;
+  --ldf-motion-normal: 240ms;
+  --ldf-ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* Evitar el movimiento constante de TODOS los recuadros y botones.
+   Más sobrio para una app de caja que se usa continuamente. */
+.box:hover,
+.table-box:hover,
+.stat-card:hover,
+.card:hover,
+.recipe-card:hover,
+.debt-card:hover,
+.movement-card:hover {
+  transform: none;
+  box-shadow: 0 7px 24px rgba(25,42,65,.07);
+}
+
+/* Sin animación de desplazamiento aplicada a todo .main:
+   impide efectos inesperados con elementos fixed y el menú. */
+.main { animation: none; }
+
+/* Apariciones breves y sin desplazar contenedores grandes */
+.fade-in { animation: ldfFadeIn 220ms var(--ldf-ease) both; }
+@keyframes ldfFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Botones: respuesta mínima, consistente */
+button:hover, .btn-modulo:hover, .producto-btn:hover { transform: none; }
+button:active, .btn-modulo:active, .producto-btn:active { transform: scale(.985); }
+button:focus-visible, .btn-modulo:focus-visible,
+.producto-btn:focus-visible, .command-item:focus-visible {
+  outline: 3px solid rgba(56,135,209,.28);
+  outline-offset: 3px;
+}
+
+/* Modal fluido sin exceso de desenfoque */
+.modal-overlay, .confirm-overlay {
+  background: rgba(14,24,41,.48);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: ldfOverlayIn 190ms ease-out both;
+}
+@keyframes ldfOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.modal, .confirm-modal {
+  border-radius: 22px;
+  padding: clamp(20px,3vw,28px);
+  background: #fff;
+  border: 1px solid #e5edf5;
+  box-shadow: 0 22px 65px rgba(13,27,47,.20);
+  animation: ldfModalIn 220ms var(--ldf-ease) both;
+  max-height: min(88dvh,800px);
+  overflow-y: auto;
+}
+@keyframes ldfModalIn {
+  from { opacity: 0; transform: translateY(8px) scale(.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal h3, .confirm-modal h3 {
+  font-size: clamp(19px,2vw,23px);
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+.modal-actions, .confirm-actions { flex-wrap: wrap; }
+.modal-actions button, .confirm-actions button {
+  border-radius: 12px;
+  font-weight: 650;
+}
+.btn-cancel { background: #eef2f7; color: #22344b; }
+.btn-danger { background: #c83f4c; color: #fff; }
+
+/* Notificaciones tipo cápsula, inspiradas en Dynamic Island,
+   SIN reemplazar los elementos existentes ni añadir dependencias. */
+.toast-container {
+  top: 16px;
+  right: 16px;
+  gap: 10px;
+  width: min(380px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.toast {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: 18px;
+  padding: 13px 17px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -.005em;
+  background: #18253a;
+  border: 1px solid rgba(255,255,255,.12);
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(16,28,45,.19);
+  animation: ldfToastIn 230ms var(--ldf-ease) both;
+  pointer-events: auto;
+  overflow-wrap: anywhere;
+}
+.toast.success { background: #196b4d; }
+.toast.error   { background: #ad3947; }
+.toast.info    { background: #245e9d; }
+.toast.warning { background: #91600e; }
+.toast-content { gap: 10px; align-items: center; }
+.toast-icon { font-size: 19px; flex-shrink: 0; }
+@keyframes ldfToastIn {
+  from { opacity: 0; transform: translateY(-9px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Búsqueda rápida: bordes suaves y transición ligera */
+.command-palette {
+  background: rgba(14,24,41,.52);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: min(12vh,100px) 16px 20px;
+  overflow-y: auto;
+}
+.command-box {
+  width: min(700px,100%);
+  max-width: 100%;
+  border-radius: 20px;
+  border: 1px solid #e5ebf3;
+  box-shadow: 0 18px 55px rgba(16,28,45,.22);
+  max-height: min(78dvh,700px);
+  overflow-y: auto;
+}
+.command-box input { font-size: 16px; padding: 19px 20px; }
+.command-item { padding: 15px 20px; transition: background var(--ldf-motion-fast) ease; }
+.command-item:hover { background: #f1f6fc; }
+
+/* Tooltip flexible, sin salirse por arriba si falta espacio */
+.tooltip:hover::after {
+  border-radius: 9px;
+  padding: 7px 10px;
+  box-shadow: 0 8px 20px rgba(17,24,39,.16);
+  font-weight: 500;
+}
+
+/* Loader: misma lógica de clases y animaciones más tranquilas */
+#loader { background: linear-gradient(135deg,#163759,#235e87); }
+.loader-logo {
+  border-radius: 25px;
+  animation: ldfLoaderPulse 2.2s ease-in-out infinite;
+}
+@keyframes ldfLoaderPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+
+@media (max-width: 600px) {
+  .toast-container { top: 10px; right: 10px; width: calc(100vw - 20px); }
+  .toast { border-radius: 15px; padding: 12px 14px; }
+  .modal, .confirm-modal { border-radius: 18px; }
+  .modal-actions, .confirm-actions { gap: 8px; }
+}
+
+/* Accesibilidad: usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in, .main, .modal, .confirm-modal,
+  .modal-overlay, .confirm-overlay, .toast, .loader-logo {
+    animation: none !important;
+  }
+  .box, .table-box, .stat-card, .card,
+  button, .btn-modulo, .producto-btn, .command-item {
+    transition: none !important;
+  }
+}

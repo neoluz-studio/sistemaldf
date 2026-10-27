@@ -621,3 +621,125 @@
     grid-template-columns: 1fr;
   }
 }
+/* =============================================================
+   INICIO / DASHBOARD - SCROLL INTERNO PARA LISTAS LARGAS
+   Mantiene el diseño actual. Pegar AL FINAL de css/dashboard.css
+   ============================================================= */
+
+/* Evita que las columnas se ensanchen por textos extensos */
+.dashboard-page .dashboard-bottom > *,
+.dashboard-page .dashboard-intelligence > *,
+.dashboard-page .dashboard-charts > * {
+  min-width: 0;
+}
+
+/* Listas dinámicas: solo el contenido se mueve, títulos quedan fijos */
+#alertasInteligentes,
+#topProductos,
+#actividadReciente,
+#stockCritico,
+#stockBajo,
+#ultimasVentas {
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d3e2 transparent;
+  padding-right: 5px;
+}
+
+/* Top productos puede tener algo más de altura */
+#topProductos {
+  max-height: 370px;
+}
+
+/* Tabla del informe: usa el contenedor que YA existe en index.html */
+#seccionInformePeriodo > div[style*="overflow-x"] {
+  max-height: 360px;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d3e2 transparent;
+  border-radius: 12px;
+}
+
+#seccionInformePeriodo > div[style*="overflow-x"] table {
+  min-width: 560px;
+}
+
+#seccionInformePeriodo > div[style*="overflow-x"] thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f1f5f9;
+}
+
+/* Inventario: scroll en el recuadro completo sin modificar la tabla.
+   Así las columnas del thead y tbody permanecen alineadas. */
+.dashboard-page .table-box:has(> .pro-table #inventarioSemanal) {
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d3e2 transparent;
+}
+
+/* Mantiene el título de inventario visible mientras se desplaza */
+.dashboard-page .table-box:has(> .pro-table #inventarioSemanal) > .table-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
+  padding: 8px 0;
+}
+
+.dashboard-page .table-box:has(> .pro-table #inventarioSemanal) thead th {
+  position: sticky;
+  top: 54px;
+  z-index: 2;
+  background: #f1f5f9;
+}
+
+/* Scrolls sutiles también en Chrome / Edge */
+#alertasInteligentes::-webkit-scrollbar,
+#topProductos::-webkit-scrollbar,
+#actividadReciente::-webkit-scrollbar,
+#stockCritico::-webkit-scrollbar,
+#stockBajo::-webkit-scrollbar,
+#ultimasVentas::-webkit-scrollbar,
+#seccionInformePeriodo > div[style*="overflow-x"]::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+#alertasInteligentes::-webkit-scrollbar-thumb,
+#topProductos::-webkit-scrollbar-thumb,
+#actividadReciente::-webkit-scrollbar-thumb,
+#stockCritico::-webkit-scrollbar-thumb,
+#stockBajo::-webkit-scrollbar-thumb,
+#ultimasVentas::-webkit-scrollbar-thumb,
+#seccionInformePeriodo > div[style*="overflow-x"]::-webkit-scrollbar-thumb {
+  border-radius: 12px;
+  background: #c5d3e2;
+}
+
+/* En celulares: alturas moderadas; nada queda inaccesible */
+@media (max-width: 700px) {
+  #alertasInteligentes,
+  #topProductos,
+  #actividadReciente,
+  #stockCritico,
+  #stockBajo,
+  #ultimasVentas {
+    max-height: 260px;
+  }
+  #seccionInformePeriodo > div[style*="overflow-x"] {
+    max-height: 300px;
+  }
+  .dashboard-page .table-box:has(> .pro-table #inventarioSemanal) {
+    max-height: 350px;
+  }
+}

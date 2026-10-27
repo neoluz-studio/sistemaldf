@@ -471,3 +471,63 @@
     display: none;
   }
 }
+/* LO DE FAUSTI — SOLO SCROLL INTERNO DE CAJA
+   Agregar AL FINAL del css/caja.css actual.
+   No altera tipografia, colores, margenes ni tarjetas. */
+
+/* Los dos recuadros quedan a la misma altura y no crecen con sus registros. */
+.caja-grid > .box,
+.caja-grid > .table-box {
+  box-sizing: border-box;
+  min-width: 0;
+  height: clamp(350px, 58vh, 620px);
+  min-height: 0;
+}
+
+/* ACTIVIDAD DE CAJA: el titulo y Limpiar permanecen visibles. */
+.caja-grid > .box {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.caja-grid > .box > .table-header {
+  flex: 0 0 auto;
+}
+.caja-grid #listaCaja {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-right: 4px;
+}
+
+/* ULTIMAS VENTAS: scroll dentro del recuadro.
+   Encabezado de seccion y titulos de columnas fijos. */
+.caja-grid > .table-box {
+  overflow-y: auto;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.caja-grid > .table-box > .table-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fff;
+}
+.caja-grid > .table-box .pro-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* En celular conservamos el desplazamiento interno. */
+@media (max-width: 700px) {
+  .caja-grid > .box,
+  .caja-grid > .table-box {
+    height: min(58vh, 480px);
+    min-height: 290px;
+  }
+}

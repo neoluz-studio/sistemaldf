@@ -402,3 +402,75 @@
 .venta-anulada-row .total-cell {
   text-decoration: line-through;
 }
+/* ===========================================================
+   LO DE FAUSTI — HISTORIAL: SOLO SCROLL INTERNO
+   Agregar AL FINAL de css/historial.css
+   No modifica tipografías, colores ni lógica de ventas.
+   =========================================================== */
+
+/* Tabla de ventas: límite de altura y scroll propio.
+   Se desplaza el contenedor completo para no desalinear columnas. */
+.table-box:has(#listaVentas) {
+  max-height: 530px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #bdcadb transparent;
+  min-width: 0;
+}
+
+/* Título visible mientras se recorren las ventas */
+.table-box:has(#listaVentas) > .table-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  padding: 12px 0;
+  margin-bottom: 8px;
+}
+
+/* Permite scroll horizontal cuando la tabla tiene muchas columnas */
+.table-box:has(#listaVentas) .pro-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Encabezado de columnas visible debajo del título */
+.table-box:has(#listaVentas) .pro-table thead th {
+  position: sticky;
+  top: 70px;
+  z-index: 4;
+  background: #f8fafc;
+}
+
+/* Actividad: solo la lista scrollea, su encabezado queda fuera */
+#listaHistorial.timeline-list {
+  max-height: 380px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #bdcadb transparent;
+  padding-right: 8px;
+}
+
+/* Scrollbars discretas en Chrome y Edge */
+.table-box:has(#listaVentas)::-webkit-scrollbar,
+#listaHistorial::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.table-box:has(#listaVentas)::-webkit-scrollbar-thumb,
+#listaHistorial::-webkit-scrollbar-thumb {
+  background: #bdcadb;
+  border-radius: 999px;
+}
+
+/* Móviles: alturas controladas sin ocultar acciones */
+@media (max-width: 700px) {
+  .table-box:has(#listaVentas) { max-height: 440px; }
+  #listaHistorial.timeline-list { max-height: 300px; }
+  .table-box:has(#listaVentas) .pro-table { min-width: 950px; }
+}

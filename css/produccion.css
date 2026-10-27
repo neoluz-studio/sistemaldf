@@ -629,3 +629,127 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================
+   PRODUCCIÓN — SCROLL INTERNO (SIN CAMBIAR EL DISEÑO)
+   Lista de ingredientes y resumen con desplazamiento propio.
+   Mantiene título, formulario y botón Guardar visibles.
+   ========================================================== */
+
+.produccion-page .produccion-grid {
+  align-items: start;
+  min-width: 0;
+}
+
+.produccion-page .produccion-grid > .table-box,
+.produccion-page .produccion-grid > .produccion-box {
+  min-width: 0;
+}
+
+/* Tabla desplazable, sin que crezca indefinidamente la página */
+.produccion-page .produccion-grid > .table-box > .pro-table {
+  display: block;
+  width: 100%;
+  max-height: min(42vh, 400px);
+  overflow-y: auto;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #bdcbd9 transparent;
+}
+
+/* Ancho de columnas estable; encabezado visible al desplazar */
+.produccion-page .produccion-grid > .table-box > .pro-table > thead,
+.produccion-page .produccion-grid > .table-box > .pro-table > tbody {
+  display: table;
+  width: 100%;
+  min-width: 720px;
+  table-layout: fixed;
+}
+
+.produccion-page .produccion-grid > .table-box > .pro-table > thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+}
+
+.produccion-page .produccion-grid > .table-box > .pro-table th,
+.produccion-page .produccion-grid > .table-box > .pro-table td {
+  overflow-wrap: anywhere;
+}
+
+/* Resumen de costos con scroll separado */
+.produccion-page #resumenReceta.recipe-summary {
+  max-height: min(55vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #bdcbd9 transparent;
+  padding-right: 4px;
+}
+
+@media (max-width: 700px) {
+  .produccion-page .produccion-grid > .table-box > .pro-table {
+    max-height: 360px;
+  }
+  .produccion-page #resumenReceta.recipe-summary {
+    max-height: 420px;
+  }
+}
+
+/* SUBIR LA SECCIÓN PRODUCCIÓN */
+
+.produccion-page {
+  margin-top: -95px !important;
+}
+/* PRODUCCIÓN — MÁS ANCHO Y BOTONES SIN CORTES */
+/* Agregar al final de css/produccion.css */
+
+/* Aprovechar el ancho disponible sin afectar las otras pantallas */
+body:has(.produccion-page) .page-content {
+  max-width: none !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+.produccion-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.produccion-page .produccion-grid {
+  grid-template-columns: minmax(0, 1.9fr) minmax(280px, .8fr);
+  gap: 16px;
+}
+.produccion-page .produccion-grid > * {
+  min-width: 0;
+}
+
+/* Los nombres y botones de ingredientes pueden ocupar dos líneas */
+.produccion-page .pro-table th,
+.produccion-page .pro-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.produccion-page .pro-table button,
+.produccion-page .mini-danger-btn,
+.produccion-page .detail-btn,
+.produccion-page .recipe-card-actions button {
+  white-space: normal;
+  line-height: 1.25;
+  min-width: 0;
+  height: auto;
+  padding: 9px 10px;
+  text-align: center;
+}
+/* Conservar el scroll interno de ingredientes en tablas angostas */
+.produccion-page .produccion-grid > .table-box > .pro-table > thead,
+.produccion-page .produccion-grid > .table-box > .pro-table > tbody {
+  min-width: 620px;
+}
+@media (max-width: 1100px) {
+  .produccion-page .produccion-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

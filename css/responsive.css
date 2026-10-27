@@ -1,158 +1,123 @@
-/* ================================= */
+/* ==========================================================
+   RESPONSIVE — LO DE FAUSTI
+   Versión unificada: sin reglas repetidas del menú lateral.
+   Respeta los ajustes específicos de Ventas, Caja y Producción.
+   ========================================================== */
+
 /* TABLET */
-/* ================================= */
-
 @media (max-width: 1024px) {
-
-  /* GRIDS */
-
   .ventas-grid,
   .dashboard-grid,
   .dashboard-bottom {
-
-    grid-template-columns:
-      1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .stats-grid {
-
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .grid-2 {
-
-    grid-template-columns:
-      1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  /* CART */
-
   .carrito-panel {
-
     position: relative;
-
     top: auto;
   }
 }
 
-/* ================================= */
-/* MOBILE */
-/* ================================= */
+/* BOTÓN Y OVERLAY: reglas comunes */
+.menu-toggle {
+  display: none;
+  width: 45px;
+  height: 45px;
+  border: none;
+  border-radius: 12px;
+  background: #111827;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
 
-@media (max-width: 768px) {
+/* El overlay está oculto hasta que JS le agrega .active */
+.sidebar-overlay,
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s ease, visibility .25s ease;
+}
 
-  body {
+.sidebar-overlay.active,
+.mobile-overlay.show,
+.mobile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
 
-    font-size: 14px;
+/* TABLET/MÓVIL: un solo mecanismo para abrir el menú */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 260px;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
+    transform: translateX(-110%);
+    transition: transform .25s ease;
+    z-index: 9999;
+    background: linear-gradient(180deg, #0f172a, #111827);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
-  /* ================================= */
-  /* LAYOUT */
-  /* ================================= */
-
-  .layout {
-
-    flex-direction: column;
+  .sidebar.active,
+  .sidebar.mobile-open {
+    transform: translateX(0);
   }
 
   .main {
-
+    margin-left: 0 !important;
     width: 100%;
-
-    margin-left: 0;
-
-    padding: 14px;
+    min-width: 0;
   }
 
-  /* ================================= */
-  /* SIDEBAR */
-  /* ================================= */
-
-  .sidebar {
-
-    position: fixed;
-
-    left: -100%;
-
-    top: 0;
-
-    width: 260px;
-
-    height: 100vh;
-
-    z-index: 99999;
-
-    transition: 0.3s ease;
+  .menu-toggle {
+    display: inline-flex;
+    position: relative;
+    z-index: 10000;
   }
+}
 
-  .sidebar.mobile-open {
+/* MOBILE */
+@media (max-width: 768px) {
+  body { font-size: 14px; }
 
-    left: 0;
-  }
-
-  /* ================================= */
-  /* OVERLAY */
-  /* ================================= */
-
-  .mobile-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    background:
-      rgba(0,0,0,0.45);
-
-    backdrop-filter:
-      blur(4px);
-
-    z-index: 9999;
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    transition: 0.25s ease;
-  }
-
-  .mobile-overlay.show {
-
-    opacity: 1;
-
-    visibility: visible;
-  }
-
-  /* ================================= */
-  /* TOPBAR */
-  /* ================================= */
+  .layout { flex-direction: column; }
+  .main { padding: 14px; }
 
   .topbar {
-
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 14px;
-
     padding: 16px;
   }
 
-  .topbar h2 {
-
-    font-size: 22px;
-  }
-
+  .topbar h2 { font-size: 22px; }
   .topbar-right {
-
     width: 100%;
-
     justify-content: space-between;
   }
-
-  /* ================================= */
-  /* GRIDS */
-  /* ================================= */
 
   .dashboard-grid,
   .dashboard-bottom,
@@ -162,501 +127,75 @@
   .dashboard-charts,
   .modulos,
   .ventas-grid {
-
-    grid-template-columns:
-      1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  /* ================================= */
-  /* CARDS */
-  /* ================================= */
-
-  .card,
-  .box,
-  .table-box,
-  .stat-card {
-
+  .card, .box, .table-box, .stat-card {
     padding: 18px;
-
     border-radius: 20px;
   }
-
-  .stat-card {
-
-    min-height: 100px;
-  }
-
-  .stat-card h2 {
-
-    font-size: 24px;
-  }
-
-  /* ================================= */
-  /* PRODUCTOS */
-  /* ================================= */
+  .stat-card { min-height: 100px; }
+  .stat-card h2 { font-size: 24px; }
 
   .productos-grid {
-
-    grid-template-columns:
-      repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
-
   .producto-btn {
-
     width: 100%;
-
     min-height: 100px;
-
     font-size: 14px;
   }
 
-  /* ================================= */
-  /* FORM */
-  /* ================================= */
-
-  .form {
-
-    flex-direction: column;
-  }
-
-  .form input,
-  .form select,
-  .form textarea,
-  .form button {
-
+  .form { flex-direction: column; }
+  .form input, .form select, .form textarea, .form button {
     width: 100%;
   }
 
-  /* ================================= */
-  /* TABLE */
-  /* ================================= */
-
-  .table-box {
-
-    overflow-x: auto;
-  }
-
-  table {
-
-    min-width: 650px;
-  }
-
-  /* ================================= */
-  /* CART */
-  /* ================================= */
+  /* Solo las tablas necesitan desplazamiento horizontal */
+  .table-box { overflow-x: auto; }
+  table { min-width: 650px; }
 
   .cart-item {
-
-    grid-template-columns:
-      1fr;
-
+    grid-template-columns: minmax(0, 1fr);
     text-align: center;
   }
+  .cart-actions { justify-content: center; }
 
-  .cart-actions {
-
-    justify-content: center;
-  }
-
-  /* ================================= */
-  /* CHART */
-  /* ================================= */
-
-  canvas {
-
-    max-width: 100%;
-  }
-
-  /* ================================= */
-  /* LOGIN */
-  /* ================================= */
-
-  .login-card {
-
-    padding: 30px;
-  }
-
-  /* ================================= */
-  /* USER */
-  /* ================================= */
-
-  .user-box {
-
-    margin-top: 20px;
-  }
+  canvas { max-width: 100%; }
+  .login-card { padding: 30px; }
+  .user-box { margin-top: 20px; }
 }
 
-/* ================================= */
-/* EXTRA SMALL */
-/* ================================= */
-
+/* CELULARES CHICOS */
 @media (max-width: 480px) {
-
-  /* SIDEBAR */
-
-  .sidebar {
-
-    width: 240px;
-  }
-
-  /* PRODUCTOS */
-
-  .productos-grid {
-
-    grid-template-columns:
-      1fr;
-  }
-
-  /* TITLES */
-
-  .topbar h2 {
-
-    font-size: 18px;
-  }
-
-  .brand h2 {
-
-    font-size: 22px;
-  }
-
-  .stat-card h2 {
-
-    font-size: 22px;
-  }
-
-  /* BUTTONS */
-
-  button {
-
-    font-size: 14px;
-  }
-
-  /* CARDS */
-
-  .card,
-  .box,
-  .table-box,
-  .stat-card {
-
-    padding: 16px;
-  }
-}
-/* ================================= */
-/* MOBILE SIDEBAR */
-/* ================================= */
-
-.menu-toggle {
-
-  display: none;
-
-  border: none;
-
-  background: #111;
-
-  color: #fff;
-
-  width: 45px;
-  height: 45px;
-
-  border-radius: 12px;
-
-  font-size: 22px;
-
-  cursor: pointer;
+  .sidebar { width: 240px; }
+  .productos-grid { grid-template-columns: minmax(0, 1fr); }
+  .topbar h2 { font-size: 18px; }
+  .brand h2 { font-size: 22px; }
+  .stat-card h2 { font-size: 22px; }
+  button { font-size: 14px; }
+  .card, .box, .table-box, .stat-card { padding: 16px; }
 }
 
-@media (max-width: 768px) {
-
-  .menu-toggle {
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-  }
-
-  .sidebar {
-
-    position: fixed;
-
-    left: -280px;
-
-    top: 0;
-
-    width: 260px;
-
-    height: 100vh;
-
-    z-index: 9999;
-
-    transition: .3s ease;
-  }
-
-  .sidebar.active {
-
-    left: 0;
-  }
-}
-.sidebar-overlay {
-
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0,0,0,.5);
-
-  z-index: 9998;
-
-  display: none;
-}
-
-.sidebar-overlay.active {
-
-  display: block;
-}
-/* =================================
-RESPONSIVE SIDEBAR
-================================= */
-
-@media (max-width: 900px) {
-
-  .sidebar {
-
-    position: fixed;
-
-    left: -280px;
-
-    top: 0;
-
-    width: 260px;
-
-    height: 100vh;
-
-    z-index: 9999;
-
-    transition: 0.3s ease;
-
-    background:
-      linear-gradient(
-        180deg,
-        #0f172a,
-        #111827
-      );
-  }
-
-  .sidebar.active {
-
-    left: 0;
-  }
-
-  .sidebar-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    background:
-      rgba(0,0,0,0.6);
-
-    z-index: 9998;
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    transition: 0.3s;
-  }
-
-  .sidebar-overlay.active {
-
-    opacity: 1;
-
-    pointer-events: all;
-  }
-
-  .main {
-
-    margin-left: 0 !important;
-
-    width: 100%;
-  }
-
-  .menu-toggle {
-
-    display: flex !important;
-  }
-}
-
-/* DESKTOP */
-
+/* ESCRITORIO: sidebar habitual.
+   En modo ventas-fullscreen se respetan los estilos de ventas.css,
+   que muestran el menú como panel deslizable. */
 @media (min-width: 901px) {
-
-  .sidebar {
-
-    left: 0 !important;
-  }
-
-  .sidebar-overlay {
-
-    display: none;
-  }
-
-  .menu-toggle {
-
-    display: none !important;
-  }
-}
-/* SIDEBAR MOBILE FIX */
-
-.sidebar-overlay {
-  display: none;
-}
-
-.sidebar-overlay.active {
-  display: block;
-}
-
-@media (max-width: 900px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    transform: translateX(-110%);
-    transition: transform .25s ease;
-    z-index: 9999;
-  }
-
-  .sidebar.active {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, .55);
-    z-index: 9998;
-  }
-
-  .menu-toggle {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10000;
-  }
-}
-/* =================================
-SIDEBAR RESPONSIVE FINAL
-================================= */
-
-.menu-toggle {
-
-  display: none;
-
-  border: none;
-
-  background: #111827;
-
-  color: #fff;
-
-  width: 45px;
-  height: 45px;
-
-  border-radius: 12px;
-
-  font-size: 22px;
-
-  cursor: pointer;
-
-  align-items: center;
-  justify-content: center;
-}
-
-/* OVERLAY */
-
-.sidebar-overlay {
-
-  position: fixed;
-
-  inset: 0;
-
-  background: rgba(15, 23, 42, 0.55);
-
-  backdrop-filter: blur(3px);
-
-  z-index: 9998;
-
-  opacity: 0;
-
-  visibility: hidden;
-
-  transition: 0.25s ease;
-}
-
-.sidebar-overlay.active {
-
-  opacity: 1;
-
-  visibility: visible;
-}
-
-/* MOBILE */
-
-@media (max-width: 900px) {
-
-  .menu-toggle {
-
-    display: flex;
-  }
-
-  .sidebar {
-
-    position: fixed;
-
-    left: 0;
-    top: 0;
-
-    width: 260px;
-    height: 100vh;
-
-    z-index: 9999;
-
-    transform: translateX(-110%);
-
-    transition: transform .25s ease;
-  }
-
-  .sidebar.active {
-
-    transform: translateX(0);
-  }
-
-  .main {
-
-    margin-left: 0 !important;
-
-    width: 100%;
-  }
-}
-
-/* DESKTOP */
-
-@media (min-width: 901px) {
-
-  .sidebar {
-
+  body:not(.ventas-fullscreen) .sidebar {
     transform: none !important;
   }
-
-  .sidebar-overlay {
-
+  body:not(.ventas-fullscreen) .sidebar-overlay {
     display: none !important;
   }
-
-  .menu-toggle {
-
+  body:not(.ventas-fullscreen) .menu-toggle {
     display: none !important;
+  }
+}
+
+/* Menor movimiento para personas con esta preferencia */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .sidebar-overlay, .mobile-overlay {
+    transition: none;
   }
 }
