@@ -6,7 +6,7 @@
 // PRODUCTOS PARA BUSCADOR GLOBAL
 // =================================
 
-let productos =
+let productosBusquedaGlobal =
   typeof getStorage === "function"
     ? getStorage("productos", [])
     : JSON.parse(localStorage.getItem("productos")) || [];
@@ -162,8 +162,8 @@ function buscarGlobal() {
 
   if (!input || !results) return;
 
-  productos =
-    JSON.parse(localStorage.getItem("productos")) || productos || [];
+  productosBusquedaGlobal =
+    JSON.parse(localStorage.getItem("productos")) || productosBusquedaGlobal || [];
 
   const texto = input.value.toLowerCase().trim();
 
@@ -171,7 +171,7 @@ function buscarGlobal() {
 
   if (!texto) return;
 
-  const encontrados = productos.filter(p =>
+  const encontrados = productosBusquedaGlobal.filter(p =>
     String(p.nombre || "")
       .toLowerCase()
       .includes(texto)

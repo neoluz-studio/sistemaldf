@@ -12,6 +12,8 @@ let historial = [];
 let caja = [];
 
 let filtroDashboard = "hoy";
+let fechaDashboardSeleccionada = "";
+let dashboardCargando = false;
 
 // =================================
 // HELPERS
@@ -54,6 +56,8 @@ function fechaHoraAR(fecha) {
 function fechaISOArgentina(fecha) {
   if (!fecha) return "";
 
+  if (Number.isNaN(new Date(fecha).getTime())) return "";
+
   const partes = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
@@ -76,25 +80,57 @@ function hoyISOArgentina() {
   return fechaISOArgentina(new Date());
 }
 
-function ayerISOArgentina() {
-  const ayer = new Date();
-  ayer.setDate(ayer.getDate() - 1);
-  return fechaISOArgentina(ayer);
+function sumarDiasISO(iso, dias) {
+  const [y, m, d] = String(iso).split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + dias)).toISOString().slice(0, 10);
 }
 
+function ayerISOArgentina() {
+  return sumarDiasISO(hoyISOArgentina(), -1);
+}
+
+// Lunes de la semana actual, calculado con la fecha de Argentina
+// (no depende de la zona horaria configurada en la computadora)
 function inicioSemanaISOArgentina() {
-  const hoy = new Date();
-  const dia = hoy.getDay();
-  const diferencia = dia === 0 ? 6 : dia - 1;
-
-  hoy.setDate(hoy.getDate() - diferencia);
-
-  return fechaISOArgentina(hoy);
+  const hoy = hoyISOArgentina();
+  const [y, m, d] = hoy.split("-").map(Number);
+  const diaSemana = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 = domingo
+  return sumarDiasISO(hoy, -(diaSemana === 0 ? 6 : diaSemana - 1));
 }
 
 function inicioMesISOArgentina() {
   const hoy = fechaISOArgentina(new Date()).split("-");
   return `${hoy[0]}-${hoy[1]}-01`;
+}
+
+// Período seleccionado en el tablero (una sola fuente de verdad)
+function rangoPeriodoDashboard() {
+  const hoy = hoyISOArgentina();
+
+  if (filtroDashboard === "semana") {
+    return { desde: inicioSemanaISOArgentina(), hasta: hoy };
+  }
+
+  if (filtroDashboard === "mes") {
+    return { desde: inicioMesISOArgentina(), hasta: hoy };
+  }
+
+  if (filtroDashboard === "custom" && fechaDashboardSeleccionada) {
+    return { desde: fechaDashboardSeleccionada, hasta: fechaDashboardSeleccionada };
+  }
+
+  return { desde: hoy, hasta: hoy };
+}
+
+function textoFechaISO(iso) {
+  if (!iso) return "—";
+  return String(iso).split("-").reverse().join("/");
+}
+
+function escaparHTML(valor) {
+  return String(valor ?? "-").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
 }
 
 function esHoy(fecha) {
@@ -117,52 +153,42 @@ function avisar(mensaje, tipo = "info") {
 // FILTROS
 // =================================
 
+function ventaActivaDashboard(v) {
+  return v && v.estado !== "anulada" && v.anulada !== true;
+}
+
 function filtrarVentasPorPeriodo(lista = ventas) {
-  const hoy = hoyISOArgentina();
-  const inicioSemana = inicioSemanaISOArgentina();
-  const inicioMes = inicioMesISOArgentina();
+  const { desde, hasta } = rangoPeriodoDashboard();
 
-  if (filtroDashboard === "hoy") {
-    return lista.filter(v => fechaISOArgentina(v.fecha) === hoy);
-  }
-
-  if (filtroDashboard === "semana") {
-    return lista.filter(v => {
-      const f = fechaISOArgentina(v.fecha);
-      return f >= inicioSemana && f <= hoy;
-    });
-  }
-
-  if (filtroDashboard === "mes") {
-    return lista.filter(v => {
-      const f = fechaISOArgentina(v.fecha);
-      return f >= inicioMes && f <= hoy;
-    });
-  }
-
-  return lista;
+  return lista.filter(ventaActivaDashboard).filter(v => {
+    const f = fechaISOArgentina(v.fecha);
+    return f >= desde && f <= hasta;
+  });
 }
 
 function filtrarDashboard(tipo) {
-  filtroDashboard = tipo || "hoy";
+  const nuevoFiltro = ["hoy", "semana", "mes", "custom"].includes(tipo) ? tipo : "hoy";
+  const inputFecha = document.getElementById("fechaDashboard");
 
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.classList.remove("active");
-  });
+  if (nuevoFiltro === "custom") {
+    const fecha = inputFecha?.value || "";
 
-  const btnActivo = document.querySelector(
-    `.filter-btn[data-filter="${filtroDashboard}"]`
-  );
+    if (!fecha) {
+      avisar("Elegí una fecha para consultar.", "info");
+      return;
+    }
 
-  if (btnActivo) {
-    btnActivo.classList.add("active");
-  } else {
-    const botones = document.querySelectorAll(".filter-btn");
-
-    if (filtroDashboard === "hoy") botones[0]?.classList.add("active");
-    if (filtroDashboard === "semana") botones[1]?.classList.add("active");
-    if (filtroDashboard === "mes") botones[2]?.classList.add("active");
+    fechaDashboardSeleccionada = fecha;
+  } else if (inputFecha) {
+    // Al volver a Hoy / Semana / Mes se limpia la fecha elegida
+    inputFecha.value = "";
   }
+
+  filtroDashboard = nuevoFiltro;
+
+  document.querySelectorAll(".filter-btn[data-filter]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.filter === filtroDashboard);
+  });
 
   renderDashboardReal();
 }
@@ -171,41 +197,98 @@ function filtrarDashboard(tipo) {
 // SUPABASE
 // =================================
 
-async function cargarDashboardSupabase() {
-  const { data: productosData, error: productosError } =
-    await supabaseClient
-      .from("productos")
-      .select("*")
-      .eq("activo", true);
+// =================================
+// CARGA COMPLETA DESDE SUPABASE
+// (Supabase devuelve como máximo 1000 filas por consulta)
+// =================================
 
-  if (productosError) {
-    console.error(productosError);
-  } else {
-    productos = productosData || [];
-    localStorage.setItem("productos", JSON.stringify(productos));
+async function traerTodoPaginado(armarConsulta) {
+  const TAM = 1000;
+  let desde = 0;
+  let filas = [];
+
+  while (true) {
+    const { data, error } = await armarConsulta().range(desde, desde + TAM - 1);
+
+    if (error) return { data: null, error };
+
+    filas = filas.concat(data || []);
+
+    if (!data || data.length < TAM) break;
+
+    desde += TAM;
   }
 
-  const { data: ventasData, error: ventasError } =
-    await supabaseClient
-      .from("ventas")
-      .select("*")
-      .order("fecha", { ascending: false });
+  return { data: filas, error: null };
+}
 
-  if (ventasError) {
-    console.error(ventasError);
-  } else {
-    ventas = [];
+// Trae el detalle de TODAS las ventas en lotes
+// (antes se hacía una consulta por cada venta)
+async function traerDetallesPorVenta(ids) {
+  const porVenta = {};
+  const LOTE = 40;
+  const PARALELO = 4;
+  const lotes = [];
 
-    for (const venta of ventasData || []) {
-      const { data: detalleData, error: detalleError } =
-        await supabaseClient
-          .from("venta_detalle")
-          .select("*")
-          .eq("venta_id", venta.id);
+  for (let i = 0; i < ids.length; i += LOTE) {
+    lotes.push(ids.slice(i, i + LOTE));
+  }
 
-      if (detalleError) console.error(detalleError);
+  for (let i = 0; i < lotes.length; i += PARALELO) {
+    const grupo = lotes.slice(i, i + PARALELO);
 
-      ventas.push({
+    const resultados = await Promise.all(
+      grupo.map(lote =>
+        traerTodoPaginado(() =>
+          supabaseClient.from("venta_detalle").select("*").in("venta_id", lote)
+        )
+      )
+    );
+
+    resultados.forEach(r => {
+      if (r.error) throw r.error;
+
+      r.data.forEach(fila => {
+        const clave = String(fila.venta_id);
+        (porVenta[clave] = porVenta[clave] || []).push(fila);
+      });
+    });
+  }
+
+  return porVenta;
+}
+
+async function cargarDashboardSupabase() {
+  if (dashboardCargando) return;
+  dashboardCargando = true;
+
+  try {
+    const productosRes = await traerTodoPaginado(() =>
+      supabaseClient.from("productos").select("*").eq("activo", true).order("id")
+    );
+
+    if (productosRes.error) {
+      console.error(productosRes.error);
+    } else {
+      productos = productosRes.data || [];
+      localStorage.setItem("productos", JSON.stringify(productos));
+    }
+
+    const ventasRes = await traerTodoPaginado(() =>
+      supabaseClient
+        .from("ventas")
+        .select("*")
+        .order("fecha", { ascending: false })
+        .order("id", { ascending: false })
+    );
+
+    if (ventasRes.error) {
+      console.error(ventasRes.error);
+    } else {
+      const ventasData = ventasRes.data || [];
+      const detalles = await traerDetallesPorVenta(ventasData.map(v => v.id));
+
+      ventas = ventasData.map(venta => ({
         id: venta.id,
         fecha: venta.fecha,
         fechaTexto: fechaHoraAR(venta.fecha),
@@ -213,31 +296,39 @@ async function cargarDashboardSupabase() {
         subtotal: Number(venta.subtotal || 0),
         descuento: Number(venta.descuento_total || 0),
         total: Number(venta.total || 0),
+        costoTotal: Number(venta.costo_total || 0),
+        ganancia: venta.ganancia == null ? null : Number(venta.ganancia),
+        estado: venta.estado || "activa",
+        anulada: venta.anulada === true,
         usuario: venta.usuario || "Local",
-        detalle: detalleData || []
-      });
+        detalle: detalles[String(venta.id)] || []
+      }));
+
+      localStorage.setItem("ventas", JSON.stringify(ventas));
     }
 
-    localStorage.setItem("ventas", JSON.stringify(ventas));
+    // Solo se necesitan las aperturas de caja (para la alerta "Abrí caja")
+    const cajaRes = await traerTodoPaginado(() =>
+      supabaseClient.from("caja").select("*").eq("tipo", "apertura").order("id")
+    );
+
+    if (cajaRes.error) {
+      console.error(cajaRes.error);
+    } else {
+      caja = cajaRes.data || [];
+    }
+
+    historial =
+      JSON.parse(localStorage.getItem("historial")) || [];
+
+    renderDashboardReal();
+    renderInventarioSemanal();
+  } catch (error) {
+    console.error("Error al cargar el informe:", error);
+    avisar("No se pudieron actualizar los datos. Revisá la conexión.", "error");
+  } finally {
+    dashboardCargando = false;
   }
-
-  const { data: cajaData, error: cajaError } =
-    await supabaseClient
-      .from("caja")
-      .select("*");
-
-  if (cajaError) {
-    console.error(cajaError);
-  } else {
-    caja = cajaData || [];
-    localStorage.setItem("caja", JSON.stringify(caja));
-  }
-
-  historial =
-    JSON.parse(localStorage.getItem("historial")) || [];
-
-  renderDashboardReal();
-  renderInventarioSemanal();
 }
 
 // =================================
@@ -253,7 +344,7 @@ function renderDashboardReal() {
   let ganancia = 0;
   let productosVendidos = 0;
 
-  ventas.forEach(v => {
+  ventas.filter(ventaActivaDashboard).forEach(v => {
     const total = Number(v.total || 0);
 
     if (esHoy(v.fecha)) ventasHoy += total;
@@ -262,18 +353,18 @@ function renderDashboardReal() {
 
   ventasFiltradas.forEach(v => {
     const total = Number(v.total || 0);
-
     ventasPeriodo += total;
-
+    // La ganancia guardada por la venta ya contempla descuentos.
+    // Si no está disponible, se calcula desde el total realmente cobrado
+    // menos el costo de los artículos vendidos.
+    const costoDetalle = Array.isArray(v.detalle)
+      ? v.detalle.reduce((sum, i) => sum + Number(i.costo || 0) * Number(i.cantidad || 0), 0)
+      : 0;
+    const costo = v.costoTotal || costoDetalle;
+    ganancia += v.ganancia !== null && Number.isFinite(v.ganancia)
+      ? v.ganancia : total - costo;
     if (Array.isArray(v.detalle)) {
-      v.detalle.forEach(i => {
-        const cantidad = Number(i.cantidad || 0);
-        const precio = Number(i.precio || 0);
-        const costo = Number(i.costo || 0);
-
-        productosVendidos += cantidad;
-        ganancia += (precio - costo) * cantidad;
-      });
+      v.detalle.forEach(i => { productosVendidos += Number(i.cantidad || 0); });
     }
   });
 
@@ -287,8 +378,12 @@ function renderDashboardReal() {
       Number(p.stock || 0) <= 10
   ).length;
 
-  setText("ventasHoy", formatMoney(ventasHoy));
-  setText("ventasMes", formatMoney(ventasPeriodo));
+  setText("ventasHoy", formatMoney(ventasPeriodo));
+  const ventasMesReal = ventas.filter(ventaActivaDashboard).filter(v => {
+    const f = fechaISOArgentina(v.fecha);
+    return f >= inicioMesISOArgentina() && f <= hoyISOArgentina();
+  }).reduce((acum, v) => acum + Number(v.total || 0), 0);
+  setText("ventasMes", formatMoney(ventasMesReal));
   setText("gananciaTotal", formatMoney(Math.round(ganancia)));
   setText("productosVendidos", productosVendidos);
   setText("cantidadStockCritico", stockCritico);
@@ -301,11 +396,11 @@ function renderDashboardReal() {
   renderEstadoNegocio(
     ventasHoy,
     stockCritico,
-    ventas.length
+    ventas.filter(ventaActivaDashboard).length
   );
 
   renderAlertasInteligentes(
-    ventas,
+    ventas.filter(ventaActivaDashboard),
     productos,
     caja,
     ventasHoy,
@@ -319,6 +414,73 @@ function renderDashboardReal() {
   renderUltimasVentas(ventasFiltradas);
   renderMetodosChart(ventasFiltradas);
   renderVentasChart(ventasFiltradas);
+  renderInformePeriodo(ventasFiltradas, ventasPeriodo, ganancia, productosVendidos);
+}
+
+
+// Informe detallado: siempre se calcula desde las ventas cargadas, sin sumar al tocar filtros.
+function renderInformePeriodo(lista, total, ganancia, unidades) {
+  const cont = document.getElementById("informePeriodo");
+  if (!cont) return;
+
+  const { desde, hasta } = rangoPeriodoDashboard();
+
+  const nombres = {
+    hoy: "Hoy",
+    semana: "Esta semana (lunes a hoy)",
+    mes: "Este mes",
+    custom: textoFechaISO(fechaDashboardSeleccionada)
+  };
+
+  setText("tituloInformePeriodo", `Informe de ventas — ${nombres[filtroDashboard] || "Hoy"}`);
+  setText(
+    "rangoInformePeriodo",
+    desde === hasta ? textoFechaISO(desde) : `${textoFechaISO(desde)} al ${textoFechaISO(hasta)}`
+  );
+  setText("informeTotal", formatMoney(total));
+  setText("informeCantidad", String(lista.length));
+  setText("informeUnidades", String(unidades));
+  setText("informeGanancia", formatMoney(Math.round(ganancia)));
+
+  // Total por método de pago
+  const etiquetas = {
+    efectivo: "Efectivo",
+    transferencia: "Transferencia",
+    mp: "Mercado Pago",
+    qr: "QR",
+    qr_banco: "QR Banco",
+    promo_bn: "Promo Banco Nación"
+  };
+
+  const porMetodo = {};
+
+  lista.forEach(v => {
+    const metodo = String(v.metodo || "otro").toLowerCase();
+    porMetodo[metodo] = (porMetodo[metodo] || 0) + Number(v.total || 0);
+  });
+
+  const metodosEl = document.getElementById("informeMetodos");
+
+  if (metodosEl) {
+    metodosEl.innerHTML = Object.entries(porMetodo)
+      .sort((a, b) => b[1] - a[1])
+      .map(([metodo, monto]) =>
+        `<span class="informe-chip"><small>${escaparHTML(etiquetas[metodo] || metodo)}</small><strong>${formatMoney(monto)}</strong></span>`
+      )
+      .join("");
+  }
+
+  if (!lista.length) {
+    cont.innerHTML = '<tr><td colspan="4">No hay ventas registradas en este período.</td></tr>';
+    return;
+  }
+
+  cont.innerHTML = [...lista]
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    .map(v =>
+      `<tr><td>${escaparHTML(fechaHoraAR(v.fecha))}</td><td>${escaparHTML(v.usuario || "Local")}</td><td>${escaparHTML(v.metodo || "-")}</td><td>${formatMoney(v.total)}</td></tr>`
+    )
+    .join("");
 }
 
 // =================================
@@ -735,10 +897,45 @@ function renderVentasChart(listaVentas) {
     ventasChartInstance.destroy();
   }
 
-  const ultimas = listaVentas.slice(0, 7).reverse();
+  const { desde, hasta } = rangoPeriodoDashboard();
+  const labels = [];
+  const valores = [];
 
-  const labels = ultimas.map(v => fechaAR(v.fecha));
-  const valores = ultimas.map(v => Number(v.total || 0));
+  if (desde === hasta) {
+    // Un solo día: ventas por hora
+    const formatoHora = new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      hour: "2-digit",
+      hourCycle: "h23"
+    });
+
+    const porHora = {};
+
+    listaVentas.forEach(v => {
+      const fecha = new Date(v.fecha);
+      if (Number.isNaN(fecha.getTime())) return;
+      const hora = formatoHora.format(fecha);
+      porHora[hora] = (porHora[hora] || 0) + Number(v.total || 0);
+    });
+
+    Object.keys(porHora).sort().forEach(hora => {
+      labels.push(`${hora}:00`);
+      valores.push(porHora[hora]);
+    });
+  } else {
+    // Varios días: total por día (incluye los días sin ventas)
+    const porDia = {};
+
+    listaVentas.forEach(v => {
+      const dia = fechaISOArgentina(v.fecha);
+      if (dia) porDia[dia] = (porDia[dia] || 0) + Number(v.total || 0);
+    });
+
+    for (let dia = desde; dia <= hasta; dia = sumarDiasISO(dia, 1)) {
+      labels.push(dia.split("-").reverse().slice(0, 2).join("/"));
+      valores.push(porDia[dia] || 0);
+    }
+  }
 
   ventasChartInstance = new Chart(canvas, {
     type: "line",
@@ -782,11 +979,11 @@ function renderInventarioSemanal() {
     return;
   }
 
-  productos.sort(
+  const productosOrdenados = [...productos].sort(
     (a, b) => Number(a.stock || 0) - Number(b.stock || 0)
   );
 
-  cont.innerHTML = productos
+  cont.innerHTML = productosOrdenados
     .map(p => {
       const stock = Number(p.stock || 0);
 

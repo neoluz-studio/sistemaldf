@@ -60,6 +60,8 @@ function claseMetodo(metodo) {
   }
 }
 
+// Fecha (AAAA-MM-DD) según la hora de Argentina.
+// Antes se usaba UTC y las ventas hechas después de las 21:00 caían en el día siguiente.
 function obtenerFechaISO(fecha) {
   if (!fecha) return "";
 
@@ -69,7 +71,18 @@ function obtenerFechaISO(fecha) {
     return "";
   }
 
-  return date.toISOString().slice(0, 10);
+  const partes = {};
+
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(date).forEach(p => {
+    if (p.type !== "literal") partes[p.type] = p.value;
+  });
+
+  return `${partes.year}-${partes.month}-${partes.day}`;
 }
 
 function ventaEstaAnulada(venta) {
@@ -87,6 +100,67 @@ function usuarioActual() {
 // CARGAR VENTAS SUPABASE
 // =================================
 
+// =================================
+// CARGA COMPLETA DESDE SUPABASE
+// (Supabase devuelve como máximo 1000 filas por consulta)
+// =================================
+
+async function traerTodoPaginado(armarConsulta) {
+  const TAM = 1000;
+  let desde = 0;
+  let filas = [];
+
+  while (true) {
+    const { data, error } = await armarConsulta().range(desde, desde + TAM - 1);
+
+    if (error) return { data: null, error };
+
+    filas = filas.concat(data || []);
+
+    if (!data || data.length < TAM) break;
+
+    desde += TAM;
+  }
+
+  return { data: filas, error: null };
+}
+
+// Trae el detalle de TODAS las ventas en lotes
+// (antes se hacía una consulta por cada venta)
+async function traerDetallesPorVenta(ids) {
+  const porVenta = {};
+  const LOTE = 40;
+  const PARALELO = 4;
+  const lotes = [];
+
+  for (let i = 0; i < ids.length; i += LOTE) {
+    lotes.push(ids.slice(i, i + LOTE));
+  }
+
+  for (let i = 0; i < lotes.length; i += PARALELO) {
+    const grupo = lotes.slice(i, i + PARALELO);
+
+    const resultados = await Promise.all(
+      grupo.map(lote =>
+        traerTodoPaginado(() =>
+          supabaseClient.from("venta_detalle").select("*").in("venta_id", lote)
+        )
+      )
+    );
+
+    resultados.forEach(r => {
+      if (r.error) throw r.error;
+
+      r.data.forEach(fila => {
+        const clave = String(fila.venta_id);
+        (porVenta[clave] = porVenta[clave] || []).push(fila);
+      });
+    });
+  }
+
+  return porVenta;
+}
+
 async function cargarVentasSupabase() {
 
   if (typeof supabaseClient === "undefined") {
@@ -98,10 +172,13 @@ async function cargarVentasSupabase() {
   }
 
   const { data: ventasData, error: ventasError } =
-    await supabaseClient
-      .from("ventas")
-      .select("*")
-      .order("fecha", { ascending: false });
+    await traerTodoPaginado(() =>
+      supabaseClient
+        .from("ventas")
+        .select("*")
+        .order("fecha", { ascending: false })
+        .order("id", { ascending: false })
+    );
 
   if (ventasError) {
 
@@ -117,17 +194,20 @@ async function cargarVentasSupabase() {
 
   ventas = [];
 
+  let detallesPorVenta = {};
+
+  try {
+    detallesPorVenta = await traerDetallesPorVenta(
+      (ventasData || []).map(v => v.id)
+    );
+  } catch (detalleError) {
+    console.error(detalleError);
+    avisar("No se pudo cargar el detalle de algunas ventas", "error");
+  }
+
   for (const venta of ventasData || []) {
 
-    const { data: detalleData, error: detalleError } =
-      await supabaseClient
-        .from("venta_detalle")
-        .select("*")
-        .eq("venta_id", venta.id);
-
-    if (detalleError) {
-      console.error(detalleError);
-    }
+    const detalleData = detallesPorVenta[String(venta.id)] || [];
 
     ventas.push({
       id: venta.id,
@@ -136,9 +216,7 @@ async function cargarVentasSupabase() {
         ? new Date(venta.fecha).toLocaleString("es-AR")
         : "-",
 
-      fechaISO: venta.fecha
-        ? new Date(venta.fecha).toISOString().slice(0, 10)
-        : "",
+      fechaISO: obtenerFechaISO(venta.fecha),
 
       metodo: venta.metodo,
 

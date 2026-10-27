@@ -975,3 +975,138 @@ body.dark .search-result-item:hover {
   background: linear-gradient(145deg,#e9f8ff,#ffffff) !important;
   box-shadow: 0 8px 22px rgba(70,183,232,.18);
 }
+
+/* =====================================================
+   AJUSTE VISUAL CAJA DE VENTAS - 26/10/2026
+   Evita cortes de botones y mejora la adaptacion.
+   No modifica funciones ni datos de ventas.
+===================================================== */
+
+.ventas-pos-page {
+  height: auto;
+  min-height: calc(100vh - 70px);
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.pos-shell,
+.pos-shell-aronium {
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
+  height: auto;
+  align-items: start;
+}
+
+.pos-shell > *,
+.pos-shell-aronium > *,
+.pos-search-bar > *,
+.aronium-row > * {
+  min-width: 0;
+}
+
+.pos-main,
+.pos-sale-area,
+.pos-pay-panel,
+.pos-checkout-panel {
+  min-height: 0;
+  height: auto;
+  box-sizing: border-box;
+}
+
+.pos-pay-panel,
+.pos-checkout-panel {
+  overflow: visible;
+  padding: 18px;
+  gap: 0;
+}
+
+.aronium-sale-table {
+  height: auto;
+  min-height: 420px;
+  max-height: none;
+  flex: 1 1 auto;
+}
+
+.aronium-table-body {
+  min-height: 180px;
+  max-height: min(52vh, 600px);
+  overflow-y: auto;
+}
+
+.aronium-sale-footer {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 330px);
+  min-height: 0;
+}
+
+.aronium-table-head,
+.aronium-row {
+  grid-template-columns: minmax(0, 1fr) 108px 120px 130px;
+}
+
+.aronium-product-name strong,
+.aronium-product-name small,
+.selected-product-box strong {
+  overflow-wrap: anywhere;
+}
+
+.payment-actions,
+.pos-payment-actions,
+.side-actions-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.payment-actions button,
+.pos-payment-actions button,
+.side-actions-grid button {
+  min-width: 0;
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.total-box h2,
+.pos-total-box h2 {
+  font-size: clamp(26px, 3vw, 42px);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1100px) {
+  .pos-shell,
+  .pos-shell-aronium {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pos-pay-panel,
+  .pos-checkout-panel {
+    min-height: 0;
+  }
+  .aronium-table-body {
+    max-height: 460px;
+  }
+}
+
+@media (max-width: 700px) {
+  .ventas-pos-page { padding: 10px; }
+  .pos-main,
+  .pos-sale-area,
+  .pos-pay-panel,
+  .pos-checkout-panel { border-radius: 17px; }
+  .pos-search-bar { padding: 15px; }
+  .aronium-table-head { display: none; }
+  .aronium-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .aronium-sale-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .payment-actions,
+  .pos-payment-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pos-pay-panel,
+  .pos-checkout-panel { padding: 14px; }
+}
+
+@media (max-width: 390px) {
+  .payment-actions,
+  .pos-payment-actions { grid-template-columns: minmax(0, 1fr); }
+  .discount-controls { grid-template-columns: minmax(0, 1fr) 80px; }
+}

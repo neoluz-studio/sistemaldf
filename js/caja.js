@@ -71,6 +71,67 @@ function esCierre(m) {
 // CARGAR DATOS SUPABASE
 // =================================
 
+// =================================
+// CARGA COMPLETA DESDE SUPABASE
+// (Supabase devuelve como máximo 1000 filas por consulta)
+// =================================
+
+async function traerTodoPaginado(armarConsulta) {
+  const TAM = 1000;
+  let desde = 0;
+  let filas = [];
+
+  while (true) {
+    const { data, error } = await armarConsulta().range(desde, desde + TAM - 1);
+
+    if (error) return { data: null, error };
+
+    filas = filas.concat(data || []);
+
+    if (!data || data.length < TAM) break;
+
+    desde += TAM;
+  }
+
+  return { data: filas, error: null };
+}
+
+// Trae el detalle de TODAS las ventas en lotes
+// (antes se hacía una consulta por cada venta)
+async function traerDetallesPorVenta(ids) {
+  const porVenta = {};
+  const LOTE = 40;
+  const PARALELO = 4;
+  const lotes = [];
+
+  for (let i = 0; i < ids.length; i += LOTE) {
+    lotes.push(ids.slice(i, i + LOTE));
+  }
+
+  for (let i = 0; i < lotes.length; i += PARALELO) {
+    const grupo = lotes.slice(i, i + PARALELO);
+
+    const resultados = await Promise.all(
+      grupo.map(lote =>
+        traerTodoPaginado(() =>
+          supabaseClient.from("venta_detalle").select("*").in("venta_id", lote)
+        )
+      )
+    );
+
+    resultados.forEach(r => {
+      if (r.error) throw r.error;
+
+      r.data.forEach(fila => {
+        const clave = String(fila.venta_id);
+        (porVenta[clave] = porVenta[clave] || []).push(fila);
+      });
+    });
+  }
+
+  return porVenta;
+}
+
 async function cargarDatosSupabase() {
   if (typeof supabaseClient === "undefined") {
     caja = JSON.parse(localStorage.getItem("caja")) || [];
@@ -79,10 +140,13 @@ async function cargarDatosSupabase() {
     return;
   }
 
-  const { data: cajaData, error: cajaError } = await supabaseClient
-    .from("caja")
-    .select("*")
-    .order("fecha", { ascending: false });
+  const { data: cajaData, error: cajaError } = await traerTodoPaginado(() =>
+    supabaseClient
+      .from("caja")
+      .select("*")
+      .order("fecha", { ascending: false })
+      .order("id", { ascending: false })
+  );
 
   if (cajaError) {
     console.error(cajaError);
@@ -105,10 +169,13 @@ async function cargarDatosSupabase() {
     }));
   }
 
-  const { data: ventasData, error: ventasError } = await supabaseClient
-    .from("ventas")
-    .select("*")
-    .order("fecha", { ascending: false });
+  const { data: ventasData, error: ventasError } = await traerTodoPaginado(() =>
+    supabaseClient
+      .from("ventas")
+      .select("*")
+      .order("fecha", { ascending: false })
+      .order("id", { ascending: false })
+  );
 
   if (ventasError) {
     console.error(ventasError);
@@ -130,6 +197,8 @@ async function cargarDatosSupabase() {
       costoTotal: Number(v.costo_total || 0),
       ganancia: Number(v.ganancia || 0),
       usuario: v.usuario || "Lodefausti",
+      estado: v.estado || "activa",
+      anulada: v.anulada === true,
       detalle: []
     }));
   }
@@ -144,10 +213,13 @@ async function cargarDatosSupabase() {
 // OBTENER VENTAS
 // =================================
 
+// Ventas válidas: las anuladas no suman a la caja ni aparecen como ventas
 function obtenerVentas() {
-  return ventasCache.length
+  const lista = ventasCache.length
     ? ventasCache
     : JSON.parse(localStorage.getItem("ventas")) || [];
+
+  return lista.filter(v => v.estado !== "anulada" && v.anulada !== true);
 }
 
 // =================================

@@ -208,8 +208,7 @@ function mostrarResultadosBusqueda() {
       String(p.nombre || "")
         .toLowerCase()
         .includes(texto)
-    )
-    .slice(0, 8);
+    ); // Mostrar todos los productos que coincidan con la búsqueda.
 
   if (filtrados.length === 0) {
     dropdown.innerHTML = `

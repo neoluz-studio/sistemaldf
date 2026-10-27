@@ -1,0 +1,75 @@
+/* Lo de Fausti — actualización visual, sin modificar lógica */
+:root{--bg:#f5f7fb;--text:#17263c;--primary:#315ca8;--primary-light:#5c83c9;--border:#e6ebf2;--shadow:0 10px 30px rgba(21,39,68,.055);--radius:20px;--transition:.2s ease}
+body{font-family:Inter,'Segoe UI',system-ui,-apple-system,sans-serif;background:#f5f7fb;color:#17263c;line-height:1.5}
+.layout,.main{background:#f5f7fb}
+.main{padding:28px clamp(18px,3vw,46px) 52px}
+.page-content{max-width:1560px;margin-inline:auto}
+h1,h2,h3,h4{letter-spacing:-.035em}
+.sidebar{background:#172941;box-shadow:5px 0 24px rgba(12,28,49,.08);border-right:1px solid rgba(255,255,255,.06);padding:24px 14px}
+.brand-icon{margin-bottom:22px}
+.brand-icon img{max-width:112px;max-height:118px;object-fit:contain}
+.sidebar-nav{gap:5px}
+.sidebar .nav-link{border-radius:12px;padding:12px 15px;color:#bcc9db;font-size:14px;font-weight:600;box-shadow:none;transform:none}
+.sidebar .nav-link i{width:20px;text-align:center;opacity:.9}
+.sidebar .nav-link.active{background:#e8f0ff;color:#1d427d;box-shadow:none}
+.sidebar .nav-link:hover:not(.active){background:rgba(255,255,255,.09);color:#fff;transform:none;box-shadow:none}
+.sidebar .nav-link::before{display:none}
+.user-box{border-radius:14px;background:rgba(255,255,255,.055)}
+.topbar{min-height:72px;padding:0 2px;margin-bottom:22px;gap:14px}
+.topbar h2{font-size:clamp(22px,2vw,29px);font-weight:750;letter-spacing:-.045em}
+.topbar p{font-size:13px;color:#748299;opacity:1}
+.topbar-clock{font-size:13px;color:#65748d}
+.box,.stat-card,.table-box,.chart-box,.action-card,.login-card{background:#fff;border:1px solid #e8edf4;border-radius:20px;box-shadow:0 8px 26px rgba(21,39,68,.045)}
+.box{padding:clamp(18px,2vw,28px)}
+.stat-card{padding:23px;box-shadow:0 7px 24px rgba(21,39,68,.045);transition:box-shadow .2s ease,transform .2s ease}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(21,39,68,.085)}
+.stat-card h3{font-size:13px;font-weight:650;color:#718097;letter-spacing:0}
+.stat-card h2{font-weight:760;letter-spacing:-.05em;font-size:clamp(23px,2.2vw,33px);overflow-wrap:anywhere}
+.stat-card p{color:#8290a2;font-size:12px}
+.stat-card.primary-card{background:#fff;border-color:#dce7f6;box-shadow:inset 4px 0 0 #557cba,0 8px 26px rgba(21,39,68,.045);color:#17263c}
+.stat-card.primary-card h2{color:#254d91}
+.dashboard-page{gap:22px}
+.dashboard-hero{border-radius:22px;background:linear-gradient(112deg,#1e3553,#315b88);padding:clamp(24px,3vw,38px);box-shadow:0 12px 28px rgba(32,59,95,.13)}
+.dashboard-hero h1{font-size:clamp(25px,3vw,35px);font-weight:760;letter-spacing:-.045em;margin-bottom:8px}
+.dashboard-hero p{color:#d5e1f0}
+.hero-label{color:#abc8f4;font-weight:700;letter-spacing:.09em}
+.hero-actions a{border-radius:11px;padding:11px 17px;font-size:13px;font-weight:700;box-shadow:none}
+.hero-actions a:hover{transform:translateY(-1px)}
+.filter-bar{border-radius:17px;box-shadow:0 5px 20px rgba(21,39,68,.04);padding:9px;align-items:center;background:white;border:1px solid #e8edf4}
+.filter-bar .filter-btn,.filter-bar input{min-height:42px;border-radius:10px;background:#f6f8fc;color:#3c4f69;border:1px solid #e7ecf4;font-size:13px;font-weight:650;padding:0 17px}
+.filter-bar .filter-btn.active{background:#315c99;color:#fff;border-color:#315c99;box-shadow:0 3px 9px rgba(49,92,153,.18)}
+.filter-bar .filter-btn:hover:not(.active){background:#eaf0f8}
+button,.btn-modulo{transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(78,125,203,.3);outline-offset:2px}
+input:not([type=checkbox]):not([type=radio]),select,textarea{border-radius:11px;border-color:#dfe6f0;box-shadow:none}
+input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{border-color:#6c94cf;box-shadow:0 0 0 3px rgba(72,118,184,.1)}
+.table-header{gap:14px;flex-wrap:wrap}
+.table-header h3{font-weight:730;color:#213550;letter-spacing:-.025em}
+.table-header p{color:#7b879a}
+table{border-collapse:separate;border-spacing:0;width:100%}
+thead th{font-size:12px;font-weight:700;color:#65758b;background:#f6f8fb;text-transform:none;letter-spacing:.01em}
+tbody td{border-bottom:1px solid #eef1f6;color:#33445c;font-size:13px}
+tbody tr:hover{background:#f9fbfe}
+#seccionInformePeriodo{scroll-margin-top:18px!important;border:1px solid #dfe8f5;padding:clamp(18px,2vw,28px)!important;margin:4px 0!important}
+#seccionInformePeriodo table th,#seccionInformePeriodo table td{padding:13px 15px;text-align:left}
+#seccionInformePeriodo table th:first-child{border-radius:10px 0 0 10px}
+#seccionInformePeriodo table th:last-child{border-radius:0 10px 10px 0}
+.dashboard-page > p a[href='#seccionInformePeriodo']{display:inline-flex;align-items:center;padding:10px 14px;background:#eaf1fa;color:#2b568f;border-radius:11px;text-decoration:none;font-size:13px}
+.dashboard-page > p a[href='#seccionInformePeriodo']:hover{background:#dce9f9}
+.login-body{background:#eff3f9}
+.login-card{border-radius:24px;box-shadow:0 24px 70px rgba(25,45,73,.12)}
+/* Keep dark mode readable and opt into modern surface styling */
+body.dark .layout,body.dark .main{background:#0e1726}
+body.dark .box,body.dark .stat-card,body.dark .table-box,body.dark .chart-box{background:#172337;border-color:#29374c;color:#eaf0fa}
+body.dark .stat-card.primary-card{background:#172337;border-color:#31527c}
+body.dark .stat-card.primary-card h2{color:#9dc4ff}
+body.dark .filter-bar{background:#172337;border-color:#29374c}
+body.dark .filter-bar .filter-btn,body.dark .filter-bar input{background:#24344c;border-color:#354965;color:#e4edfa}
+body.dark .filter-bar .filter-btn.active{background:#4c79bd;color:#fff}
+body.dark tbody tr:hover{background:#1e2d43}
+body.dark thead th{background:#26354a;color:#dce7f8}
+body.dark tbody td{border-bottom-color:#324159}
+body.dark .dashboard-page > p a[href='#seccionInformePeriodo']{background:#233f62;color:#d1e5ff}
+@media(max-width:991px){.main{padding:16px 14px 40px}.dashboard-hero{flex-direction:column;align-items:flex-start}.dashboard-hero h1{font-size:26px}.topbar{min-height:58px}}
+@media(max-width:600px){.stat-card{padding:18px}.filter-bar{gap:7px}.filter-bar .filter-btn{flex:1;padding:0 10px}.filter-bar input{width:100%}.dashboard-hero{padding:23px}.hero-actions{width:100%}.hero-actions a{flex:1;text-align:center}.box{padding:17px}#seccionInformePeriodo table th,#seccionInformePeriodo table td{padding:11px 9px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.stat-card,.sidebar .nav-link,button{transition:none!important}}

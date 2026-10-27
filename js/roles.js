@@ -2,7 +2,7 @@
 // USUARIO
 // =================================
 
-const usuario =
+const usuarioSesion =
 
   JSON.parse(
     localStorage.getItem(
@@ -24,7 +24,7 @@ if (nombreEl) {
 
   nombreEl.innerText =
 
-    usuario?.nombre ||
+    usuarioSesion?.nombre ||
 
     "Usuario";
 }
@@ -42,7 +42,7 @@ const adminItems =
 // SI NO ES ADMIN
 if (
 
-  usuario?.rol !== "ADMIN"
+  usuarioSesion?.rol !== "ADMIN"
 
 ) {
 
@@ -66,7 +66,7 @@ if (roleEl) {
 
   roleEl.innerText =
 
-    usuario?.rol ||
+    usuarioSesion?.rol ||
 
     "LOCAL";
 }
